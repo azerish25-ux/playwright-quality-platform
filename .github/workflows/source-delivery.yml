@@ -21,6 +21,7 @@ jobs:
           import {writeFileSync} from 'node:fs';
           const repo='azerish25-ux/playwright-quality-platform';
           const expectedBase='c8336b441c7a2915534e74f8f9980bad7aa4c7a1';
+          const expectedParent='dd55f243a8bf7feb331a80958bc4bf9c752ff424';
           const expectedDigest='7977a753aefd3bbf2c5b769b362b478932d42f6ebb2e0ce3d29674a34273af66';
           const chunks=['e5b560402b51362990e671690ed3ae16641c7561','d42c0467b723a9dc4fe4fa5832d6ec50eb52368a','e685d46ac7d23deb03f6994cbf1c1a247b30c51d','8f33f67f4aab033b50cbeeff30883c360ee8a7a1','a4e05fa1036a733ce7284ba365709ef0fb65ddb9','63f6f4276a3c42be65ab09ca12f8c6248f85410f','13632f2002cfbf83c2b55f36da6059e0e717c683','28252ef75be7adf8ab826770224658aa5d997165','f0cf449dbcae9b6e6251ccc236df089d70d11796','61dbf429370ae7b0da205254236aafdabbf22cc7','66e10d51c2f2b861427c1928e5a075b3d9696e8c','3de90d3155debb9f5d6bc535c493aa62692a8784','4c59823470a8594a52fb761e2cc85308955b4a1b','4229728422020e9a4bcf66ede71b2a85c492ab16','e31594ff81a866a288dde8feece20f08b68ac582','287e3e71cea2d15c7ac288155bf4d84334a4f3fa','c3c69a16d55273a678f91afdbfaecb3d00debe14','56655856c8540a0e5fd66a7e6032ead93f174549','117a44f98d8b6b2d0ffa52b6d631bd49df89f426','43f458eb27eb3d6d37efcb90065a40cd457970eb','eaf35d721127aa7d04b23705ded2c0a5909f70bf','039b3acfd19d3935470ad425f3c85a264eb13b92','5205d1c2dfd969cbe2da4c37cb731d50a117a17a','dcfc3c337841f06d8d1c195a5bb6af8441b7b2b5','142822284972b308fa047b3f7a96591fcd05faa7','6f57afb67aff90393bae99dc329d783c5a78405d'];
           async function api(path,body){const r=await fetch(`https://api.github.com/repos/${repo}/${path}`,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${process.env.DELIVERY_TOKEN}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(30000)});if(!r.ok)throw Error(`GitHub ${r.status} for ${path}: ${(await r.text()).slice(0,2000)}`);return r.json();}
@@ -34,12 +35,12 @@ jobs:
           const ref=await api('git/ref/heads/main');
           if(ref.object.sha!==parent)throw Error('main advanced; refusing to overwrite concurrent delivery');
           const commit=await api(`git/commits/${parent}`);
-          if(commit.parents.length!==1||commit.parents[0].sha!==expectedBase)throw Error('Unexpected delivery parent');
+          if(commit.parents.length!==1||commit.parents[0].sha!==expectedParent)throw Error('Unexpected delivery parent');
           const current=await api(`git/trees/${commit.tree.sha}?recursive=1`);
           if(current.truncated)throw Error('Incomplete tree');
           const entries=new Map(current.tree.map(e=>[e.path,e]));const seen=new Set();const tree=[];
           for(const f of payload.files){
-            if(typeof f.path!=='string'||f.path.length>240||f.path.includes('\\')||f.path.includes('\0')||f.path.startsWith('/')||f.path.split('/').some(x=>!x||x==='.'||x==='..'||x==='.git')||seen.has(f.path)||f.mode!=='100644')throw Error('Invalid source path');
+            if(typeof f.path!=='string'||f.path.length>240||f.path.includes('\\')||f.path.includes('\0')||f.path.startsWith('/')||f.path.split('/').some(x=>!x||x==='.'||x==='..'||x==='.git')||seen.has(f.path)||!['100644','100755'].includes(f.mode))throw Error(`Invalid source path or mode: ${f.path}`);
             seen.add(f.path);
             if((entries.get(f.path)?.sha??null)!==f.before)throw Error(`Concurrent file change: ${f.path}`);
             if(f.content!==null&&(typeof f.content!=='string'||Buffer.byteLength(f.content)>524288))throw Error('Invalid source content');
