@@ -25,6 +25,23 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
       - run: npm run verify
+      - name: Stage exact-source package candidates
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        run: |
+          mkdir -p candidate
+          git archive --format=tar --output=candidate/source.tar HEAD
+          for package in packages/*; do
+            npm pack "./$package" --pack-destination candidate --ignore-scripts
+          done
+          git rev-parse HEAD > candidate/source-sha.txt
+          sha256sum candidate/*.tgz candidate/source.tar > candidate/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        with:
+          name: forgeqa-candidate-${{ github.sha }}
+          path: candidate/
+          if-no-files-found: error
+          retention-days: 7
   forgeqa-quality:
     if: always()
     needs: [verify]
