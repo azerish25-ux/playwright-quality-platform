@@ -3,8 +3,9 @@ on:
   pull_request:
   push:
     branches: [main]
-permissions:
-  contents: read
+permissions: { contents: read }
+env:
+  FORGEQA_SOURCE_SHA: ${{ github.sha }}
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,15 +17,15 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node: [22, 24]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '${{ matrix.node }}'
-          package-manager-cache: false
+        with: { node-version: '${{ matrix.node }}', package-manager-cache: false }
       - run: npm ci --ignore-scripts
       - run: npm run verify
+      - run: npm run typecheck --workspace examples/demo-saas
       - name: Stage exact-source package candidates
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22
         run: |
@@ -42,12 +43,80 @@ jobs:
           path: candidate/
           if-no-files-found: error
           retention-days: 7
+  consumer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run test:consumers -- template
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: packed-consumer-${{ matrix.os }}-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 7
+  teamboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: forgeqa_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: forgeqa-disposable-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forgeqa_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build --workspace examples/demo-saas
+      - run: node scripts/prepare-teamboard-db.mjs
+        env:
+          DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
+          FORGEQA_ALLOW_DB_SETUP: '1'
+      - run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - run: npm run test:teamboard
+      - run: npm run test:consumers -- teamboard
+      - name: Verify pinned pnpm workspace lock
+        run: node node_modules/pnpm/bin/pnpm.cjs install --lockfile-only --frozen-lockfile --ignore-scripts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: teamboard-evidence-${{ github.sha }}
+          path: |
+            evidence/
+            examples/demo-saas/forgeqa-results/
+          if-no-files-found: error
+          retention-days: 7
   forgeqa-quality:
     if: always()
-    needs: [verify]
+    needs: [verify, consumer, teamboard]
     runs-on: ubuntu-latest
     steps:
-      - name: Enforce aggregate result
-        env: { VERIFY_RESULT: '${{ needs.verify.result }}' }
+      - name: Enforce all required lanes
+        env:
+          VERIFY_RESULT: '${{ needs.verify.result }}'
+          CONSUMER_RESULT: '${{ needs.consumer.result }}'
+          TEAMBOARD_RESULT: '${{ needs.teamboard.result }}'
         run: |
-          test "$VERIFY_RESULT" = success || { echo "verify matrix: $VERIFY_RESULT"; exit 1; }
+          test "$VERIFY_RESULT" = success
+          test "$CONSUMER_RESULT" = success
+          test "$TEAMBOARD_RESULT" = success

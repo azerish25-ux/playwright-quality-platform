@@ -1,3 +1,4 @@
+import type { GateDecision } from './gates.js';
 export const RESULT_SCHEMA_VERSION = 1 as const;
 export type CompletionState = 'complete' | 'incomplete' | 'cancelled' | 'infrastructure-failure';
 export type AttemptOutcome = 'passed' | 'failed' | 'timed-out' | 'skipped' | 'expected-failure' | 'unexpected-pass' | 'cancelled';
@@ -19,6 +20,11 @@ export interface AttemptRecord {
   outcome: AttemptOutcome;
   startedAt: string;
   durationMs: number;
+  title?: string;
+  project?: string;
+  browser?: string;
+  environment?: string;
+  owner?: string;
   error?: { name: string; message: string; stack?: string; fingerprint?: string };
   artifacts?: ArtifactRecord[];
 }
@@ -38,6 +44,9 @@ export interface ExpectedExecution {
   environment: string;
   shardIndex: number;
   shardTotal: number;
+  title?: string;
+  relativePath?: string;
+  repetition?: number;
 }
 export interface SelectionManifest {
   schemaVersion: typeof RESULT_SCHEMA_VERSION;
@@ -72,6 +81,10 @@ export interface MergedRunResult {
   unexpectedExecutions: string[];
   duplicateExecutions: string[];
   shardIds: string[];
+  inventory?: ExpectedExecution[];
+  runnerStatus?: string;
+  infrastructureErrors?: string[];
+  gate?: GateDecision;
 }
 export interface QuarantineRecord {
   schemaVersion: typeof RESULT_SCHEMA_VERSION;

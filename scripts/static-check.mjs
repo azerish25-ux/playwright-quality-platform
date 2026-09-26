@@ -5,7 +5,7 @@ const violations = [];
 async function walk(path) {
   for (const entry of await readdir(path, { withFileTypes: true })) {
     const full = join(path, entry.name);
-    if (entry.isDirectory()) await walk(full);
+    if (entry.isDirectory() && !['node_modules','dist','.git','.tmp','forgeqa-results','test-results'].includes(entry.name)) await walk(full);
     else if (/\.(?:ts|tsx|js|mjs)$/.test(entry.name)) {
       const text = await readFile(full, 'utf8');
       if (/\.waitForTimeout\s*\(/.test(text)) violations.push(`${full}: fixed browser sleep`);

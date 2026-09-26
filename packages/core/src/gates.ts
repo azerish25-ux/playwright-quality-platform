@@ -1,42 +1,50 @@
 import type { AttemptRecord, MergedRunResult, QuarantineRecord } from './contracts.js';
+import type { ForgeQualityGates } from './config.js';
 export interface GateViolation {
-  id: string;
-  severity: 'error' | 'warning';
-  message: string;
-  observed?: unknown;
-  threshold?: unknown;
-  affected?: string[];
-  remediation: string;
+  id: string; severity: 'error' | 'warning'; message: string;
+  observed?: unknown; threshold?: unknown; affected?: string[]; remediation: string;
 }
 export interface GatePolicy {
-  failOnRetryRecovered: boolean;
-  unexpectedSkipBudget: number;
-  requireCompleteShards: boolean;
-  maxQuarantineEntries: number;
-  requireArtifacts?: string[];
+  failOnRetryRecovered: boolean; unexpectedSkipBudget: number;
+  requireCompleteShards: boolean; maxQuarantineEntries: number;
+  requireArtifacts?: string[]; durationBudgetMs?: number;
 }
 export interface GateDecision { outcome: 'pass' | 'fail'; violations: GateViolation[]; }
-function byExecution(attempts: AttemptRecord[]): Map<string, AttemptRecord[]> {
-  const map = new Map<string, AttemptRecord[]>();
-  for (const attempt of attempts) map.set(attempt.executionId, [...(map.get(attempt.executionId) ?? []), attempt]);
-  for (const values of map.values()) values.sort((a,b) => a.retry-b.retry);
-  return map;
+export function gatePolicy(input: ForgeQualityGates = {}): GatePolicy {
+  return { failOnRetryRecovered: true, unexpectedSkipBudget: 0, requireCompleteShards: true, maxQuarantineEntries: 20, ...input };
 }
 export function evaluateGates(run: MergedRunResult, quarantines: QuarantineRecord[], policy: GatePolicy): GateDecision {
   const violations: GateViolation[] = [];
-  if (run.completion !== 'complete') violations.push({ id:'run.incomplete', severity:'error', message:`Run completion is ${run.completion}.`, remediation:'Repair infrastructure and rerun the complete inventory.' });
-  if (policy.requireCompleteShards && (run.missingExecutions.length || run.duplicateExecutions.length)) violations.push({ id:'inventory.incomplete', severity:'error', message:'Expected execution inventory was not reconciled.', affected:[...run.missingExecutions,...run.duplicateExecutions], remediation:'Restore missing shards and remove duplicate execution.' });
+  const fail = (id: string, message: string, affected?: string[]) => violations.push({ id, severity: 'error', message, ...(affected ? { affected } : {}), remediation: 'Repair the reported defect or infrastructure; do not suppress execution evidence.' });
+  if (run.completion !== 'complete') fail('run.incomplete', `Run completion is ${run.completion}.`);
+  if (run.infrastructureErrors?.length) fail('run.infrastructure', run.infrastructureErrors.join('; '));
+  if (run.runnerStatus && run.runnerStatus !== 'passed') fail('runner.failed', `Native runner status: ${run.runnerStatus}.`);
+  if (run.missingExecutions.length || run.unexpectedExecutions.length || run.duplicateExecutions.length) fail('inventory.incomplete', 'Execution inventory was not reconciled.', [...run.missingExecutions, ...run.unexpectedExecutions, ...run.duplicateExecutions]);
+  const executions = new Map<string, AttemptRecord[]>();
+  for (const attempt of run.attempts) executions.set(attempt.executionId, [...(executions.get(attempt.executionId) ?? []), attempt]);
   let skipped = 0;
-  for (const [executionId, attempts] of byExecution(run.attempts)) {
-    const first = attempts[0]!;
+  for (const [id, attempts] of executions) {
+    attempts.sort((a, b) => a.retry - b.retry);
     const last = attempts.at(-1)!;
-    if (last.outcome === 'failed' || last.outcome === 'timed-out' || last.outcome === 'unexpected-pass' || last.outcome === 'cancelled') violations.push({ id:'test.unexpected-outcome', severity:'error', message:`Execution ${executionId} ended as ${last.outcome}.`, affected:[last.logicalTestId], remediation:'Fix the test or application defect; do not suppress the result.' });
-    if (first.outcome === 'failed' && last.outcome === 'passed' && policy.failOnRetryRecovered) violations.push({ id:'test.retry-recovered', severity:'error', message:`Execution ${executionId} recovered on retry.`, affected:[last.logicalTestId], remediation:'Investigate nondeterminism; strict policy treats recovery as flakiness.' });
-    if (last.outcome === 'skipped') skipped += 1;
+    if (attempts.some((a, i) => a.retry !== i)) fail('attempt.invalid-sequence', `Execution ${id} has a missing or duplicate attempt.`, [last.logicalTestId]);
+    if (['failed', 'timed-out', 'unexpected-pass', 'cancelled'].includes(last.outcome)) fail('test.unexpected-outcome', `Execution ${id} ended as ${last.outcome}.`, [last.logicalTestId]);
+    if (last.outcome === 'passed' && attempts.slice(0, -1).some(a => ['failed', 'timed-out'].includes(a.outcome)) && policy.failOnRetryRecovered) fail('test.retry-recovered', `Execution ${id} recovered on retry.`, [last.logicalTestId]);
+    if (last.outcome === 'skipped') skipped++;
+    for (const kind of policy.requireArtifacts ?? []) if (!attempts.some(a => a.artifacts?.some(item => item.type === kind && item.state === 'captured'))) fail('artifact.required', `Execution ${id} lacks required ${kind} evidence.`, [last.logicalTestId]);
   }
-  if (skipped > policy.unexpectedSkipBudget) violations.push({ id:'test.skip-budget', severity:'error', message:`Unexpected skips ${skipped} exceed budget.`, observed:skipped, threshold:policy.unexpectedSkipBudget, remediation:'Restore coverage or document an explicit selection policy.' });
-  if (quarantines.length > policy.maxQuarantineEntries) violations.push({ id:'quarantine.limit', severity:'error', message:'Quarantine count exceeds policy.', observed:quarantines.length, threshold:policy.maxQuarantineEntries, remediation:'Resolve or remove accountable quarantine records.' });
-  const now = Date.now();
-  for (const entry of quarantines) if (Date.parse(entry.expiresAt) <= now) violations.push({ id:'quarantine.expired', severity:'error', message:`Quarantine expired for ${entry.testId}.`, affected:[entry.testId], remediation:'Fix the defect or explicitly create a new reviewed record.' });
-  return { outcome: violations.some((v) => v.severity === 'error') ? 'fail' : 'pass', violations };
+  if (skipped > policy.unexpectedSkipBudget) fail('test.skip-budget', `Unexpected skips ${skipped} exceed budget ${policy.unexpectedSkipBudget}.`);
+  if (policy.durationBudgetMs !== undefined && run.attempts.reduce((n,a)=>n+a.durationMs,0) > policy.durationBudgetMs) fail('duration.budget', 'Total attempt time exceeds the configured budget.');
+  if (!Array.isArray(quarantines)) fail('quarantine.invalid', 'Quarantine must be an array.');
+  else {
+    if (quarantines.length > policy.maxQuarantineEntries) fail('quarantine.limit', 'Quarantine count exceeds policy.');
+    const seen = new Set<string>();
+    for (const entry of quarantines) {
+      if (!entry || typeof entry !== 'object') { fail('quarantine.invalid', 'Invalid quarantine entry.'); continue; }
+      const dates = [Date.parse(entry.createdAt), Date.parse(entry.expiresAt)];
+      if (entry.schemaVersion !== 1 || ![entry.testId,entry.owner,entry.reason,entry.issue].every(v=>typeof v==='string' && v.trim()) || dates.some(v=>!Number.isFinite(v)) || dates[1]! <= dates[0]! || dates[1]!-dates[0]! > 14*86_400_000 || seen.has(entry.testId)) fail('quarantine.invalid', `Invalid ownership, dates, or duplicate record for ${entry.testId}.`);
+      if (dates[1]! <= Date.now()) fail('quarantine.expired', `Quarantine expired for ${entry.testId}.`, [entry.testId]);
+      seen.add(entry.testId);
+    }
+  }
+  return { outcome: violations.some(v=>v.severity==='error') ? 'fail' : 'pass', violations };
 }

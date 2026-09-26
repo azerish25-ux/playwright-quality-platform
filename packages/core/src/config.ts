@@ -53,7 +53,7 @@ const browsers = new Set<BrowserName>(['chromium','firefox','webkit']);
 export function defineForgeConfig(input: ForgeConfigInput): ForgeConfigInput { validateInput(input); return Object.freeze({ ...input }); }
 export function parseDuration(value: string | number): number {
   if (typeof value === 'number') {
-    if (!Number.isFinite(value) || value <= 0) throw new ConfigurationError(`Invalid duration: ${value}`);
+    if (!Number.isFinite(value) || value <= 0 || value > 86_400_000) throw new ConfigurationError(`Invalid duration: ${value}`);
     return Math.round(value);
   }
   const match = /^(\d+(?:\.\d+)?)(ms|s|m|h)$/.exec(value.trim());
@@ -89,6 +89,15 @@ function validateInput(input: ForgeConfigInput): void {
   if (input.shards !== undefined) integer('shards', input.shards, 1, 256);
   if (input.retries !== undefined) integer('retries', input.retries, 0, 3);
   if (input.timeout !== undefined) parseDuration(input.timeout);
+  if (input.suites) for (const [name, tags] of Object.entries(input.suites)) {
+    if (!name.trim() || !Array.isArray(tags) || !tags.length || tags.some(tag => typeof tag !== 'string' || !/^@[a-zA-Z][\w-]*$/.test(tag))) throw new ConfigurationError('Suites require nonempty arrays of @tags.');
+  }
+  if (input.qualityGates) {
+    const keys = new Set(['failOnRetryRecovered','unexpectedSkipBudget','maxQuarantineEntries','requireCompleteShards','durationBudgetMs','minimumHistorySamples','maxFlakeRate']);
+    for (const key of Object.keys(input.qualityGates)) if (!keys.has(key)) throw new ConfigurationError(`Unknown quality gate: ${key}`);
+    for (const key of ['failOnRetryRecovered','requireCompleteShards'] as const) if (input.qualityGates[key] !== undefined && typeof input.qualityGates[key] !== 'boolean') throw new ConfigurationError(`${key} must be boolean.`);
+    for (const key of ['unexpectedSkipBudget','maxQuarantineEntries','minimumHistorySamples'] as const) if (input.qualityGates[key] !== undefined) integer(key, input.qualityGates[key]!, 0, 1_000_000);
+  }
 }
 export function resolveForgeConfig(input: ForgeConfigInput, options: ResolveConfigOptions = {}): ResolvedForgeConfig {
   validateInput(input);
@@ -96,13 +105,14 @@ export function resolveForgeConfig(input: ForgeConfigInput, options: ResolveConf
   const root = resolve(options.cwd ?? process.cwd());
   const environment = options.environment ?? env.FORGEQA_ENVIRONMENT ?? input.environment ?? Object.keys(input.environments)[0];
   if (!environment || !(environment in input.environments)) throw new ConfigurationError(`Unknown environment: ${environment ?? '<unset>'}`);
-  const selected = input.environments[environment]!;
+  const selected = { ...input.environments[environment]! };
   const fromEnvironment: Partial<ForgeConfigInput> = {};
   if (env.FORGEQA_WORKERS) fromEnvironment.workers = integer('FORGEQA_WORKERS', Number(env.FORGEQA_WORKERS), 1, 128);
   if (env.FORGEQA_RETRIES) fromEnvironment.retries = integer('FORGEQA_RETRIES', Number(env.FORGEQA_RETRIES), 0, 3);
   if (env.FORGEQA_SHARDS) fromEnvironment.shards = integer('FORGEQA_SHARDS', Number(env.FORGEQA_SHARDS), 1, 256);
   if (env.FORGEQA_BASE_URL) selected.baseUrl = env.FORGEQA_BASE_URL;
-  const merged = { ...input, ...fromEnvironment, ...options.cli };
+  try { const url = new URL(selected.baseUrl); if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error(); } catch { throw new ConfigurationError('Selected base URL must be HTTP(S) without embedded credentials.'); }
+  const merged = { ...input, environments: { ...input.environments, [environment]: selected }, ...fromEnvironment, ...options.cli };
   validateInput(merged as ForgeConfigInput);
   const materialized = {
     ...merged,

@@ -1,11 +1,13 @@
 import { IntegrityError, RESULT_SCHEMA_VERSION, type MergedRunResult, type SelectionManifest, type ShardResult } from '@azerish25-ux/forgeqa-core';
 function sameRevision(a:ShardResult,b:ShardResult):boolean{return a.revision.repository===b.revision.repository&&a.revision.testedCommit===b.revision.testedCommit;}
 export function mergeShardResults(shards:ShardResult[], manifest:SelectionManifest):MergedRunResult{
+  if(manifest.schemaVersion!==RESULT_SCHEMA_VERSION)throw new IntegrityError('Unsupported manifest schema.');
   if(!shards.length)throw new IntegrityError('No shard reports were provided.');
   const first=shards[0]!; const expectedTotal=first.shardTotal;
   if(expectedTotal<1)throw new IntegrityError('Invalid shard total.');
   const byIndex=new Map<number,ShardResult>(); const shardIds=new Set<string>();
   for(const shard of shards){
+    if(!shard.finalizedAt || !shard.journalSha256)throw new IntegrityError('Shard lacks finalization evidence.');
     if(shard.schemaVersion!==RESULT_SCHEMA_VERSION)throw new IntegrityError(`Unsupported shard schema ${shard.schemaVersion}.`);
     if(shard.runId!==manifest.runId||shard.selectionHash!==manifest.selectionHash||shard.configHash!==manifest.configHash)throw new IntegrityError(`Shard ${shard.shardId} is incompatible with the expected manifest.`);
     if(shard.shardTotal!==expectedTotal||!sameRevision(first,shard))throw new IntegrityError(`Shard ${shard.shardId} has conflicting run dimensions.`);

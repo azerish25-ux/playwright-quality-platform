@@ -2,7 +2,9 @@
 
 ForgeQA is an open-source TypeScript quality platform built around Playwright Test rather than replacing it. It provides validated configuration, deterministic identities and data, guarded API/database helpers, normalized shard evidence, strict report merging, transparent flake statistics, accountable quarantine metadata, centralized quality gates, a scaffolding CLI, and a GitHub Action entrypoint.
 
-> **Release status:** source implementation, local package build, and self-tests are available. npm publication, a standalone action tag, a live documentation deployment, full PostgreSQL/three-browser acceptance, and the real LedgerGuard consumer remain unverified external deliverables. The repository does not claim those are complete.
+> **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are now implemented. Hosted acceptance is tracked in the [delivery status](docs/delivery/STATUS.md); implementation is not a publication claim.
+
+> **Release status:** source implementation, local package build, and self-tests are available. npm publication, a standalone action tag, a live documentation deployment, the real LedgerGuard consumer and full release acceptance remain unverified external deliverables. The repository does not claim those are complete.
 
 ## Why it exists
 
@@ -28,7 +30,7 @@ npm run verify
 node packages/cli/dist/cli.js --help
 ```
 
-No package registry credentials or paid infrastructure are required for local verification. The CLI exits with `0` for policy-compliant success, `1` for test/quality failure, `2` for invalid usage/configuration, `3` for infrastructure/report-integrity failure, and `130` for interruption.
+No package registry credentials or paid infrastructure are required for verification. Ordinary dependencies must be installed first with `npm ci --ignore-scripts`. See [first-consumer verification](docs/first-consumer.md) for actual execution and packed npm/pnpm adoption. The CLI exits with `0` for policy-compliant success, `1` for test/quality failure, `2` for invalid usage/configuration, `3` for infrastructure/report-integrity failure, and `130` for interruption.
 
 ## Example configuration
 
@@ -43,7 +45,7 @@ export default defineForgeConfig({
   browsers: ['chromium', 'firefox', 'webkit'],
   retries: process.env.CI ? 1 : 0,
   workers: 4,
-  shards: 2
+  shards: 1
 });
 ```
 

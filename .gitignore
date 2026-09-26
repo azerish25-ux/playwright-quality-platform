@@ -15,3 +15,12 @@ forgeqa-results/
 **/dist/*.map
 
 **/dist/.tsbuildinfo
+
+**/dist/
+candidate/
+**/.forgeqa/runs/
+
+evidence/
+**/forgeqa-results/
+**/blob-report/
+.tmp/

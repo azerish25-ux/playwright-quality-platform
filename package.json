@@ -19,12 +19,18 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "test:unit": "npm run test",
     "lint": "node scripts/static-check.mjs",
-    "verify": "npm run clean && npm run lint && npm run test && node scripts/package-audit.mjs",
+    "verify": "npm run clean && npm run lint && npm run test && npm run test:integration && node scripts/package-audit.mjs",
     "forgeqa": "node packages/cli/dist/cli.js",
-    "benchmark": "node benchmarks/run.mjs"
+    "benchmark": "node benchmarks/run.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "test:consumers": "node tests/consumers/packed.mjs",
+    "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs"
   },
   "license": "MIT",
   "devDependencies": {
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "@playwright/test": "1.58.2",
+    "@types/node": "22.18.6",
+    "pnpm": "10.17.1"
   }
 }
