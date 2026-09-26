@@ -1,0 +1,41 @@
+name: Dependency candidate
+on:
+  workflow_dispatch:
+  push:
+    paths: [.github/workflows/dependency-candidate.yml]
+permissions: { contents: read }
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - name: Prepare manifests without mutating the source branch
+        run: |
+          node --input-type=module <<'JS'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          function edit(path,fn){const p=JSON.parse(readFileSync(path,'utf8'));fn(p);writeFileSync(path,JSON.stringify(p,null,2)+'\n');}
+          edit('package.json',p=>Object.assign(p.devDependencies,{'@playwright/test':'1.58.2','@types/node':'22.18.6','pnpm':'10.17.1'}));
+          edit('packages/cli/package.json',p=>Object.assign(p.dependencies,{jiti:'2.6.1'}));
+          edit('packages/playwright/package.json',p=>{p.peerDependencies={'@playwright/test':'>=1.58.2 <2'};delete p.peerDependenciesMeta;});
+          edit('examples/demo-saas/package.json',p=>{p.dependencies={react:'19.2.0','react-dom':'19.2.0',pg:'8.16.3','@azerish25-ux/forgeqa-core':'0.1.0','@azerish25-ux/forgeqa-api':'0.1.0','@azerish25-ux/forgeqa-test-data':'0.1.0','@azerish25-ux/forgeqa-playwright':'0.1.0'};p.devDependencies={'@types/react':'19.2.2','@types/react-dom':'19.2.2','@types/pg':'8.15.5',esbuild:'0.25.10'};});
+          writeFileSync('pnpm-workspace.yaml','packages:\n  - packages/*\n  - examples/*\nlinkWorkspacePackages: true\n');
+          JS
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: node node_modules/pnpm/bin/pnpm.cjs import
+      - name: Stage source-matched offline verification inputs
+        run: |
+          mkdir candidate
+          tar --exclude='./candidate' --exclude='./.git' --exclude='./node_modules' --exclude='./examples/*/node_modules' --exclude='./packages/*/node_modules' -czf candidate/source.tgz .
+          tar -czf candidate/dependencies.tgz node_modules
+          sha256sum candidate/*.tgz > candidate/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: forgeqa-dependency-candidate
+          path: candidate/
+          if-no-files-found: error
+          retention-days: 1
