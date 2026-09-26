@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "sourceSha": "LOCAL-UNVERIFIED",
+  "updatedAt": "2026-09-26T00:00:00Z",
+  "requirements": [
+    {
+      "id": "R-001",
+      "requirement": "Strict TypeScript workspace and eight public package boundaries",
+      "status": "PASS",
+      "evidence": "npm run build"
+    },
+    {
+      "id": "R-002",
+      "requirement": "Validated configuration precedence and non-secret hash",
+      "status": "PASS",
+      "evidence": "tests/core.test.mjs"
+    },
+    {
+      "id": "R-003",
+      "requirement": "Stable logical, execution, attempt, run, and shard identities",
+      "status": "PARTIAL",
+      "evidence": "logical/execution/attempt implemented; run/shard APIs implemented but no real Playwright run"
+    },
+    {
+      "id": "R-004",
+      "requirement": "Safe idempotent CLI initialization",
+      "status": "PASS",
+      "evidence": "tests/cli.test.mjs"
+    },
+    {
+      "id": "R-005",
+      "requirement": "API deadlines, cancellation, origin scoping, and write retry refusal",
+      "status": "PASS",
+      "evidence": "tests/api.test.mjs"
+    },
+    {
+      "id": "R-006",
+      "requirement": "Deterministic factories and collision-resistant namespaces",
+      "status": "PASS",
+      "evidence": "tests/data.test.mjs"
+    },
+    {
+      "id": "R-007",
+      "requirement": "Guarded cleanup and PostgreSQL reference adapter",
+      "status": "PARTIAL",
+      "evidence": "unit behavior implemented; real PostgreSQL not executed"
+    },
+    {
+      "id": "R-008",
+      "requirement": "Native Playwright fixture integration",
+      "status": "PARTIAL",
+      "evidence": "public bridge exists; real browser execution not run"
+    },
+    {
+      "id": "R-009",
+      "requirement": "Strict shard merge and report outputs",
+      "status": "PASS",
+      "evidence": "tests/reporter.test.mjs"
+    },
+    {
+      "id": "R-010",
+      "requirement": "History metrics, fingerprints, quarantine, and comparisons",
+      "status": "PASS",
+      "evidence": "tests/flake.test.mjs"
+    },
+    {
+      "id": "R-011",
+      "requirement": "GitHub Action distribution",
+      "status": "PARTIAL",
+      "evidence": "source/action metadata present; immutable external tag not published"
+    },
+    {
+      "id": "R-012",
+      "requirement": "TeamBoard real consumer",
+      "status": "PARTIAL",
+      "evidence": "schema and contract present; full application/browser run not complete"
+    },
+    {
+      "id": "R-013",
+      "requirement": "LedgerGuard real consumer",
+      "status": "BLOCKED",
+      "evidence": "external repository had no application implementation"
+    },
+    {
+      "id": "R-014",
+      "requirement": "Cross-platform CI",
+      "status": "NOT_RUN",
+      "evidence": "workflow configured; exact-SHA runs not yet observed"
+    },
+    {
+      "id": "R-015",
+      "requirement": "npm publication",
+      "status": "BLOCKED",
+      "evidence": "registry account/scope authorization not verified"
+    },
+    {
+      "id": "R-016",
+      "requirement": "Versioned documentation deployment",
+      "status": "NOT_RUN",
+      "evidence": "source docs exist; website not deployed"
+    },
+    {
+      "id": "R-017",
+      "requirement": "Coverage thresholds 90/85",
+      "status": "NOT_RUN",
+      "evidence": "no coverage instrumentation dependency installed"
+    },
+    {
+      "id": "R-018",
+      "requirement": "Benchmarks",
+      "status": "PARTIAL",
+      "evidence": "reproducible synthetic harness exists; distributed browser benchmark not run"
+    }
+  ]
+}

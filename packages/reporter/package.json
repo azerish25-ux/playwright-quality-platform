@@ -1,0 +1,34 @@
+{
+  "name": "@azerish25-ux/forgeqa-reporter",
+  "version": "0.1.0",
+  "description": "ForgeQA reporter package",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azerish25-ux/playwright-quality-platform.git",
+    "directory": "packages/reporter"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@azerish25-ux/forgeqa-core": "0.1.0"
+  }
+}

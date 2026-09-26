@@ -1,0 +1,20 @@
+name: ForgeQA Quality Platform
+description: Run a ForgeQA suite, preserve evidence, and propagate strict quality outcomes.
+author: ForgeQA contributors
+inputs:
+  suite: { description: Suite name, default: smoke }
+  browsers: { description: Comma-separated browser projects, default: chromium }
+  working-directory: { description: Consumer working directory, default: . }
+  workers: { description: Worker count, default: '1' }
+  shard-count: { description: Total shards, default: '1' }
+  shard-index: { description: One-based shard index, default: '1' }
+outputs:
+  outcome: { description: success, quality-failure, or infrastructure-failure }
+  shard-index: { description: Executed shard index }
+  shard-count: { description: Total shard count }
+runs:
+  using: node24
+  main: packages/github-action/dist/main.js
+branding:
+  icon: check-circle
+  color: blue

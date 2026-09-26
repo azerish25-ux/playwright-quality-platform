@@ -1,0 +1,6 @@
+function ids(run) { return new Set(run.attempts.map((a) => a.logicalTestId)); }
+function failures(run) { const latest = new Map(); for (const a of run.attempts)
+    latest.set(a.logicalTestId, a.outcome); return [...latest].filter(([, o]) => ['failed', 'timed-out', 'unexpected-pass', 'cancelled'].includes(o)).map(([id]) => id).sort(); }
+export function compareRuns(current, baseline) { if (!baseline || baseline.revision.repository !== current.revision.repository || baseline.configHash !== current.configHash)
+    return { status: 'NO_BASELINE', added: [...ids(current)].sort(), removed: [], shared: [], currentFailures: failures(current), baselineFailures: [] }; const c = ids(current), b = ids(baseline); return { status: 'COMPARABLE', added: [...c].filter((id) => !b.has(id)).sort(), removed: [...b].filter((id) => !c.has(id)).sort(), shared: [...c].filter((id) => b.has(id)).sort(), currentFailures: failures(current), baselineFailures: failures(baseline) }; }
+//# sourceMappingURL=compare.js.map

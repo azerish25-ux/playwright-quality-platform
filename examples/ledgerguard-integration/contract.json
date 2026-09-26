@@ -1,0 +1,1 @@
+{"schemaVersion":1,"consumer":"ledgerguard","status":"BLOCKED","reason":"No implemented LedgerGuard application was available at the inspected revision; no endpoints or credentials were invented.","requiredCapabilities":["authentication","customer-admin-separation","account-ownership","transfers","idempotency","async-terminal-status","reversal-refund"]}

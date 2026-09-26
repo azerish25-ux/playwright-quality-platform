@@ -1,0 +1,17 @@
+node_modules/
+coverage/
+.tmp/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+blob-report/
+forgeqa-results/
+**/.forgeqa/auth/
+**/.forgeqa/tmp/
+**/dist/*.map
+
+**/dist/.tsbuildinfo

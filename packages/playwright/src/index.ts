@@ -1,0 +1,9 @@
+import type { ResolvedForgeConfig } from '@azerish25-ux/forgeqa-core';
+export interface ForgeWorkerContext { runId:string; namespace:string; config:ResolvedForgeConfig; }
+export interface ExtendableTest<TFixtures extends object = object> { extend<TAdded extends object>(fixtures: Record<string, unknown>): ExtendableTest<TFixtures & TAdded>; }
+export interface ForgeTestOptions { config:ResolvedForgeConfig; runId:string; namespaceFactory:(workerInfo:{project:{name:string};parallelIndex:number;workerIndex:number})=>string; }
+export function createForgeTest<T extends object>(base:ExtendableTest<T>,options:ForgeTestOptions):ExtendableTest<T & {forge:ForgeWorkerContext}>{return base.extend({forge:[async({}:object,use:(value:ForgeWorkerContext)=>Promise<void>,workerInfo:{project:{name:string};parallelIndex:number;workerIndex:number})=>{await use({runId:options.runId,namespace:options.namespaceFactory(workerInfo),config:options.config});},{scope:'worker'}]}) as ExtendableTest<T & {forge:ForgeWorkerContext}>;}
+export function forgeId(id:string):{type:'forgeqa-id';description:string}{return {type:'forgeqa-id',description:id};}
+export function forgeOwner(owner:string):{type:'forgeqa-owner';description:string}{return {type:'forgeqa-owner',description:owner};}
+export interface PlaywrightReporterLike { onBegin?(config:unknown,suite:unknown):void;onTestBegin?(test:unknown,result:unknown):void;onTestEnd?(test:unknown,result:unknown):void;onEnd?(result:unknown):Promise<void>|void; }
+export function playwrightReporter(configPath='forgeqa.config.ts'):{new(options?:Record<string,unknown>):PlaywrightReporterLike}{return class {readonly options:Record<string,unknown>;constructor(options:Record<string,unknown>={}){this.options={configPath,...options};}onBegin():void{}onTestBegin():void{}onTestEnd():void{}async onEnd():Promise<void>{}};}

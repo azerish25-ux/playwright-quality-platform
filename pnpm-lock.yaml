@@ -1,0 +1,65 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
+
+importers:
+  .:
+    devDependencies:
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+  examples/demo-saas: {}
+  packages/api:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+  packages/cli:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+      '@azerish25-ux/forgeqa-flake-analysis':
+        specifier: 0.1.0
+        version: link:../flake-analysis
+      '@azerish25-ux/forgeqa-reporter':
+        specifier: 0.1.0
+        version: link:../reporter
+  packages/core: {}
+  packages/flake-analysis:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+  packages/github-action: {}
+  packages/playwright:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+      '@azerish25-ux/forgeqa-reporter':
+        specifier: 0.1.0
+        version: link:../reporter
+    peerDependencies:
+      '@playwright/test': '>=1.50 <2'
+  packages/reporter:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+  packages/test-data:
+    dependencies:
+      '@azerish25-ux/forgeqa-core':
+        specifier: 0.1.0
+        version: link:../core
+
+packages:
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+snapshots:
+  typescript@5.8.3: {}

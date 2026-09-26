@@ -1,0 +1,29 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/api"
+    },
+    {
+      "path": "./packages/test-data"
+    },
+    {
+      "path": "./packages/reporter"
+    },
+    {
+      "path": "./packages/flake-analysis"
+    },
+    {
+      "path": "./packages/playwright"
+    },
+    {
+      "path": "./packages/github-action"
+    },
+    {
+      "path": "./packages/cli"
+    }
+  ]
+}

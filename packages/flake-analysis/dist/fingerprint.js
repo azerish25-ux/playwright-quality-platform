@@ -1,0 +1,4 @@
+import { stableHash } from '@azerish25-ux/forgeqa-core';
+function normalizeVolatile(value) { return value.replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, '<uuid>').replace(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\b/g, '<timestamp>').replace(/\b(?:port\s*)?\d{4,5}\b/gi, '<port>').replace(/\/tmp\/[\w./-]+/g, '<tmp>'); }
+export function fingerprintFailure(input) { const stack = (input.stack ?? '').split('\n').filter((line) => !line.includes('node_modules') && !line.includes('internal/')).slice(0, 5).map(normalizeVolatile); return `v1:${stableHash({ name: input.name ?? 'Error', message: normalizeVolatile(input.message), stack, location: input.location, applicationCode: input.applicationCode }).slice(0, 32)}`; }
+//# sourceMappingURL=fingerprint.js.map

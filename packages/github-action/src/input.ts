@@ -1,0 +1,4 @@
+function key(name:string):string{return `INPUT_${name.replace(/ /g,'_').replace(/-/g,'_').toUpperCase()}`;}
+export function input(name:string,required=false):string{const value=(process.env[key(name)]??'').trim();if(required&&!value)throw new Error(`Required input missing: ${name}`);return value;}
+export function integerInput(name:string,fallback:number,min:number,max:number):number{const raw=input(name);const value=raw?Number(raw):fallback;if(!Number.isInteger(value)||value<min||value>max)throw new Error(`Input ${name} must be an integer from ${min} to ${max}.`);return value;}
+export function enumInput<T extends string>(name:string,values:readonly T[],fallback:T):T{const raw=input(name) as T;if(!raw)return fallback;if(!values.includes(raw))throw new Error(`Input ${name} must be one of ${values.join(', ')}.`);return raw;}

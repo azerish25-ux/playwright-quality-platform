@@ -1,0 +1,43 @@
+{
+  "name": "@azerish25-ux/forgeqa-playwright",
+  "version": "0.1.0",
+  "description": "ForgeQA playwright package",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azerish25-ux/playwright-quality-platform.git",
+    "directory": "packages/playwright"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@azerish25-ux/forgeqa-core": "0.1.0",
+    "@azerish25-ux/forgeqa-reporter": "0.1.0"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.50 <2"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  }
+}

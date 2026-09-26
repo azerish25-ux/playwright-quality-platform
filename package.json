@@ -1,0 +1,30 @@
+{
+  "name": "playwright-quality-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ForgeQA \u2014 reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.17.1",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "link:workspaces": "node scripts/link-workspaces.mjs",
+    "build": "npm run link:workspaces && tsc -b",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "test:unit": "npm run test",
+    "lint": "node scripts/static-check.mjs",
+    "verify": "npm run clean && npm run lint && npm run test && node scripts/package-audit.mjs",
+    "forgeqa": "node packages/cli/dist/cli.js",
+    "benchmark": "node benchmarks/run.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}
