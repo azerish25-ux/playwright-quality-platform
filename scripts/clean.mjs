@@ -1,6 +1,6 @@
 import { rm } from 'node:fs/promises';
 const paths = [
-  'node_modules', '.tmp', 'forgeqa-results',
+  '.tmp', 'forgeqa-results',
   ...['core','api','test-data','reporter','flake-analysis','playwright','github-action','cli'].flatMap((name) => [
     `packages/${name}/dist`, `packages/${name}/tsconfig.tsbuildinfo`
   ])
