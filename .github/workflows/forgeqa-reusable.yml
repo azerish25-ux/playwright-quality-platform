@@ -1,0 +1,28 @@
+name: ForgeQA reusable
+on:
+  workflow_call:
+    inputs:
+      suite: { type: string, default: regression }
+      browsers: { type: string, default: chromium }
+      shard-count: { type: number, default: 1 }
+permissions: { contents: read }
+jobs:
+  shard:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24 }
+      - run: npm ci --ignore-scripts
+      - run: npm run verify
+      - uses: ./
+        with:
+          suite: ${{ inputs.suite }}
+          browsers: ${{ inputs.browsers }}
+          shard-count: ${{ inputs.shard-count }}
+          shard-index: ${{ matrix.shard }}
