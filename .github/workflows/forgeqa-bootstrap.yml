@@ -19,7 +19,7 @@ jobs:
           ref: forgeqa-delivery-cc66ee5
           fetch-depth: 0
 
-      - name: Reconstruct, verify, commit, and push ForgeQA
+      - name: Reconstruct, verify, commit, and push ForgeQA source
         shell: bash
         run: |
           set -euo pipefail
@@ -45,6 +45,11 @@ jobs:
           git checkout -B main origin/main
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
           tar -xzf /tmp/forgeqa-root.tar.gz -C .
+
+          # GitHub's runner token has contents:write but cannot create workflow files.
+          # Those three verified workflow files are committed separately through the
+          # authenticated GitHub connector after this source commit reaches main.
+          rm -rf .github/workflows
 
           git add -A
           git config user.name "github-actions[bot]"
