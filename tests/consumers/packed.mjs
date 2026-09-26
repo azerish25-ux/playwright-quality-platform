@@ -27,8 +27,10 @@ try{
     await run([executable,'install','--ignore-scripts',...(manager==='npm'?['--no-audit','--no-fund']:[])],consumer);
     await run([executable,...(manager==='npm'?['ci','--ignore-scripts','--no-audit','--no-fund']:['install','--frozen-lockfile','--ignore-scripts'])],consumer);
     const require=createRequire(join(consumer,'package.json'));
-    const installedCore=await realpath(require.resolve('@azerish25-ux/forgeqa-core'));assert(relative(consumer,installedCore)&&!relative(consumer,installedCore).startsWith('..'),'Public package must resolve inside the independent consumer.');
-    const cli=join(require.resolve('@azerish25-ux/forgeqa-cli'),'..','cli.js');
+    await cp(join(root,'tests/consumers/public-exports.mjs'),join(consumer,'public-exports.mjs'));
+    const resolved=JSON.parse(await run([join(consumer,'public-exports.mjs'),...Object.keys(specs)],consumer));
+    assert.equal(Object.keys(resolved.entries).length,packages.length);
+    const cli=resolved.cli;
     if(mode==='teamboard'){await run([require.resolve('typescript/bin/tsc'),'--noEmit'],consumer);await run([join(consumer,'build.mjs')],consumer);}else{
       await writeFile(join(consumer,'contract.ts'),"import {test as base,expect} from '@playwright/test';\nimport {createForgeTest} from '@azerish25-ux/forgeqa-playwright';\nconst test=createForgeTest(base).extend<{answer:number}>({answer:42});\ntest('callable composed public interface',async({page,answer,forge})=>{expect(answer).toBe(42);expect(forge.namespace).toBeTruthy();await page.goto('/');});\ntest.describe('native annotations',()=>{});\n");
       await run([require.resolve('typescript/bin/tsc'),'--noEmit','--strict','--skipLibCheck','--module','NodeNext','--moduleResolution','NodeNext','--target','ES2022','contract.ts'],consumer);
