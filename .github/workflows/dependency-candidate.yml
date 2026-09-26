@@ -1,0 +1,41 @@
+name: Dependency maintenance candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/dependency-candidate.yml]
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Prepare a reviewed installer update without publishing or pushing
+        run: |
+          npm pkg set packageManager=pnpm@10.34.5 devDependencies.pnpm=10.34.5
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+          node node_modules/pnpm/bin/pnpm.cjs install --lockfile-only --ignore-scripts --no-frozen-lockfile
+          git rev-parse HEAD > candidate-source-sha.txt
+      - name: Audit the exact candidate dependency tree
+        run: npm audit --json > dependency-audit.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: dependency-candidate-${{ github.sha }}
+          path: |
+            package.json
+            package-lock.json
+            pnpm-lock.yaml
+            candidate-source-sha.txt
+            dependency-audit.json
+          if-no-files-found: error
+          retention-days: 7
