@@ -4,7 +4,8 @@ import { mkdtemp, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
-const cli=new URL('../packages/cli/dist/cli.js',import.meta.url).pathname;
+import { fileURLToPath } from 'node:url';
+const cli=fileURLToPath(new URL('../packages/cli/dist/cli.js',import.meta.url));
 async function run(args,cwd=process.cwd()){return await new Promise((resolve,reject)=>{const child=spawn(process.execPath,[cli,...args],{cwd,env:{...process.env}});let out='',err='';child.stdout.on('data',(d)=>out+=d);child.stderr.on('data',(d)=>err+=d);child.once('error',reject);child.once('exit',(code)=>resolve({code,out,err}));});}
 
 test('help exposes complete command families and exit contract',async()=>{const result=await run(['--help']);assert.equal(result.code,0);for(const command of ['init','doctor','plan','run','repeat','report merge','history import','quarantine add','gate','migrate'])assert.match(result.out,new RegExp(command));assert.match(result.out,/Exit codes/);});
