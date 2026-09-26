@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "scope": "First-consumer checkpoint, not a full release certificate",
+  "sourceSha": "e9f4bf76337813d442f57fc054df5cef9f1cfac3",
+  "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740",
+  "artifactId": 10917630773,
+  "artifactArchiveSha256": "6b9f84067897c05270e1961733363ef85b2a90a04e78adfb3a998c1395791fe1",
+  "reports": [
+    {
+      "artifactPath": "evidence/packed-teamboard/npm/report.json",
+      "sha256": "3bad61019c15009b70b44f345c8abeaa8eac3e9e1d3692816a329e9ea9cb821e",
+      "runId": "56747251-a5b2-4052-95af-ae5c7ed26947",
+      "executions": 20,
+      "attempts": 20,
+      "firstPass": true,
+      "completion": "complete",
+      "gate": "pass",
+      "projects": {
+        "api": 8,
+        "chromium": 4,
+        "firefox": 4,
+        "webkit": 4
+      },
+      "identitySet": [
+        "tb-attachments:api:local",
+        "tb-control-guards:api:local",
+        "tb-csv:api:local",
+        "tb-filters:api:local",
+        "tb-isolation:api:local",
+        "tb-membership:api:local",
+        "tb-roles:api:local",
+        "tb-session:api:local",
+        "tb-ui-files-clock:chromium:local",
+        "tb-ui-files-clock:firefox:local",
+        "tb-ui-files-clock:webkit:local",
+        "tb-ui-owner:chromium:local",
+        "tb-ui-owner:firefox:local",
+        "tb-ui-owner:webkit:local",
+        "tb-ui-roles:chromium:local",
+        "tb-ui-roles:firefox:local",
+        "tb-ui-roles:webkit:local",
+        "tb-ui-search:chromium:local",
+        "tb-ui-search:firefox:local",
+        "tb-ui-search:webkit:local"
+      ]
+    },
+    {
+      "artifactPath": "evidence/packed-teamboard/pnpm/report.json",
+      "sha256": "9d5122927daa90ec71b80a7b19936d958b63e298090e766077068ce3013b5600",
+      "runId": "c38d981d-ea9f-4d62-9a4f-90397cf76c48",
+      "executions": 20,
+      "attempts": 20,
+      "firstPass": true,
+      "completion": "complete",
+      "gate": "pass",
+      "projects": {
+        "api": 8,
+        "chromium": 4,
+        "firefox": 4,
+        "webkit": 4
+      },
+      "identitySet": [
+        "tb-attachments:api:local",
+        "tb-control-guards:api:local",
+        "tb-csv:api:local",
+        "tb-filters:api:local",
+        "tb-isolation:api:local",
+        "tb-membership:api:local",
+        "tb-roles:api:local",
+        "tb-session:api:local",
+        "tb-ui-files-clock:chromium:local",
+        "tb-ui-files-clock:firefox:local",
+        "tb-ui-files-clock:webkit:local",
+        "tb-ui-owner:chromium:local",
+        "tb-ui-owner:firefox:local",
+        "tb-ui-owner:webkit:local",
+        "tb-ui-roles:chromium:local",
+        "tb-ui-roles:firefox:local",
+        "tb-ui-roles:webkit:local",
+        "tb-ui-search:chromium:local",
+        "tb-ui-search:firefox:local",
+        "tb-ui-search:webkit:local"
+      ]
+    },
+    {
+      "artifactPath": "examples/demo-saas/forgeqa-results/run-9PBJjy/report.json",
+      "sha256": "4ece6b2504a1892034dfc34e269ebcb7046b39a0d168dc4ef9dae8f6dcab630d",
+      "runId": "34cc6afa-64b9-4e01-bf4b-17add1572960",
+      "executions": 20,
+      "attempts": 20,
+      "firstPass": true,
+      "completion": "complete",
+      "gate": "pass",
+      "projects": {
+        "api": 8,
+        "chromium": 4,
+        "firefox": 4,
+        "webkit": 4
+      },
+      "identitySet": [
+        "tb-attachments:api:local",
+        "tb-control-guards:api:local",
+        "tb-csv:api:local",
+        "tb-filters:api:local",
+        "tb-isolation:api:local",
+        "tb-membership:api:local",
+        "tb-roles:api:local",
+        "tb-session:api:local",
+        "tb-ui-files-clock:chromium:local",
+        "tb-ui-files-clock:firefox:local",
+        "tb-ui-files-clock:webkit:local",
+        "tb-ui-owner:chromium:local",
+        "tb-ui-owner:firefox:local",
+        "tb-ui-owner:webkit:local",
+        "tb-ui-roles:chromium:local",
+        "tb-ui-roles:firefox:local",
+        "tb-ui-roles:webkit:local",
+        "tb-ui-search:chromium:local",
+        "tb-ui-search:firefox:local",
+        "tb-ui-search:webkit:local"
+      ]
+    }
+  ],
+  "sameInventoryAcrossAllModes": true,
+  "workspaceCleanup": {
+    "namespaces": 0,
+    "tenants": 0,
+    "accounts": 0
+  },
+  "limitations": [
+    "The 20 executions are repeated in three install modes, not 60 distinct tests.",
+    "No published npm packages, released Action or documentation deployment is established."
+  ],
+  "workflowConclusion": "success",
+  "crossPlatformConsumers": [
+    "ubuntu-latest",
+    "windows-latest",
+    "macos-latest"
+  ]
+}

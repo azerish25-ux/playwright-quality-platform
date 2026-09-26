@@ -19,3 +19,9 @@ Attachments record captured/missing/disabled/inapplicable/unavailable states and
 CI retains `forgeqa-candidate-SHA` package tarballs, `packed-consumer-OS-SHA` clean-install evidence, and `teamboard-evidence-SHA` PostgreSQL/browser results. These are authenticated artifact downloads with finite retention, not public report websites. PostgreSQL credentials and storage state are not committed. App test runs use synthetic users only.
 
 The fast verification matrix covers Node 22/24 on Linux, Windows and macOS. A separate clean npm/pnpm consumer matrix runs actual Chromium on each OS. The Linux PostgreSQL job runs TeamBoard directly and through both packed-package installation modes across all three browsers. A stable aggregate job requires every lane to succeed; failed, cancelled and skipped lanes remain blocking.
+
+## Installer and package-boundary checks
+
+The workspace and pnpm-generated workflow pin pnpm 10.34.5. Installer advisories apply even when lifecycle scripts are disabled, so `--ignore-scripts` is not described as a sandbox. The dependency maintenance workflow produces lockfiles and a dated audit artifact without repository write permission; ordinary CI enforces its high/critical audit threshold.
+
+Packed consumers copy an ESM probe into the temporary consumer directory, dynamically import each public package and validate canonical paths. CommonJS resolution is deliberately not used to test import-only exports. The CLI executable comes from its installed `bin` metadata. TeamBoard consumers compare actual logical-test/project/environment identity sets and assert zero database resources after each mode; equal counts alone are insufficient.

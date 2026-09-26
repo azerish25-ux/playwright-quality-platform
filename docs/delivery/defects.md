@@ -1,0 +1,17 @@
+# First-consumer defect and verification ledger
+
+All entries distinguish an implementation repair from the later exact-SHA CI proof. No retry count, required browser, expected inventory or strict gate was relaxed.
+
+| ID | Severity and reproduction | Root cause and repair | Regression evidence |
+|---|---|---|---|
+| D-001 | Blocking: packed consumer fails resolving import-only package exports. | CommonJS `require.resolve` selected the wrong export condition. A copied consumer-local ESM probe imports all eight public packages and resolves the declared CLI executable; realpath checks reject provider escapes. | `tests/consumer-resolution.test.mjs`; `tests/consumers/public-exports.mjs`; both isolated package-manager modes. |
+| D-002 | Blocking on macOS: initialization rejects the system `/var` parent alias. | Canonicalize parent aliases before establishing the destination boundary. Still refuse a symlink destination, generated descendant symlinks and dangling parents. Dry-run remains nonmutating. | `tests/cli.test.mjs`: Unicode nested alias, dry-run, repeat initialization, destination and dangling-parent rejection. Real macOS jobs passed. |
+| D-003 | Blocking: checkbox click is reverted and Playwright reports no state change. | Controlled React state updated only after an asynchronous server response. A synchronous optimistic update acknowledges the event, disables concurrent interaction, rolls back on failure and preserves workspace identity. | Real UI check/uncheck/check, independent persisted flag polling and page reload in three browsers. |
+| D-004 | Blocking: task-status selector cannot target the intended field reliably. | Label text included nested option text. Use an explicit `htmlFor`/`id` association and an exact label locator. | Editor UI journey asserts both visible title and persisted status via the real API. |
+| D-005 | Blocking in WebKit: CSV is rendered instead of downloaded. | The navigation had no explicit download intent. Set same-origin `download` attributes in addition to server attachment headers. | All three browsers assert download filename, real CSV bytes and retained application page; attachment bytes are independently checked. |
+| D-006 | Security: old pnpm installer version is covered by published advisories. | Pin 10.34.5 in both workspace and generated templates; use real runner-generated lockfiles and an enforced audit. No registry integrity hash was invented. | Read-only candidate workflow, `dependency-audit.json`, template consistency test and frozen-lock consumer installs. |
+| D-007 | Security: generated disposable test-control credentials were not registered for log masking. | Register all generated role passwords and the test-control token before later environment-file use. Application children do not receive publishing/GitHub write credentials. | `scripts/prepare-teamboard-db.mjs`; restricted runtime database privilege checks in hosted CI. |
+
+## Scope still requiring verification
+
+This ledger does not certify production suitability, a published release, complete adversarial coverage or the second application integration. Missing/failed/cancelled hosted jobs remain blocking in the aggregate check. Review the exact delivered commit rather than relying on a previous green run.

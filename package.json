@@ -2,12 +2,12 @@
   "name": "playwright-quality-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "ForgeQA \u2014 reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
+  "description": "ForgeQA — reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.34.5",
   "workspaces": [
     "packages/*",
     "examples/*"
@@ -28,9 +28,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "typescript": "5.8.3",
     "@playwright/test": "1.58.2",
     "@types/node": "22.18.6",
-    "pnpm": "10.17.1"
+    "pnpm": "10.34.5",
+    "typescript": "5.8.3"
   }
 }

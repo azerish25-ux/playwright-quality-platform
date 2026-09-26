@@ -1,115 +1,235 @@
 {
   "schemaVersion": 1,
-  "sourceSha": null,
-  "updatedAt": "2026-09-26T00:00:00Z",
+  "sourceSha": "e9f4bf76337813d442f57fc054df5cef9f1cfac3",
+  "updatedAt": "2026-09-26T22:20:21Z",
   "requirements": [
     {
       "id": "R-001",
       "requirement": "Strict TypeScript workspace and eight public package boundaries",
       "status": "PASS",
-      "evidence": "npm run build"
+      "actualResult": "Eight ESM packages compile; independent npm/pnpm consumers import public exports and compile fixture composition.",
+      "implementationPaths": [
+        "packages",
+        "tests/consumers"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Strict TypeScript workspace and eight public package boundaries",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-002",
       "requirement": "Validated configuration precedence and non-secret hash",
       "status": "PASS",
-      "evidence": "tests/core.test.mjs"
+      "actualResult": "Configuration precedence, arrays, paths and redacted hashing pass the focused core tests.",
+      "implementationPaths": [
+        "packages/core/src",
+        "tests/core.test.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Validated configuration precedence and non-secret hash",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-003",
       "requirement": "Stable logical, execution, attempt, run, and shard identities",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "Real native run/execution/attempt identities are exercised. Distributed run/shard orchestration is still refused, not represented as complete.",
+      "implementationPaths": [
+        "packages/core/src",
+        "packages/playwright/src/reporter.ts"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Stable logical, execution, attempt, run, and shard identities",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-004",
       "requirement": "Safe idempotent CLI initialization",
-      "status": "PASS",
-      "evidence": "tests/cli.test.mjs"
+      "status": "PARTIAL",
+      "actualResult": "Runnable initialization, conflict preflight, dry-run, Unicode/spaces and POSIX symlink boundaries are exercised. Complete interruption/race and arbitrary existing-suite migration coverage remains later work.",
+      "implementationPaths": [
+        "packages/cli/src/init.ts",
+        "tests/cli.test.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Safe idempotent CLI initialization",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-005",
       "requirement": "API deadlines, cancellation, origin scoping, and write retry refusal",
       "status": "PASS",
-      "evidence": "tests/api.test.mjs"
+      "actualResult": "Focused real HTTP tests verify cancellation, deadlines, diagnostic redaction and refusal of implicit write retries.",
+      "implementationPaths": [
+        "packages/api/src",
+        "tests/api.test.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "API deadlines, cancellation, origin scoping, and write retry refusal",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-006",
       "requirement": "Deterministic factories and collision-resistant namespaces",
-      "status": "PASS",
-      "evidence": "tests/data.test.mjs"
+      "status": "PARTIAL",
+      "actualResult": "Seeded factories and namespace unit cases pass; real concurrent TeamBoard tenants are isolated. Broad property-based/restart validation remains incomplete.",
+      "implementationPaths": [
+        "packages/test-data/src",
+        "tests/data.test.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Deterministic factories and collision-resistant namespaces",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-007",
       "requirement": "Guarded cleanup and PostgreSQL reference adapter",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "Real PostgreSQL TeamBoard cleanup and ownership denial are verified, including a zero-resource scan. The complete generic adapter/reclamation contract remains unverified.",
+      "implementationPaths": [
+        "packages/test-data/src",
+        "examples/demo-saas/tests/fixtures.ts"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Guarded cleanup and PostgreSQL reference adapter",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-008",
       "requirement": "Native Playwright fixture integration",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "Typed native fixture composition works outside the monorepo and real page diagnostics are collected. Complete reusable auth-state/override/lifecycle coverage remains incomplete.",
+      "implementationPaths": [
+        "packages/playwright/src",
+        "tests/consumers"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Native Playwright fixture integration",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-009",
       "requirement": "Strict shard merge and report outputs",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "Native single-runner reports and strict finalization/negative tests pass. Pure shard merge tests pass separately; actual distributed merging is not implemented.",
+      "implementationPaths": [
+        "packages/reporter/src",
+        "packages/playwright/src/reporter.ts"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Strict shard merge and report outputs",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-010",
       "requirement": "History metrics, fingerprints, quarantine, and comparisons",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "Unit metrics/fingerprints and strict expired-quarantine execution pass. Real history import, comparable prior-run reporting and quarantine mutation workflows remain incomplete.",
+      "implementationPaths": [
+        "packages/flake-analysis/src",
+        "tests/flake.test.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "History metrics, fingerprints, quarantine, and comparisons",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-011",
       "requirement": "GitHub Action distribution",
       "status": "PARTIAL",
-      "evidence": "source/action metadata present; immutable external tag not published"
+      "actualResult": "Action source exists; bundled external distribution and immutable published Action execution remain unverified.",
+      "implementationPaths": [
+        "packages/github-action",
+        "action.yml"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "GitHub Action distribution",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-012",
       "requirement": "TeamBoard real consumer",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "PostgreSQL TeamBoard passes 8 API + 4 UI journeys on each of three browsers, in workspace and both packed-package modes. Full production/lifecycle/released-package acceptance is not claimed.",
+      "implementationPaths": [
+        "examples/demo-saas",
+        "scripts/teamboard-acceptance.mjs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "TeamBoard real consumer",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-013",
       "requirement": "LedgerGuard real consumer",
       "status": "BLOCKED",
-      "evidence": "LedgerGuard has an executable foundation; required product-facing auth/payment/UI surfaces remain incomplete in inspected source."
+      "actualResult": "The inspected LedgerGuard foundation lacks the required product-facing auth/payment/UI surfaces; no substituted fake consumer is used.",
+      "implementationPaths": [
+        "examples/ledgerguard-integration"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "LedgerGuard real consumer",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-014",
       "requirement": "Cross-platform CI",
       "status": "PARTIAL",
-      "evidence": "See docs/first-consumer.md and exact-source CI. Local native integration verified; hosted consumer/database/browser conclusions not yet recorded."
+      "actualResult": "All six OS/Node foundation jobs and all three OS packed Chromium consumer jobs passed, along with Linux PostgreSQL/three-browser execution and the aggregate gate. Full release coverage remains broader.",
+      "implementationPaths": [
+        ".github/workflows/ci.yml"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Cross-platform CI",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-015",
       "requirement": "npm publication",
       "status": "BLOCKED",
-      "evidence": "registry account/scope authorization not verified"
+      "actualResult": "Registry scope/publishing authorization is not verified and full release acceptance is incomplete. Tarballs are source candidates, not registry publications.",
+      "implementationPaths": [
+        ".github/workflows/release.yml"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "npm publication",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-016",
       "requirement": "Versioned documentation deployment",
       "status": "NOT_RUN",
-      "evidence": "source docs exist; website not deployed"
+      "actualResult": "Documentation source exists; no versioned website deployment verified.",
+      "implementationPaths": [
+        "docs"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Versioned documentation deployment",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-017",
       "requirement": "Coverage thresholds 90/85",
       "status": "NOT_RUN",
-      "evidence": "no coverage instrumentation dependency installed"
+      "actualResult": "Maintained runtime 90/85 coverage gates have not been measured or verified.",
+      "implementationPaths": [
+        "tests"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Coverage thresholds 90/85",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "R-018",
       "requirement": "Benchmarks",
       "status": "PARTIAL",
-      "evidence": "reproducible synthetic harness exists; distributed browser benchmark not run"
+      "actualResult": "Synthetic harness exists; equivalent-inventory distributed browser benchmarks remain unexecuted.",
+      "implementationPaths": [
+        "benchmarks"
+      ],
+      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "expectedBehavior": "Benchmarks",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-01",
@@ -120,8 +240,9 @@
       ],
       "verification": "npm run test:integration",
       "status": "PASS",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "actualResult": "Real native discovery and execution pass; invalid/empty configuration, duplicate IDs and manifest drift are rejected.",
+      "expectedBehavior": "Real config-driven discovery/run with immutable expected inventory",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-02",
@@ -132,8 +253,9 @@
       ],
       "verification": "npm run test:integration",
       "status": "PASS",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "actualResult": "Real reporter journals and canonical outputs pass; reporter-crash/missing finalization cases produce nonzero outcomes.",
+      "expectedBehavior": "Guarded native reporter, original attempts and finalization checks",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-03",
@@ -143,8 +265,9 @@
       ],
       "verification": "npm run test:integration; npm run test:consumers -- template",
       "status": "PARTIAL",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "actualResult": "Typed callable fixture composition is compiled in isolated consumers; browser diagnostics are exercised, but complete diagnostic/adaptor lifecycle adversarial coverage remains incomplete.",
+      "expectedBehavior": "Typed composable Playwright fixtures and browser diagnostics",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-04",
@@ -155,8 +278,9 @@
       ],
       "verification": "npm run verify",
       "status": "PASS",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "actualResult": "Ten outer integration cases verify actual native child-suite execution, persistent failures, recovered failures, expected failures, focused tests and expired quarantine without leaving the outer CI intentionally red.",
+      "expectedBehavior": "Strict native/CLI gates including recovered timeouts",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-05",
@@ -166,9 +290,10 @@
         "packages/cli/src/templates.ts"
       ],
       "verification": "npm run test; npm run test:consumers -- template",
-      "status": "PARTIAL",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "status": "PASS",
+      "actualResult": "Milestone scaffold runs through npm/pnpm outside the monorepo. Safe conflict/dry-run/path tests pass on supported OS lanes; POSIX symlink-specific cases are explicitly platform-scoped.",
+      "expectedBehavior": "Safe runnable initialization and all-conflict preflight",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-06",
@@ -178,9 +303,10 @@
         "scripts/prepare-teamboard-db.mjs"
       ],
       "verification": "npm run test:teamboard",
-      "status": "NOT_RUN",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "status": "PASS",
+      "actualResult": "Real PostgreSQL role/tenant journeys pass; runtime cannot create schema or alter migration history; workspace cleanup scan finds zero test namespaces, tenants and accounts.",
+      "expectedBehavior": "PostgreSQL-backed TeamBoard with owned role/tenant data",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-07",
@@ -189,9 +315,10 @@
         "examples/demo-saas/tests"
       ],
       "verification": "npm run test:teamboard",
-      "status": "NOT_RUN",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "status": "PASS",
+      "actualResult": "Four UI journeys pass on Chromium, Firefox and WebKit alongside eight browserless API cases, with zero retries.",
+      "expectedBehavior": "Actual Chromium Firefox WebKit TeamBoard journeys",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-08",
@@ -200,9 +327,10 @@
         "tests/consumers/packed.mjs"
       ],
       "verification": "npm run test:consumers -- template; npm run test:consumers -- teamboard",
-      "status": "NOT_RUN",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "status": "PASS",
+      "actualResult": "Independent npm and pnpm tarball installations each run all 20 TeamBoard executions. All three actual report identity sets match; hashes retained in first-consumer-evidence.json.",
+      "expectedBehavior": "Independent npm and pnpm packed consumer installations",
+      "evidenceRecord": "first-consumer-checkpoint"
     },
     {
       "id": "M1-09",
@@ -211,10 +339,26 @@
         ".github/workflows/ci.yml"
       ],
       "verification": "CI consumer matrix",
-      "status": "NOT_RUN",
-      "actualResult": "Local verification where marked PASS; hosted evidence pending otherwise.",
-      "sourceSha": null
+      "status": "PASS",
+      "actualResult": "Linux, macOS and Windows packed Chromium smoke and typed imports passed for npm and pnpm.",
+      "expectedBehavior": "Actual cross-OS Chromium adoption smoke and typed imports",
+      "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "First executable consumer milestone; full product remains incomplete"
+  "scope": "First executable consumer milestone; full product remains incomplete",
+  "evidenceSemantics": "Statuses below refer to the identified observed checkpoint, not an unverified future commit. Every subsequent source revision must pass its own CI; see the current commit checks.",
+  "evidenceLocations": [
+    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740",
+    "docs/delivery/first-consumer-evidence.json",
+    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624704"
+  ],
+  "workflowConclusion": "success",
+  "evidenceRecords": {
+    "first-consumer-checkpoint": {
+      "sourceSha": "e9f4bf76337813d442f57fc054df5cef9f1cfac3",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740",
+      "result": "success",
+      "reportManifest": "docs/delivery/first-consumer-evidence.json"
+    }
+  }
 }

@@ -37,6 +37,22 @@ try{
     }
     const summary=JSON.parse(await run([cli,'run','--suite','release','--json'],consumer));assert.equal(summary.exitCode,0);assert.equal(summary.tests,mode==='teamboard'?20:2);assert.equal(summary.attempts,summary.tests);
     const report=JSON.parse(await readFile(join(summary.runDir,'report.json'),'utf8'));assert.equal(report.gate.outcome,'pass');assert.equal(report.missingExecutions.length,0);
+    assert.equal(report.unexpectedExecutions.length,0);assert.equal(report.duplicateExecutions.length,0);
+    if(mode==='teamboard'){
+      // Compare identity sets, not counts: dropping one test and adding another
+      // must not make a packed consumer look equivalent to the workspace run.
+      const workspace=JSON.parse(await readFile(join(root,'evidence/teamboard-workspace.json'),'utf8'));
+      const original=JSON.parse(await readFile(join(workspace.runDir,'report.json'),'utf8'));
+      const identities=r=>r.attempts.map(a=>`${a.logicalTestId}:${a.project}:${a.environment}`).sort();
+      assert.deepEqual(identities(report),identities(original),'Packed TeamBoard must execute the same identity set as the workspace.');
+      assert(report.attempts.every(a=>a.retry===0&&a.outcome==='passed'),'No retry recovery may satisfy first-consumer acceptance.');
+      const {default:pg}=await import('pg');const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});
+      try{
+        const {rows}=await pool.query('SELECT (SELECT count(*) FROM teamboard_test_runs)::int AS namespaces,(SELECT count(*) FROM workspaces WHERE test_namespace IS NOT NULL)::int AS tenants,(SELECT count(*) FROM users WHERE test_namespace IS NOT NULL)::int AS accounts');
+        assert(Object.values(rows[0]).every(v=>v===0),'Packed consumer leaked run-owned database resources.');
+        await writeFile(join(evidence,`${manager}-cleanup.json`),JSON.stringify({cleanup:rows[0],sameInventory:true,executions:report.attempts.length},null,2));
+      }finally{await pool.end();}
+    }
     await cp(summary.runDir,join(evidence,manager),{recursive:true});await writeFile(join(evidence,`${manager}.json`),JSON.stringify({manager,mode,independentConsumer:true,...summary},null,2));
     if(mode==='template')await run([require.resolve('@playwright/test/cli'),'test'],consumer);
     console.log(JSON.stringify({manager,mode,tests:summary.tests,attempts:summary.attempts,gate:summary.gate.outcome,independentConsumer:true}));

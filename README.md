@@ -2,7 +2,7 @@
 
 ForgeQA is an open-source TypeScript quality platform built around Playwright Test rather than replacing it. It provides validated configuration, deterministic identities and data, guarded API/database helpers, normalized shard evidence, strict report merging, transparent flake statistics, accountable quarantine metadata, centralized quality gates, a scaffolding CLI, and a GitHub Action entrypoint.
 
-> **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are now implemented. Hosted acceptance is tracked in the [delivery status](docs/delivery/STATUS.md); implementation is not a publication claim.
+> **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are now implemented. The first-pass TeamBoard inventory has been exercised in the workspace and isolated npm/pnpm consumers across Chromium, Firefox and WebKit. Exact-source evidence and remaining checks are tracked in the [delivery status](docs/delivery/STATUS.md); this is not a publication claim.
 
 > **Release status:** source implementation, local package build, and self-tests are available. npm publication, a standalone action tag, a live documentation deployment, the real LedgerGuard consumer and full release acceptance remain unverified external deliverables. The repository does not claim those are complete.
 
@@ -65,10 +65,10 @@ export default defineForgeConfig({
 - [`docs/configuration.md`](docs/configuration.md) — precedence and validation
 - [`docs/security.md`](docs/security.md) — trust boundaries and artifact privacy
 - [`docs/delivery/requirements.json`](docs/delivery/requirements.json) — factual status matrix
-- [`examples/demo-saas`](examples/demo-saas) — TeamBoard reference shape and PostgreSQL migration
+- [`examples/demo-saas`](examples/demo-saas) — Working TeamBoard application, PostgreSQL migrations and consumer suites
 - [`examples/ledgerguard-integration`](examples/ledgerguard-integration) — fail-closed second-consumer contract
 - [`adrs`](adrs) — engineering decisions
 
 ## Current limitations
 
-The full assignment is larger than a source-only initial commit. The status matrix intentionally marks unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. In particular, this commit does not claim published npm packages, a Marketplace listing, deployed docs, cross-platform CI conclusions, or an executed LedgerGuard application integration.
+The first-consumer milestone does not complete the full assignment. The status matrix intentionally marks unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. In particular, this commit does not claim published npm packages, a Marketplace listing, deployed docs, a complete release acceptance decision, or an executed LedgerGuard application integration. Actual cross-platform job results are recorded separately in the delivery checkpoint.

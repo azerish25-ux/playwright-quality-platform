@@ -52,3 +52,18 @@ test('dangling parent symlinks are rejected before template writes',{skip:proces
     await assert.rejects(access(target),{code:'ENOENT'});
   }finally{await rm(root,{recursive:true,force:true});}
 });
+
+
+test('pnpm templates pin the audited installer consistently',async()=>{
+  const {rm}=await import('node:fs/promises');
+  const dir=await mkdtemp(join(tmpdir(),'forgeqa-pnpm-'));
+  try{
+    const result=await run(['init','--destination',dir,'--package-manager','pnpm','--json']);
+    assert.equal(result.code,0,result.out+result.err);
+    const manifest=JSON.parse(await readFile(join(dir,'package.json'),'utf8'));
+    assert.equal(manifest.packageManager,'pnpm@10.34.5');
+    const workflow=await readFile(join(dir,'.github/workflows/forgeqa.yml'),'utf8');
+    assert(workflow.includes('pnpm@10.34.5'));
+    assert(!workflow.includes('pnpm@10.17.1'));
+  }finally{await rm(dir,{recursive:true,force:true});}
+});

@@ -24,6 +24,9 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with: { node-version: '${{ matrix.node }}', package-manager-cache: false }
       - run: npm ci --ignore-scripts
+      - name: Enforce dependency audit
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        run: npm audit --audit-level=high
       - run: npm run verify
       - run: npm run typecheck --workspace examples/demo-saas
       - name: Stage exact-source package candidates
