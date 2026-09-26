@@ -1,0 +1,59 @@
+name: ForgeQA source delivery
+
+on:
+  push:
+    branches:
+      - forgeqa-delivery-cc66ee5
+
+permissions:
+  contents: write
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out authenticated delivery branch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: forgeqa-delivery-cc66ee5
+          fetch-depth: 0
+
+      - name: Reconstruct, verify, commit, and push ForgeQA
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat \
+            .forgeqa-bootstrap/payload-00.b64 \
+            .forgeqa-bootstrap/payload-01.b64 \
+            .forgeqa-bootstrap/payload-02.b64 \
+            .forgeqa-bootstrap/payload-03.b64 \
+            .forgeqa-bootstrap/payload-04.b64 \
+            .forgeqa-bootstrap/payload-05.b64 \
+            .forgeqa-bootstrap/payload-06.b64 \
+            .forgeqa-bootstrap/payload-07a.b64 \
+            .forgeqa-bootstrap/payload-07b.b64 \
+            .forgeqa-bootstrap/payload-08.b64 \
+            > /tmp/forgeqa-root.tar.gz.b64
+
+          base64 --decode /tmp/forgeqa-root.tar.gz.b64 > /tmp/forgeqa-root.tar.gz
+          echo "79494062e0c307caeb63cbe65fa6b8a87e13230330a1836f0669d9a0317db07f  /tmp/forgeqa-root.tar.gz" | sha256sum -c -
+          tar -tzf /tmp/forgeqa-root.tar.gz >/dev/null
+
+          git fetch origin main
+          git checkout -B main origin/main
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
+          tar -xzf /tmp/forgeqa-root.tar.gz -C .
+
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --cached --quiet; then
+            echo "No source changes to deliver."
+            exit 0
+          fi
+
+          git commit -m "feat: implement ForgeQA quality platform foundation"
+          git push origin HEAD:main
