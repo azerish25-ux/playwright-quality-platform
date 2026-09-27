@@ -49,10 +49,12 @@ function inventoryKey(execution: ExpectedExecution): string {
 function firstDifference(left: string[], right: string[]): { index: number; forgeqa?: string; native?: string } | undefined {
   const length = Math.max(left.length, right.length);
   for (let index = 0; index < length; index += 1) {
-    if (left[index] === right[index]) continue;
+    const forgeqa = left[index];
+    const native = right[index];
+    if (forgeqa === native) continue;
     const result: { index: number; forgeqa?: string; native?: string } = { index };
-    if (left[index] !== undefined) result.forgeqa = left[index];
-    if (right[index] !== undefined) result.native = right[index];
+    if (forgeqa !== undefined) result.forgeqa = forgeqa;
+    if (native !== undefined) result.native = native;
     return result;
   }
   return undefined;
