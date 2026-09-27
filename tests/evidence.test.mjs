@@ -45,7 +45,7 @@ test('distributed evidence validates, copies, rewrites paths, and reconciles nat
 
 test('post-finalization artifact changes fail evidence integrity',async t=>{
   const value=await fixture(t);
-  await writeFile(value.artifactPath,'tampered\n');
+  await writeFile(value.artifactPath,'redacted diagnostiX\n');
   await assert.rejects(()=>validateShardEvidence(value.journal.finalPath),/checksum changed after capture/);
 });
 
