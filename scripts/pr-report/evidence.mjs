@@ -27,7 +27,7 @@ export function validateReportDocument(value, context) {
     'pullRequestNumber', 'pullRequestHeadSha', 'pullRequestBaseSha', 'sourceHeadSha', 'testedSha',
     'aggregate', 'generatedAt',
   ], 'report');
-  assert(value.schemaVersion === 1 || value.schemaVersion === REPORT_SCHEMA_VERSION, 'Unsupported report schema version.');
+  assert([1, 2, REPORT_SCHEMA_VERSION].includes(value.schemaVersion), 'Unsupported report schema version.');
   assert(value.kind === REPORT_KIND, 'Unexpected report kind.');
   assert(value.repository === context.repository, 'Report repository does not match the originating run.');
   assert(value.workflow === context.workflowName, 'Report workflow does not match the originating run.');
@@ -41,7 +41,9 @@ export function validateReportDocument(value, context) {
   assert(value.testedSha === context.testedSha, 'Report tested merge SHA does not match the current pull request merge ref.');
   const lanes = value.schemaVersion === 1
     ? ['verify', 'consumer', 'teamboard', 'action']
-    : ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action'];
+    : value.schemaVersion === 2
+      ? ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action']
+      : ['verify', 'consumer', 'teamboard', 'ledgerguard', 'hardening', 'action'];
   exactKeys(value.aggregate, [...lanes, 'gateStep'], 'report.aggregate');
   for (const name of lanes) {
     assert(ALLOWED_RESULTS.has(value.aggregate[name]), `report.aggregate.${name} is invalid.`);
