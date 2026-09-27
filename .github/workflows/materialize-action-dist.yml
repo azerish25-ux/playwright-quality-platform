@@ -1,0 +1,35 @@
+name: Materialize action distribution
+on:
+  push:
+    branches: [feature/github-platform-hardening]
+    paths:
+      - packages/github-action/src/**
+      - packages/github-action/tsconfig.json
+      - tsconfig.base.json
+permissions:
+  contents: write
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install tsc -b packages/github-action
+      - name: Commit exact compiled runtime
+        run: |
+          git add -f packages/github-action/dist/*.js packages/github-action/dist/*.d.ts
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m "build(action): materialize callable distribution [skip ci]"
+          git push
