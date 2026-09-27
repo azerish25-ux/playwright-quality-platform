@@ -1,0 +1,52 @@
+name: Phase 7 completion assembler
+
+on:
+  push:
+    branches:
+      - feature/history-reliability-completion
+    paths:
+      - ".phase7/**"
+      - ".github/workflows/phase7-completion-assembler.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          ref: feature/history-reliability-completion
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: 22
+      - name: Reconstruct and apply completion patch
+        shell: bash
+        run: |
+          cat .phase7/chunk*.b64 | base64 -d | gzip -d > scripts/apply-phase7-completion.py
+          python3 scripts/apply-phase7-completion.py
+          rm -rf .phase7
+      - name: Refresh reproducible locks
+        shell: bash
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm ci --ignore-scripts
+          npx --no-install pnpm install --lockfile-only --no-frozen-lockfile --ignore-scripts
+      - name: Build and focused verification
+        shell: bash
+        run: |
+          npm run build
+          npm run lint
+          node --test tests/github-history.test.mjs tests/history-reporting.test.mjs tests/repeat-selection.test.mjs tests/history.test.mjs tests/reporter.test.mjs
+          git diff --check
+      - name: Commit assembled implementation
+        shell: bash
+        run: |
+          git config user.name "ForgeQA Automation"
+          git config user.email "azerish25@gmail.com"
+          git add -A
+          git commit -m "feat: complete historical reliability delivery"
+          git push origin HEAD:feature/history-reliability-completion
