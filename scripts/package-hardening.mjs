@@ -152,7 +152,7 @@ try {
   }
 
   const dependencies = Object.fromEntries([...tarballsByName.entries()].map(([name, path]) => [name, `file:${path.replaceAll('\\', '/')}`]));
-  for (const external of ['@playwright/test', 'playwright', 'playwright-core', 'jiti']) {
+  for (const external of ['@playwright/test', '@types/node', 'playwright', 'playwright-core', 'jiti']) {
     const externalPath = resolve(root, 'node_modules', ...external.split('/'));
     await stat(externalPath);
     dependencies[external] = `file:${externalPath.replaceAll('\\', '/')}`;
@@ -173,8 +173,10 @@ try {
     await writeFile(resolve(consumer, 'tsconfig.json'), `${JSON.stringify({
       compilerOptions: {
         target: 'ES2022',
+        lib: ['ES2022', 'ESNext.Disposable'],
         module: 'NodeNext',
         moduleResolution: 'NodeNext',
+        types: ['node'],
         strict: true,
         noEmit: true,
         skipLibCheck: false,
