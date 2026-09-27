@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const read = async (path) => await readFile(resolve(root, path), 'utf8');
+const read = async (path) => (await readFile(resolve(root, path), 'utf8')).replace(/\r\n/g, '\n');
 
 test('the public action ref carries its exact callable Node runtime', async () => {
   const action = await read('action.yml');
