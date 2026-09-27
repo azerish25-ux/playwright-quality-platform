@@ -130,8 +130,22 @@ async function registeredActor(
 }
 
 export function commandKey(testInfo: TestInfo, prefix: string, sequence = 0): string {
-  const suffix = stableHash({ testId: testInfo.testId, retry: testInfo.retry, prefix, sequence }).slice(0, 32);
+  const suffix = stableHash({
+    runId: forgeRunId(testInfo),
+    testId: testInfo.testId,
+    retry: testInfo.retry,
+    prefix,
+    sequence
+  }).slice(0, 32);
   return `${prefix}-${suffix}`;
+}
+
+function forgeRunId(testInfo: TestInfo): string {
+  const metadata = testInfo.config.metadata['forgeqa'] as { runId?: unknown } | undefined;
+  if (!metadata || typeof metadata.runId !== 'string' || metadata.runId.length === 0) {
+    throw new Error('ForgeQA run metadata is required for LedgerGuard durable command identity.');
+  }
+  return metadata.runId;
 }
 
 function requiredBaseURL(value: string | undefined): string {
