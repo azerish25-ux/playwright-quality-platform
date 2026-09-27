@@ -1,7 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { dirname, resolve, relative, isAbsolute } from 'node:path';
-import { IntegrityError, sha256, stableStringify, type MergedRunResult } from '@azerish25-ux/forgeqa-core';
-export interface HistoryRecord { schemaVersion:1; provenance:'trusted-default-branch'|'untrusted-pr'|'synthetic'|'diagnostic'; importedAt:string; result:MergedRunResult; checksum:string; }
-function safe(root:string,file:string):string{const full=resolve(root,file);const rel=relative(resolve(root),full);if(rel.startsWith('..')||isAbsolute(rel))throw new IntegrityError('History path escapes storage root.');return full;}
-export async function writeHistory(root:string,result:MergedRunResult,provenance:HistoryRecord['provenance']):Promise<string>{const payload=stableStringify(result);const record:HistoryRecord={schemaVersion:1,provenance,importedAt:new Date().toISOString(),result,checksum:sha256(payload)};const file=safe(root,`${result.runId.replace(/[^a-zA-Z0-9._-]/g,'_')}.json`);await mkdir(dirname(file),{recursive:true});const temp=`${file}.${process.pid}.tmp`;await writeFile(temp,`${JSON.stringify(record,null,2)}\n`,{mode:0o600});await rename(temp,file);return file;}
-export async function readHistory(file:string):Promise<HistoryRecord>{const record=JSON.parse(await readFile(file,'utf8')) as HistoryRecord;if(record.schemaVersion!==1)throw new IntegrityError('Unsupported history schema.');if(sha256(stableStringify(record.result))!==record.checksum)throw new IntegrityError('History checksum mismatch.');return record;}
+export * from './history-types.js';
+export * from './history-record.js';
+export * from './history-store.js';
+export * from './history-analysis.js';
