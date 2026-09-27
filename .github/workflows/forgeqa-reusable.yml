@@ -131,7 +131,7 @@ jobs:
         run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\n')"
       - id: plan
         name: Create immutable ForgeQA execution manifest
-        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
+        uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: plan
           suite: ${{ inputs.suite }}
@@ -178,7 +178,7 @@ jobs:
           path: .forgeqa-plan
       - id: execute
         name: Execute ForgeQA shard ${{ matrix.shard }}/${{ inputs.shard-count }}
-        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
+        uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: run
           suite: ${{ inputs.suite }}
@@ -242,7 +242,7 @@ jobs:
           path: .forgeqa-shards
       - id: merge
         name: Merge and enforce canonical ForgeQA evidence
-        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
+        uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: merge
           working-directory: ${{ inputs.working-directory }}
