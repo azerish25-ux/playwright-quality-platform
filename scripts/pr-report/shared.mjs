@@ -1,6 +1,6 @@
 import { isAbsolute, relative, sep } from 'node:path';
 
-export const REPORT_SCHEMA_VERSION = 2;
+export const REPORT_SCHEMA_VERSION = 3;
 export const REPORT_KIND = 'forgeqa-pr-report';
 export const REPORT_FILE = 'forgeqa-pr-report.json';
 export const REPORT_MARKER = '<!-- forgeqa-quality-report:v1 -->';
@@ -13,7 +13,7 @@ export const MAX_FILES = 4;
 export const MAX_ENTRIES = 16;
 export const MAX_DEPTH = 4;
 export const MAX_PAGES = 10;
-export const REQUIRED_LANES = Object.freeze({ verify: 6, consumer: 3, teamboard: 1, ledgerguard: 1, action: 1, 'forgeqa-quality': 1 });
+export const REQUIRED_LANES = Object.freeze({ verify: 6, consumer: 3, teamboard: 1, ledgerguard: 1, hardening: 1, action: 1, 'forgeqa-quality': 1 });
 export const ALLOWED_RESULTS = new Set(['success', 'failure', 'cancelled', 'skipped']);
 export const ALLOWED_CONCLUSIONS = new Set([
   'success',

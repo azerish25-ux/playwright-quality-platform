@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-pre-release-contracts",
+  "packageVersion": "0.1.0",
+  "packages": [
+    { "directory": "core", "name": "@azerish25-ux/forgeqa-core", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "playwright", "name": "@azerish25-ux/forgeqa-playwright", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "api", "name": "@azerish25-ux/forgeqa-api", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "test-data", "name": "@azerish25-ux/forgeqa-test-data", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "reporter", "name": "@azerish25-ux/forgeqa-reporter", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "flake-analysis", "name": "@azerish25-ux/forgeqa-flake-analysis", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "github-action", "name": "@azerish25-ux/forgeqa-github", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
+    { "directory": "cli", "name": "@azerish25-ux/forgeqa-cli", "main": "./dist/index.js", "types": "./dist/index.d.ts", "bin": { "forgeqa": "./dist/cli.js" } }
+  ],
+  "rootScripts": [
+    "build",
+    "coverage",
+    "hardening",
+    "lint",
+    "package:hardening",
+    "test",
+    "test:hardening",
+    "test:integration",
+    "verify"
+  ],
+  "action": {
+    "runtime": "node24",
+    "main": "packages/github-action/dist/main.js",
+    "inputs": [
+      "application-command",
+      "artifact-retention-days",
+      "browser-install",
+      "browsers",
+      "build-command",
+      "cli-path",
+      "config",
+      "environment",
+      "evidence-directory",
+      "install-dependencies",
+      "manifest",
+      "max-local-shards",
+      "mode",
+      "output-directory",
+      "package-manager",
+      "playwright-config",
+      "readiness-timeout-seconds",
+      "readiness-url",
+      "reporting-mode",
+      "shard-count",
+      "shard-index",
+      "suite",
+      "workers",
+      "working-directory"
+    ],
+    "outputs": [
+      "artifact-name",
+      "artifact-retention-days",
+      "attempt-count",
+      "evidence-path",
+      "flaky-count",
+      "manifest-path",
+      "outcome",
+      "report-path",
+      "run-id",
+      "run-url",
+      "shard-count",
+      "shard-index",
+      "test-count"
+    ]
+  },
+  "schemas": {
+    "result": 1,
+    "prReports": [1, 2, 3]
+  }
+}

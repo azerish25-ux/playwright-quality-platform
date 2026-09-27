@@ -49,9 +49,16 @@
     {
       "id": "M5-08",
       "requirement": "Hosted exact-source LedgerGuard consumer acceptance",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "implementationPaths": [".github/workflows/ci.yml"],
-      "verification": "The new required ledgerguard job must pass at the exact ForgeQA head revision."
+      "verification": {
+        "forgeqaSourceSha": "4ed8584ec0a04e14283109ad5e7f1fa7a4053077",
+        "workflowRun": 36346441131,
+        "job": 108696406407,
+        "evidenceArtifact": 10941370883,
+        "evidenceDigest": "sha256:75edc52defcc70910e03698ec519481bc57f4fe5c73f57380651ff908f8528c0",
+        "conclusion": "success"
+      }
     },
     {
       "id": "M5-09",

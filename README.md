@@ -2,9 +2,11 @@
 
 ForgeQA is an open-source TypeScript quality platform built around Playwright Test rather than replacing it. It provides validated configuration, deterministic identities and data, guarded API/database helpers, normalized shard evidence, strict report merging, transparent flake statistics, accountable quarantine metadata, centralized quality gates, a scaffolding CLI, and a GitHub Action entrypoint.
 
-> **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are now implemented. The first-pass TeamBoard inventory has been exercised in the workspace and isolated npm/pnpm consumers across Chromium, Firefox and WebKit. Exact-source evidence and remaining checks are tracked in the [delivery status](docs/delivery/STATUS.md); this is not a publication claim.
+> **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are implemented. The TeamBoard inventory has been exercised in the workspace and isolated npm/pnpm consumers across Chromium, Firefox and WebKit. Exact-source evidence and remaining checks are tracked in the [delivery status](docs/delivery/STATUS.md); this is not a publication claim.
 
-> **Release status:** source implementation, local package build, self-tests, and an exact-revision API-first LedgerGuard consumer are available. The new LedgerGuard lane still requires hosted exact-source acceptance before it can be promoted from implementation evidence to verified release evidence. npm publication, a standalone action tag, a live documentation deployment, and full release acceptance remain external deliverables.
+> **Second-consumer milestone:** the genuine API-first LedgerGuard consumer passed hosted exact-source acceptance at ForgeQA revision `4ed8584ec0a04e14283109ad5e7f1fa7a4053077` in CI run `36346441131`, including independent npm/pnpm consumers, financial reconciliation, and owned-infrastructure cleanup.
+
+> **Release status:** Phase 10A now contains a release-blocking hardening candidate: policy-kernel coverage thresholds, property/invariant tests, focused seeded-defect tests, frozen pre-release contracts, deep tarball inspection, and a required hosted `hardening` lane. That candidate still requires an exact-source green run before it becomes verified hardening evidence. npm publication, an immutable public action tag, a live versioned documentation deployment, and complete release acceptance remain later deliverables.
 
 ## Why it exists
 
@@ -26,11 +28,15 @@ SaaS teams frequently have Playwright suites but lack safe test-data ownership, 
 ## Local verification
 
 ```bash
+npm ci --ignore-scripts
 npm run verify
+npm run hardening
 node packages/cli/dist/cli.js --help
 ```
 
-No package registry credentials or paid infrastructure are required for verification. Ordinary dependencies must be installed first with `npm ci --ignore-scripts`. See [first-consumer verification](docs/first-consumer.md) for actual execution and packed npm/pnpm adoption. The CLI exits with `0` for policy-compliant success, `1` for test/quality failure, `2` for invalid usage/configuration, `3` for infrastructure/report-integrity failure, and `130` for interruption.
+`npm run hardening` builds the exact source, runs invariant and seeded-defect suites, enforces 90% line and 85% branch coverage over the release-critical policy kernel, freezes pre-release package/action/report contracts, packs all eight packages, inspects their tarballs, and installs those exact tarballs into clean npm and pnpm consumers.
+
+No package registry credentials or paid infrastructure are required for source verification. See [first-consumer verification](docs/first-consumer.md) for actual execution and packed npm/pnpm adoption. The CLI exits with `0` for policy-compliant success, `1` for test/quality failure, `2` for invalid usage/configuration, `3` for infrastructure/report-integrity failure, and `130` for interruption.
 
 ## Example configuration
 
@@ -58,18 +64,21 @@ export default defineForgeConfig({
 - Unknown changed paths broaden to the full suite.
 - HTTP writes are not retried unless the caller explicitly declares idempotency and supplies an idempotency key.
 - Secrets are redacted from textual diagnostics, while binary traces and screenshots are treated as sensitive rather than falsely “sanitized.”
+- Package candidates are accepted only after tarball-content checks and clean npm/pnpm installation through public interfaces.
+- The aggregate `forgeqa-quality` check cannot pass unless the cross-platform, consumer, TeamBoard, LedgerGuard, hardening, and action lanes all pass.
 
 ## Repository map
 
 - [`docs/architecture.md`](docs/architecture.md) — boundaries and data flow
 - [`docs/configuration.md`](docs/configuration.md) — precedence and validation
 - [`docs/security.md`](docs/security.md) — trust boundaries and artifact privacy
-- [`docs/delivery/requirements.json`](docs/delivery/requirements.json) — factual status matrix
-- [`examples/demo-saas`](examples/demo-saas) — Working TeamBoard application, PostgreSQL migrations and consumer suites
+- [`docs/delivery/requirements.json`](docs/delivery/requirements.json) — broader factual status matrix
+- [`docs/delivery/hardening-requirements.json`](docs/delivery/hardening-requirements.json) — Phase 10 gates and all 50 adversarial scenarios
+- [`examples/demo-saas`](examples/demo-saas) — working TeamBoard application, PostgreSQL migrations and consumer suites
 - [`consumers/ledgerguard`](consumers/ledgerguard) — executable API-first LedgerGuard consumer pinned to verified P07A source
 - [`docs/ledgerguard-consumer.md`](docs/ledgerguard-consumer.md) — revision, trust, topology, package and evidence boundaries
 - [`adrs`](adrs) — engineering decisions
 
 ## Current limitations
 
-The implemented product does not complete every release requirement. The status matrix intentionally marks unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. The LedgerGuard harness is real and executable, but this source revision does not claim its new hosted lane has passed until an exact-head GitHub run records that evidence. It also does not claim a LedgerGuard browser UI, published npm packages, a Marketplace listing, deployed docs, or a complete release acceptance decision.
+The implemented product does not complete every release requirement. The status matrices intentionally mark unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. LedgerGuard has hosted API-first acceptance but still has no genuine browser product interface. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, comparable production benchmarks, or a complete release acceptance decision.

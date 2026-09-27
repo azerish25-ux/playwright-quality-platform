@@ -6,9 +6,12 @@ import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const cli=fileURLToPath(new URL('../packages/cli/dist/cli.js',import.meta.url));
-async function run(args,cwd=process.cwd()){return await new Promise((resolve,reject)=>{const child=spawn(process.execPath,[cli,...args],{cwd,env:{...process.env}});let out='',err='';child.stdout.on('data',(d)=>out+=d);child.stderr.on('data',(d)=>err+=d);child.once('error',reject);child.once('exit',(code)=>resolve({code,out,err}));});}
+async function runEntrypoint(entrypoint,args,cwd=process.cwd()){return await new Promise((resolve,reject)=>{const child=spawn(process.execPath,[entrypoint,...args],{cwd,env:{...process.env}});let out='',err='';child.stdout.on('data',(d)=>out+=d);child.stderr.on('data',(d)=>err+=d);child.once('error',reject);child.once('exit',(code)=>resolve({code,out,err}));});}
+async function run(args,cwd=process.cwd()){return runEntrypoint(cli,args,cwd);}
 
 test('help exposes complete command families and exit contract',async()=>{const result=await run(['--help']);assert.equal(result.code,0);for(const command of ['init','doctor','plan','run','repeat','report merge','history import','quarantine add','gate','migrate'])assert.match(result.out,new RegExp(command));assert.match(result.out,/Exit codes/);});
+
+test('the CLI executes through a package-manager-style symlink',{skip:process.platform==='win32'},async()=>{const {symlink,rm}=await import('node:fs/promises');const dir=await mkdtemp(join(tmpdir(),'forgeqa-bin-'));try{const shim=join(dir,'forgeqa');await symlink(cli,shim);const result=await runEntrypoint(shim,['--help'],dir);assert.equal(result.code,0,result.out+result.err);assert.match(result.out,/ForgeQA 0\.1\.0/);assert.match(result.out,/Exit codes/);}finally{await rm(dir,{recursive:true,force:true});}});
 
 test('init is idempotent and refuses conflicts without overwriting',async()=>{const dir=await mkdtemp(join(tmpdir(),'forgeqa unicode Ω '));let result=await run(['init','--destination',dir,'--json']);assert.equal(result.code,0);const original=await readFile(join(dir,'forgeqa.config.ts'),'utf8');result=await run(['init','--destination',dir,'--json']);assert.equal(result.code,0);await writeFile(join(dir,'forgeqa.config.ts'),'custom');result=await run(['init','--destination',dir,'--json']);assert.equal(result.code,2);assert.equal(await readFile(join(dir,'forgeqa.config.ts'),'utf8'),'custom');assert.notEqual(original,'custom');});
 
