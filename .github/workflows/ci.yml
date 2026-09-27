@@ -109,9 +109,49 @@ jobs:
             examples/demo-saas/forgeqa-results/
           if-no-files-found: error
           retention-days: 7
+  action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: node scripts/prepare-action-consumer.mjs
+      - id: forgeqa
+        uses: ./
+        with:
+          working-directory: .tmp/action-consumer
+          cli-path: packages/cli/dist/cli.js
+          install-dependencies: 'false'
+          browser-install: none
+          workers: '2'
+          shard-count: '2'
+          max-local-shards: '2'
+          reporting-mode: summary
+      - name: Verify action outputs and callable distribution
+        env:
+          OUTCOME: ${{ steps.forgeqa.outputs.outcome }}
+          TEST_COUNT: ${{ steps.forgeqa.outputs.test-count }}
+          ATTEMPT_COUNT: ${{ steps.forgeqa.outputs.attempt-count }}
+          REPORT_PATH: ${{ steps.forgeqa.outputs.report-path }}
+        run: |
+          test "$OUTCOME" = success
+          test "$TEST_COUNT" = 2
+          test "$ATTEMPT_COUNT" = 2
+          test -f "$REPORT_PATH"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: ${{ steps.forgeqa.outputs.artifact-name }}
+          path: ${{ steps.forgeqa.outputs.evidence-path }}
+          if-no-files-found: error
+          retention-days: 7
   forgeqa-quality:
     if: always()
-    needs: [verify, consumer, teamboard]
+    needs: [verify, consumer, teamboard, action]
     runs-on: ubuntu-latest
     steps:
       - name: Enforce all required lanes
@@ -119,7 +159,9 @@ jobs:
           VERIFY_RESULT: '${{ needs.verify.result }}'
           CONSUMER_RESULT: '${{ needs.consumer.result }}'
           TEAMBOARD_RESULT: '${{ needs.teamboard.result }}'
+          ACTION_RESULT: '${{ needs.action.result }}'
         run: |
           test "$VERIFY_RESULT" = success
           test "$CONSUMER_RESULT" = success
           test "$TEAMBOARD_RESULT" = success
+          test "$ACTION_RESULT" = success
