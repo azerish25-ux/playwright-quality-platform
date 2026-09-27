@@ -1,5 +1,6 @@
 function key(name) {
-    return `INPUT_${name.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
+    // GitHub preserves hyphens in action input IDs; @actions/core only normalizes spaces.
+    return `INPUT_${name.replace(/ /g, '_').toUpperCase()}`;
 }
 export function input(name, required = false, env = process.env) {
     const value = (env[key(name)] ?? '').trim();

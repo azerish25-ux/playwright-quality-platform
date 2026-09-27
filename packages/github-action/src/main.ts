@@ -9,6 +9,7 @@ import {
   readdir,
   realpath,
   stat,
+  writeFile,
 } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -866,6 +867,13 @@ export async function executeAction(env: ActionEnvironment = process.env): Promi
     const code = error instanceof ActionFailure ? error.exitCode : error instanceof Error && /^Input |^Required input/.test(error.message) ? 2 : 3;
     const message = redact(error instanceof Error ? error.message : String(error), env);
     const workspace = env.GITHUB_WORKSPACE || process.cwd();
+    let evidencePath: string;
+    try {
+      const workingDirectory = await resolveWorkingDirectory(workspace, safeInputs.workingDirectory);
+      evidencePath = await ensureDirectoryWithin(workingDirectory, safeInputs.outputDirectory);
+    } catch {
+      evidencePath = await ensureDirectoryWithin(await realpath(workspace), '.forgeqa/action-failure');
+    }
     const result: ForgeActionResult = {
       exitCode: code,
       outcome: classifyOutcome(code),
@@ -876,13 +884,21 @@ export async function executeAction(env: ActionEnvironment = process.env): Promi
       flakyCount: 0,
       shardCount: safeInputs.shardCount,
       manifestPath: '',
-      evidencePath: resolve(workspace, safeInputs.workingDirectory, safeInputs.outputDirectory),
+      evidencePath,
       reportPath: '',
       artifactName: `forgeqa-${(env.GITHUB_RUN_ID || 'local').replace(/[^A-Za-z0-9._-]/g, '_')}-${safeInputs.mode}`,
       runUrl: '',
       error: message,
       ...(safeInputs.shardIndex === undefined ? {} : { shardIndex: safeInputs.shardIndex }),
     };
+    await writeFile(resolve(evidencePath, 'action-failure.json'), `${JSON.stringify({
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      exitCode: result.exitCode,
+      outcome: result.outcome,
+      mode: result.mode,
+      error: result.error,
+    }, null, 2)}\n`, { mode: 0o600 }).catch(() => undefined);
     await publishResult(result, safeInputs, env).catch(() => undefined);
     return result;
   }
