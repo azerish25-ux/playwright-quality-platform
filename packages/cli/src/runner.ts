@@ -154,7 +154,7 @@ async function discover(parsed:Parsed) {
 export async function planCommand(parsed: Parsed): Promise<void> {
   const value=await discover(parsed);
   const shards=Array.from({length:value.shard.total},(_,index)=>({index:index+1,executions:value.manifest.expected.filter(entry=>entry.shardIndex===index+1).length}));
-  emit(parsed,{runId:value.runId,runDir:value.runDir,manifestPath:value.manifestPath,suite:value.request.suite,workers:value.config.workers,shardCount:value.shard.total,estimatedConcurrency:value.config.workers*value.shard.total,shards,manifest:value.manifest,reason:'native Playwright shard discovery with suite inheritance'},`Selected ${value.manifest.expected.length} executions across ${value.shard.total} shard(s).\n${shards.map(item=>`Shard ${item.index}/${value.shard.total}: ${item.executions} executions`).join('\n')}\nManifest: ${value.manifestPath}`);
+  emit(parsed,{runId:value.runId,runDir:value.runDir,manifestPath:value.manifestPath,suite:value.request.suite,workers:value.config.workers,shardCount:value.shard.total,estimatedConcurrency:(value.config.workers ?? 1)*value.shard.total,shards,manifest:value.manifest,reason:'native Playwright shard discovery with suite inheritance'},`Selected ${value.manifest.expected.length} executions across ${value.shard.total} shard(s).\n${shards.map(item=>`Shard ${item.index}/${value.shard.total}: ${item.executions} executions`).join('\n')}\nManifest: ${value.manifestPath}`);
 }
 async function verifyShardEvidence(path:string,value:{runId:string;manifest:SelectionManifest;config:ResolvedForgeConfig;shard:ShardSpec}):Promise<ShardResult> {
   const shard=await boundedJson(path) as ShardResult;
