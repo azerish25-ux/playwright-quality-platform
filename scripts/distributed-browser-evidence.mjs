@@ -39,7 +39,7 @@ for(let index=0;index<4;index++) test('distributed '+index,{tag:'@release'},asyn
 `);
 
 try{
-  const plan=await invoke(['plan','--suite','release','--shard-total','2','--json',...explicitConfigs],temporary);
+  const plan=await invoke(['plan','--suite','release','--shard','1/2','--json',...explicitConfigs],temporary);
   assert.equal(plan.status,0,plan.stderr);
   const planJson=JSON.parse(plan.stdout);
   assert.equal(planJson.shardTotal??planJson.shardCount,2);

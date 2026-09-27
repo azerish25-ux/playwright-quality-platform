@@ -9,5 +9,7 @@ test('distributed browser evidence is isolated from preceding consumer lifecycle
   assert.match(source, /name\.startsWith\('FORGEQA_'\)/);
   assert.match(source, /name\.startsWith\('TEAMBOARD_'\)/);
   assert.match(source, /name==='PORT'/);
+  assert.match(source, /\['plan','--suite','release','--shard','1\/2','--json'/);
+  assert.doesNotMatch(source, /--shard-total/);
   assert.match(source, /planJson\.shardTotal\?\?planJson\.shardCount/);
 });
