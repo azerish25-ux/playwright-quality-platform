@@ -1,28 +1,40 @@
-# Delivery checkpoint — executable first consumer
+# Delivery checkpoint — distributed evidence integrity
 
-**The first real consumer path is exercised; the complete ForgeQA product is not released.**
+**ForgeQA now has executable distributed Playwright sharding and a candidate end-to-end evidence pipeline; the complete ForgeQA product is not released.**
 
-The recorded source checkpoint is `e9f4bf76337813d442f57fc054df5cef9f1cfac3`. [CI run 36275624740](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740) provides the job and artifact evidence below. Statuses describe observations at this checkpoint; subsequent changes require their own exact-SHA checks. In particular, do not treat this file as a perpetual green badge.
+The last merged source checkpoint before this hardening change is `0c0b82b4d8094510c8542f33e70e5c4d42ee5de2`. Its pull-request verification run, [CI run 36289243937](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36289243937), passed the six Linux/macOS/Windows Node 22/24 verification jobs, three independent packed-consumer jobs, the PostgreSQL TeamBoard three-browser lane and the aggregate gate. Its subsequent push run exposed a real WebKit logout/login race; the current source repairs that race and adds further evidence hardening. Treat these statements as a dated checkpoint, not a perpetual green badge. The current changes require their own exact-SHA CI before delivery is claimed.
 
-## Verified behavior
+## Implemented behavior
 
-- Real config-driven Playwright discovery/execution, typed composable fixtures, strict native and CLI gates, journal/finalization integrity and canonical JSON/JUnit/Markdown/HTML output.
-- All six foundation jobs: Node 22 and 24 on Linux, Windows and macOS. The same tests repeated across environments are not counted as different test cases.
-- PostgreSQL-backed TeamBoard: eight API cases plus four UI journeys in each of Chromium, Firefox and WebKit. All 20 executions passed on their first attempt.
-- The same TeamBoard identity set passed from the workspace and separate npm/pnpm tarball consumers, with no provider-source links. These are three installation modes, not 60 unique tests.
-- A real post-workspace database scan found zero remaining test namespaces, tenants and accounts. The follow-up harness also asserts this independently after each packed consumer.
-- Independent npm/pnpm Chromium onboarding and typed imports passed on Linux, macOS and Windows. Windows Chromium onboarding also passed; the overall CI run and aggregate gate succeeded.
+- Immutable planning and genuine native Playwright shard execution with strict expected-inventory reconciliation.
+- One finalized ForgeQA journal and one Playwright blob report per shard.
+- Fail-closed validation of run/shard identity, completion markers, journal checksums, captured artifact paths, regular-file ownership, size and SHA-256.
+- Collision-safe copying of screenshots, traces, videos, logs and attachments into shard-namespaced merged output.
+- Playwright `merge-reports` generation of native HTML and JSON evidence.
+- Exact native/canonical reconciliation by file, title, project, retry index and outcome; matching totals alone are insufficient.
+- Canonical JSON, JUnit, Markdown and static HTML reports, artifact manifest and checksummed completion record.
+- Loopback-only local report serving with traversal, symlink, method, MIME, cache and browser-hardening controls.
+- Real two-shard Chromium diagnostic acceptance retaining screenshot and trace bytes while a retry-recovered failure remains a strict nonzero quality result.
+- Adversarial regression coverage for changed, missing, escaping, duplicate and symbolic-link attachments; multiple or corrupted blobs; and same-count test-identity substitution.
+- PostgreSQL-backed TeamBoard API and Chromium/Firefox/WebKit UI journeys, including deterministic account transitions and owned-data cleanup.
 
-Report paths, hashes, tested revision, identity sets and artifact checksum are in [first-consumer-evidence.json](first-consumer-evidence.json). GitHub artifacts expire after seven days; their download URLs are not public report websites.
+The detailed milestone matrix is [distributed-evidence-requirements.json](distributed-evidence-requirements.json). The older broad matrix remains useful for product-wide scope but predates distributed evidence completion.
 
-## Dependency repair
+## Failure semantics
 
-The pnpm 10.34.5 candidate and its real generated npm/pnpm lockfiles were produced by [read-only maintenance run 36275624704](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624704). Its `npm audit` result contains zero reported vulnerabilities; the exact result is [dependency-audit.json](dependency-audit.json). This is a dated advisory-database result, not proof that the software has no vulnerabilities. The update is pinned in the workspace and generated templates, and ordinary CI now enforces the high/critical audit threshold.
+- Exit `0`: complete, internally consistent and policy-compliant evidence.
+- Exit `1`: complete evidence with an application or quality-policy failure.
+- Exit `2`: invalid usage or configuration.
+- Exit `3`: missing, corrupt, tampered, incomplete or contradictory evidence.
+- Exit `130`: interrupted execution.
+
+Report generation cannot turn a failed application test green. Conversely, a failed test does not suppress collection of the evidence needed to diagnose it.
 
 ## Explicit remaining boundaries
 
-Distributed execution is not implemented by the CLI/native bridge; shard totals above one are rejected rather than silently dropping coverage. The pure merge utilities remain separately tested. Full history import, diagnostic repetition, quarantine mutations, safe privileged PR publication and released GitHub Action distribution remain later milestones.
-
-LedgerGuard has an executable foundation, but the inspected revision lacks the required product-facing authentication/payment/UI integration. No fake second application is substituted. No npm publication, standalone Action tag, Marketplace listing or documentation website deployment is claimed.
-
-The 90/85 runtime coverage thresholds, distributed benchmarks, complete generic fixture lifecycle/property coverage and full release hardening remain unverified. Source-candidate tarballs are not published packages. See [requirements.json](requirements.json) for scoped statuses and [defects.md](defects.md) for the repaired defects and regression evidence.
+- Historical artifact import, bounded trusted baselines, diagnostic repeat and quarantine mutation workflows remain Phase 7 work.
+- The standalone GitHub Action distribution is not yet published or verified through an immutable external tag.
+- LedgerGuard is not yet a functioning second consumer of released ForgeQA packages.
+- npm packages are source candidates, not registry releases; npm ownership and publication authorization are not assumed.
+- The versioned documentation website, maintained 90/85 runtime coverage gates, comparative distributed benchmarks and complete release hardening remain unverified.
+- No Marketplace listing, npm publication or production-ready status is claimed.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp, mkdir, writeFile, readFile, rm} from 'node:fs/promises';
-import {resolve,join} from 'node:path';
+import {mkdtemp, mkdir, writeFile, readFile, readdir, rm} from 'node:fs/promises';
+import {dirname,resolve,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from 'node:child_process';
 const root=fileURLToPath(new URL('../../',import.meta.url));
@@ -27,4 +27,14 @@ test('two native Playwright shards reconcile canonical reports and complete evid
   const complete=JSON.parse(await readFile(join(output,'complete.json'),'utf8'));assert.equal(complete.receivedShards,2);assert.equal(complete.reconciliation.status,'MATCHED');
   assert.match(await readFile(join(output,'playwright-report','index.html'),'utf8'),/Playwright Test Report|playwright/i);
   const native=JSON.parse(await readFile(join(output,'playwright-report','results.json'),'utf8'));assert.ok(Array.isArray(native.suites));
+
+  const firstBlobDirectory=join(dirname(first.value.shardReport),'blob-report');
+  const firstBlob=join(firstBlobDirectory,(await readdir(firstBlobDirectory)).find(name=>name.endsWith('.zip')));
+  const originalBlob=await readFile(firstBlob);
+  await writeFile(firstBlob,'not a Playwright blob archive');
+  const corrupted=await json(['report','merge','--manifest',plan.value.manifestPath,'--output',join(dir,'corrupted-merge'),first.value.shardReport,second.value.shardReport],dir);
+  assert.equal(corrupted.code,3,corrupted.out+corrupted.err);
+  assert.equal(corrupted.value.exitCode,3);
+  assert.match(corrupted.value.error.message,/blob merge|Playwright/i);
+  await writeFile(firstBlob,originalBlob);
 });

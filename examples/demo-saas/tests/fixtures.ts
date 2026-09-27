@@ -12,6 +12,23 @@ export const test=createForgeTest(base).extend<{tenant:Tenant;owner:APIRequestCo
   viewer:async({tenant,baseURL},use)=>{const context=await loginContext(baseURL!,tenant,'viewer');try{await use(context);}finally{await context.dispose();}},
 });
 export async function loginContext(baseURL:string,tenant:Tenant,role:'owner'|'editor'|'viewer'):Promise<APIRequestContext>{const context=await requests.newContext({baseURL});const account=tenant.accounts[role];const response=await context.post('/api/login',{data:{email:account.email,password:account.password}});expect(response.status()).toBe(200);return context;}
-export async function loginPage(page:Page,tenant:Tenant,role:'owner'|'editor'|'viewer'='owner'):Promise<void>{await page.goto('/');await expect(page.getByLabel('Email',{exact:true})).toBeVisible();await page.getByLabel('Email',{exact:true}).fill(tenant.accounts[role].email);await page.getByLabel('Password',{exact:true}).fill(tenant.accounts[role].password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('button',{name:'Sign out'})).toBeVisible();}
-export async function logoutPage(page:Page):Promise<void>{const responsePromise=page.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname==='/api/logout');await page.getByRole('button',{name:'Sign out',exact:true}).click();const response=await responsePromise;expect(response.status(),'logout endpoint succeeds before changing browser identity').toBe(200);await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();}
+export async function loginPage(page:Page,tenant:Tenant,role:'owner'|'editor'|'viewer'='owner'):Promise<void>{
+  await page.goto('/');
+  const signOut=page.getByRole('button',{name:'Sign out',exact:true});
+  if(await signOut.isVisible()){
+    const response=await page.request.post(new URL('/api/logout',page.url()).toString(),{data:{}});
+    expect([200,401],'role transition logout is complete or already complete').toContain(response.status());
+    await page.context().clearCookies();
+    await page.goto('/');
+  }
+  await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();
+  await page.getByLabel('Email',{exact:true}).fill(tenant.accounts[role].email);
+  await page.getByLabel('Password',{exact:true}).fill(tenant.accounts[role].password);
+  await Promise.all([
+    page.waitForResponse(response=>response.url().endsWith('/api/login')&&response.request().method()==='POST'&&response.ok()),
+    page.getByRole('button',{name:'Sign in',exact:true}).click()
+  ]);
+  await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();
+  await expect(page.getByText(tenant.accounts[role].email,{exact:true})).toBeVisible();
+}
 export {expect};

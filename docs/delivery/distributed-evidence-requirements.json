@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "milestone": "M2 — Distributed Evidence Integrity",
+  "baseMainSha": "0c0b82b4d8094510c8542f33e70e5c4d42ee5de2",
+  "baseVerifiedTreeSha": "a4fcd82e5840d0f2b27b65bc01c3268c43d74f5e",
+  "basePullRequestRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36289243937",
+  "evidenceSemantics": "The base commit established distributed blob and artifact merging. The hardening changes containing this record must pass their own exact-SHA pull-request and main-branch CI before being treated as verified.",
+  "requirements": [
+    {
+      "id": "M2-01",
+      "requirement": "Every native shard emits a finalized ForgeQA journal and exactly one Playwright blob report",
+      "status": "PASS",
+      "implementationPaths": ["packages/playwright/src/config.ts", "packages/cli/src/runner.ts", "packages/reporter/src/evidence.ts"],
+      "verification": "tests/integration/distributed-runner.test.mjs"
+    },
+    {
+      "id": "M2-02",
+      "requirement": "Captured evidence is owned, regular, bounded, immutable by size and SHA-256, and collision-safe after merge",
+      "status": "PASS",
+      "implementationPaths": ["packages/reporter/src/evidence.ts"],
+      "verification": "tests/evidence.test.mjs"
+    },
+    {
+      "id": "M2-03",
+      "requirement": "Distributed native reports use Playwright merge-reports and retain HTML plus JSON evidence",
+      "status": "PASS",
+      "implementationPaths": ["packages/cli/src/native-merge.ts", "packages/cli/src/cli.ts"],
+      "verification": "tests/integration/distributed-runner.test.mjs"
+    },
+    {
+      "id": "M2-04",
+      "requirement": "Native and canonical reports agree on file/title/project identity, retry sequence and outcome",
+      "status": "PASS",
+      "implementationPaths": ["packages/reporter/src/native-reconcile.ts"],
+      "verification": "tests/evidence.test.mjs; tests/integration/distributed-runner.test.mjs"
+    },
+    {
+      "id": "M2-05",
+      "requirement": "Canonical merged package contains checksummed reports, artifacts, native blobs, manifest and completion record",
+      "status": "PASS",
+      "implementationPaths": ["packages/cli/src/cli.ts", "packages/reporter/src/outputs.ts"],
+      "verification": "tests/integration/distributed-runner.test.mjs"
+    },
+    {
+      "id": "M2-06",
+      "requirement": "Static report can be inspected locally without a hosted ForgeQA service",
+      "status": "PASS",
+      "implementationPaths": ["packages/cli/src/serve.ts"],
+      "verification": "tests/report-serve.test.mjs"
+    },
+    {
+      "id": "M2-07",
+      "requirement": "A real two-shard Chromium retry-recovered failure retains screenshot and trace while the strict gate remains nonzero",
+      "status": "PASS",
+      "implementationPaths": ["scripts/distributed-browser-evidence.mjs"],
+      "verification": "npm run test:teamboard"
+    },
+    {
+      "id": "M2-08",
+      "requirement": "Adversarial evidence cases fail closed",
+      "status": "PASS",
+      "implementationPaths": ["tests/evidence.test.mjs", "tests/integration/distributed-runner.test.mjs"],
+      "verification": "Changed, missing, escaping, symbolic-link and duplicate attachments; multiple/corrupt blobs; identity substitution"
+    }
+  ],
+  "remainingProductBoundaries": [
+    "Historical artifact import and bounded default-branch baselines",
+    "Diagnostic repeat and quarantine mutation workflows",
+    "Released npm packages and immutable standalone GitHub Action distribution",
+    "LedgerGuard second-consumer integration",
+    "Versioned documentation website, coverage thresholds and comparative benchmarks"
+  ]
+}

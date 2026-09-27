@@ -24,7 +24,7 @@
     "benchmark": "node benchmarks/run.mjs",
     "test:integration": "node --test tests/integration/*.test.mjs",
     "test:consumers": "node tests/consumers/packed.mjs",
-    "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs"
+    "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs && node scripts/distributed-browser-evidence.mjs"
   },
   "license": "MIT",
   "devDependencies": {
