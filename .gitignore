@@ -24,3 +24,8 @@ evidence/
 **/forgeqa-results/
 **/blob-report/
 .tmp/
+
+# The callable GitHub Action must carry its compiled runtime in every action ref.
+!packages/github-action/dist/
+!packages/github-action/dist/**/*.js
+!packages/github-action/dist/**/*.d.ts
