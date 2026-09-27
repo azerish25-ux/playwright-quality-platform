@@ -22,7 +22,7 @@
     "verify": "npm run clean && npm run lint && npm run test && npm run test:integration && node scripts/package-audit.mjs",
     "forgeqa": "node packages/cli/dist/cli.js",
     "benchmark": "node benchmarks/run.mjs",
-    "test:integration": "node --test tests/integration/*.test.mjs",
+    "test:integration": "node --test --test-concurrency=1 tests/integration/*.test.mjs",
     "test:consumers": "node tests/consumers/packed.mjs",
     "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs && node scripts/distributed-browser-evidence.mjs"
   },
