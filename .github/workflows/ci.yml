@@ -154,7 +154,8 @@ jobs:
     needs: [verify, consumer, teamboard, action]
     runs-on: ubuntu-latest
     steps:
-      - name: Enforce all required lanes
+      - id: enforce
+        name: Enforce all required lanes
         env:
           VERIFY_RESULT: '${{ needs.verify.result }}'
           CONSUMER_RESULT: '${{ needs.consumer.result }}'
@@ -165,3 +166,65 @@ jobs:
           test "$CONSUMER_RESULT" = success
           test "$TEAMBOARD_RESULT" = success
           test "$ACTION_RESULT" = success
+      - name: Materialize data-only PR report
+        if: always() && github.event_name == 'pull_request'
+        env:
+          REPORT_REPOSITORY: ${{ github.repository }}
+          REPORT_WORKFLOW: ${{ github.workflow }}
+          REPORT_RUN_ID: ${{ github.run_id }}
+          REPORT_RUN_ATTEMPT: ${{ github.run_attempt }}
+          REPORT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPORT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPORT_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          REPORT_TESTED_SHA: ${{ github.sha }}
+          REPORT_VERIFY_RESULT: ${{ needs.verify.result }}
+          REPORT_CONSUMER_RESULT: ${{ needs.consumer.result }}
+          REPORT_TEAMBOARD_RESULT: ${{ needs.teamboard.result }}
+          REPORT_ACTION_RESULT: ${{ needs.action.result }}
+          REPORT_GATE_OUTCOME: ${{ steps.enforce.outcome }}
+        run: |
+          mkdir -p .forgeqa-pr-report
+          node --input-type=module <<'NODE'
+          import { writeFile } from 'node:fs/promises';
+          const required = (name) => {
+            const value = process.env[name];
+            if (!value) throw new Error(`Missing ${name}.`);
+            return value;
+          };
+          const integer = (name) => {
+            const value = Number(required(name));
+            if (!Number.isSafeInteger(value) || value < 1) throw new Error(`Invalid ${name}.`);
+            return value;
+          };
+          const report = {
+            schemaVersion: 1,
+            kind: 'forgeqa-pr-report',
+            repository: required('REPORT_REPOSITORY'),
+            workflow: required('REPORT_WORKFLOW'),
+            workflowPath: '.github/workflows/ci.yml',
+            runId: integer('REPORT_RUN_ID'),
+            runAttempt: integer('REPORT_RUN_ATTEMPT'),
+            pullRequestNumber: integer('REPORT_PR_NUMBER'),
+            pullRequestHeadSha: required('REPORT_HEAD_SHA'),
+            pullRequestBaseSha: required('REPORT_BASE_SHA'),
+            sourceHeadSha: required('REPORT_HEAD_SHA'),
+            testedSha: required('REPORT_TESTED_SHA'),
+            aggregate: {
+              verify: required('REPORT_VERIFY_RESULT'),
+              consumer: required('REPORT_CONSUMER_RESULT'),
+              teamboard: required('REPORT_TEAMBOARD_RESULT'),
+              action: required('REPORT_ACTION_RESULT'),
+              gateStep: required('REPORT_GATE_OUTCOME'),
+            },
+            generatedAt: new Date().toISOString(),
+          };
+          await writeFile('.forgeqa-pr-report/forgeqa-pr-report.json', `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+          NODE
+      - name: Upload data-only PR report
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: forgeqa-pr-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .forgeqa-pr-report/forgeqa-pr-report.json
+          if-no-files-found: error
+          retention-days: 7

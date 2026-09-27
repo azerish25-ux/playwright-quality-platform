@@ -38,3 +38,36 @@ test('the source workflow keeps action acceptance in the required aggregate gate
   assert.match(workflow, /needs:\s*\[verify, consumer, teamboard, action\]/);
   assert.match(workflow, /ACTION_RESULT/);
 });
+
+test('pull-request CI always emits one run-bound data-only reporting artifact', async () => {
+  const workflow = await read('.github/workflows/ci.yml');
+  assert.match(workflow, /id:\s*enforce/);
+  assert.match(workflow, /kind:\s*'forgeqa-pr-report'/);
+  assert.match(workflow, /workflowPath:\s*'\.github\/workflows\/ci\.yml'/);
+  assert.match(workflow, /sourceHeadSha:\s*required\('REPORT_HEAD_SHA'\)/);
+  assert.match(workflow, /if:\s*always\(\) && github\.event_name == 'pull_request'/g);
+  assert.match(workflow, /name:\s*forgeqa-pr-report-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
+  assert.match(workflow, /if-no-files-found:\s*error/);
+});
+
+test('the privileged PR publisher runs trusted code only and treats PR artifacts as data', async () => {
+  const workflow = await read('.github/workflows/forgeqa-pr-report.yml');
+  assert.match(workflow, /workflow_run:/);
+  assert.match(workflow, /workflows:\s*\[CI\]/);
+  assert.doesNotMatch(workflow, /pull_request_target/);
+  assert.match(workflow, /actions:\s*read/);
+  assert.match(workflow, /issues:\s*write/);
+  assert.match(workflow, /pull-requests:\s*read/);
+  assert.match(workflow, /ref:\s*\$\{\{ github\.event\.repository\.default_branch \}\}/);
+  assert.match(workflow, /path:\s*trusted-source/);
+  assert.match(workflow, /persist-credentials:\s*false/);
+  assert.doesNotMatch(workflow, /ref:\s*\$\{\{ github\.event\.workflow_run\.head_sha/);
+  assert.doesNotMatch(workflow, /repository:\s*\$\{\{ github\.event\.workflow_run\.head_repository/);
+  assert.match(workflow, /path:\s*\$\{\{ runner\.temp \}\}\/forgeqa-pr-report/);
+  assert.match(workflow, /node trusted-source\/scripts\/publish-pr-report\.mjs --authorize-download/);
+  assert.match(workflow, /steps\.authorize\.outputs\.download-approved == 'true'/);
+  assert.match(workflow, /name:\s*\$\{\{ steps\.authorize\.outputs\.artifact-name \}\}/);
+  assert.match(workflow, /node trusted-source\/scripts\/publish-pr-report\.mjs/);
+  assert.doesNotMatch(workflow, /continue-on-error:\s*true/);
+  assert.match(workflow, /FORGEQA_DOWNLOAD_OUTCOME:\s*\$\{\{ steps\.download\.outcome \}\}/);
+});
