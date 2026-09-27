@@ -13,6 +13,13 @@ test('distributed browser evidence is isolated from preceding consumer lifecycle
     'The clean-checkout temporary parent must exist before mkdtemp runs.'
   );
   assert.match(source, /const explicitConfigs=\['--config',forgeConfig,'--playwright-config',playwrightConfig\]/);
+  assert.match(source, /environments:\{ci:\{baseUrl:'http:\/\/127\.0\.0\.1:31999'\}\}/);
+  assert.match(source, /suites:\{release:\['@release'\]\}/);
+  assert.match(source, /outputDir:'\.\/forgeqa-results'/);
+  assert.match(source, /artifactPolicy:\{trace:'off',screenshot:'off',video:'off'\}/);
+  assert.match(source, /qualityGates:\{failOnRetryRecovered:true/);
+  assert.doesNotMatch(source, /testDir:'\.\/tests',[\s\S]*baseUrl:/);
+  assert.doesNotMatch(source, /artifacts:|gates:/);
   assert.match(source, /env:isolatedEnvironment\(\)/);
   assert.match(source, /name\.startsWith\('FORGEQA_'\)/);
   assert.match(source, /name\.startsWith\('TEAMBOARD_'\)/);

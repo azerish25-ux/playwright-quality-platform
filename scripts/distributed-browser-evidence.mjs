@@ -20,14 +20,15 @@ await writeFile(join(temporary,'package.json'),JSON.stringify({name:'browser-evi
 await writeFile(forgeConfig,`import {defineForgeConfig} from '@azerish25-ux/forgeqa-core';
 export default defineForgeConfig({
  project:'browser-evidence-consumer',
- testDir:'./tests',
- baseUrl:'http://127.0.0.1:31999',
+ environments:{ci:{baseUrl:'http://127.0.0.1:31999'}},
+ environment:'ci',
  workers:1,
  retries:0,
- suites:{release:{includeTags:['@release']}},
+ suites:{release:['@release']},
  browsers:['chromium'],
- artifacts:{directory:'./forgeqa-results',trace:'off',screenshot:'off',video:'off'},
- gates:{failOnTestFailure:true,failOnIncomplete:true,maxFlakeRate:0,maxUnexpectedRetries:0,maxQuarantinedTests:0,maxQuarantineAgeDays:1}
+ outputDir:'./forgeqa-results',
+ artifactPolicy:{trace:'off',screenshot:'off',video:'off'},
+ qualityGates:{failOnRetryRecovered:true,unexpectedSkipBudget:0,maxQuarantineEntries:0,requireCompleteShards:true,maxFlakeRate:0}
 });
 `);
 await writeFile(playwrightConfig,`import {defineConfig} from '@playwright/test';
