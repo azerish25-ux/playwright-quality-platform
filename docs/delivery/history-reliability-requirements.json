@@ -1,148 +1,149 @@
 {
   "schemaVersion": 1,
   "milestone": "M3-history-reliability",
-  "status": "PASS",
+  "sourceSha": "09bca4d1bed24081466d56de9a27faeae1968027",
+  "verificationRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36315295764",
+  "status": "VERIFIED_EXACT_SHA_CI",
+  "updatedAt": "2026-09-27T11:23:48Z",
   "requirements": [
     {
       "id": "M3-01",
-      "requirement": "Immutable checksummed history records and manifest",
+      "requirement": "Immutable versioned local history records with atomic writes and provenance separation",
+      "status": "PASS",
       "implementationPaths": [
+        "packages/flake-analysis/src/history-types.ts",
         "packages/flake-analysis/src/history-record.ts",
-        "packages/flake-analysis/src/history-store.ts",
-        "packages/flake-analysis/src/history-analysis.ts"
+        "packages/flake-analysis/src/history-store.ts"
       ],
-      "verification": [
-        "tests/history.test.mjs: history import is immutable and identical duplicates are idempotent",
-        "tests/history.test.mjs: history records reject checksum tampering"
-      ],
-      "status": "PASS"
+      "verification": "node --test tests/history.test.mjs tests/reliability-cli.test.mjs",
+      "actualResult": "Normalized history records reject unsupported schemas and checksum corruption, classify trusted/untrusted/synthetic/diagnostic provenance, write atomically and import identical duplicates idempotently while conflicting duplicates fail."
     },
     {
       "id": "M3-02",
-      "requirement": "Duplicate import idempotency and conflicting duplicate rejection",
+      "requirement": "GitHub-backed completed-workflow artifact history import with explicit coverage gaps",
+      "status": "PASS",
       "implementationPaths": [
-        "packages/flake-analysis/src/history-record.ts",
-        "packages/flake-analysis/src/history-store.ts",
-        "packages/flake-analysis/src/history-analysis.ts"
+        "packages/flake-analysis/src/github-history.ts",
+        "packages/cli/src/reliability-commands.ts"
       ],
-      "verification": [
-        "tests/history.test.mjs: conflicting duplicate history identity fails closed"
-      ],
-      "status": "PASS"
+      "verification": "node --test tests/github-history.test.mjs",
+      "actualResult": "Paginated completed workflow runs and artifacts are imported through the GitHub API, failed runs remain eligible, ZIP/path/size/checksum boundaries fail closed, provenance is separated and deleted or expired artifacts become explicit coverage gaps."
     },
     {
       "id": "M3-03",
-      "requirement": "Concurrent import serialization and bounded retention",
+      "requirement": "Comparable cohorts, exact N/F/I/P metrics, bounded observation windows and honest insufficient-history states",
+      "status": "PASS",
       "implementationPaths": [
-        "packages/flake-analysis/src/history-record.ts",
-        "packages/flake-analysis/src/history-store.ts",
-        "packages/flake-analysis/src/history-analysis.ts"
-      ],
-      "verification": [
-        "tests/history.test.mjs: concurrent identical imports serialize without corrupting the manifest"
-      ],
-      "status": "PASS"
-    },
-    {
-      "id": "M3-04",
-      "requirement": "Trusted, untrusted, synthetic and diagnostic provenance separation",
-      "implementationPaths": [
-        "packages/flake-analysis/src/history-record.ts",
-        "packages/flake-analysis/src/history-store.ts",
-        "packages/flake-analysis/src/history-analysis.ts",
-        "packages/cli/src/cli.ts",
-        "packages/cli/src/reliability-commands.ts"
-      ],
-      "verification": [
-        "tests/history.test.mjs: historical analysis separates trusted comparable runs from untrusted and incompatible observations"
-      ],
-      "status": "PASS"
-    },
-    {
-      "id": "M3-05",
-      "requirement": "Comparable bounded cohorts and honest reliability metrics",
-      "implementationPaths": [
-        "packages/flake-analysis/src/history-record.ts",
-        "packages/flake-analysis/src/history-store.ts",
         "packages/flake-analysis/src/history-analysis.ts",
         "packages/flake-analysis/src/metrics.ts",
         "packages/flake-analysis/src/compare.ts"
       ],
-      "verification": [
-        "tests/history.test.mjs: historical analysis separates trusted comparable runs from untrusted and incompatible observations",
-        "tests/flake.test.mjs"
+      "verification": "node --test tests/history.test.mjs tests/history-reporting.test.mjs",
+      "actualResult": "Default 30-day/50-execution windows keep retry denominators logical, compare only compatible repository/consumer/suite/environment/browser/selection/config/schema/framework cohorts, include eligible failed runs and distinguish NO_BASELINE, INSUFFICIENT_HISTORY and HISTORY_INCOMPLETE."
+    },
+    {
+      "id": "M3-04",
+      "requirement": "Failure fingerprints preserve semantic distinctions while removing bounded volatile noise",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/flake-analysis/src/fingerprint.ts"
       ],
-      "status": "PASS"
+      "verification": "node --test tests/flake.test.mjs",
+      "actualResult": "Timestamp, UUID, port and temporary-workspace volatility is normalized without collapsing distinct assertion expected/actual values."
+    },
+    {
+      "id": "M3-05",
+      "requirement": "Bounded diagnostic repeat command with first-failure evidence preservation and diagnostic-only provenance",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/cli/src/reliability-commands.ts",
+        "packages/cli/src/runner.ts"
+      ],
+      "verification": "node --test tests/reliability-cli.test.mjs tests/repeat-selection.test.mjs",
+      "actualResult": "forgeqa repeat enforces stable-ID selection, count/failure/time budgets, preserves the first failing iteration, writes diagnostic history excluded from authoritative baselines and distinguishes test from infrastructure outcomes."
     },
     {
       "id": "M3-06",
-      "requirement": "History-producing report merge and executable history import/flake CLI",
+      "requirement": "Atomic quarantine add/remove/validate lifecycle without defect or coverage masking",
+      "status": "PASS",
       "implementationPaths": [
-        "packages/cli/src/cli.ts",
+        "packages/flake-analysis/src/quarantine.ts",
         "packages/cli/src/reliability-commands.ts"
       ],
-      "verification": [
-        "npm run build",
-        "npm run test"
-      ],
-      "status": "PASS"
+      "verification": "node --test tests/reliability-cli.test.mjs tests/flake.test.mjs tests/gates.test.mjs",
+      "actualResult": "Explicit owner/reason/issue/expiry metadata, exact project scopes, duplicate/orphan/expiry validation and lock-safe mutation are enforced; quarantined failures and retry recovery remain blocking and release selection keeps quarantined tests."
     },
     {
       "id": "M3-07",
-      "requirement": "Explicit atomic quarantine add, validate and remove",
+      "requirement": "History comparison and reliability evidence in JSON, Markdown, JUnit and self-contained HTML reports",
+      "status": "PASS",
       "implementationPaths": [
-        "packages/flake-analysis/src/quarantine.ts",
-        "packages/cli/src/cli.ts",
-        "packages/cli/src/reliability-commands.ts"
+        "packages/reporter/src/outputs.ts",
+        "packages/cli/src/cli.ts"
       ],
-      "verification": [
-        "tests/history.test.mjs: quarantine add and remove are explicit, atomic and do not mask policy",
-        "tests/flake.test.mjs"
-      ],
-      "status": "PASS"
+      "verification": "node --test tests/history-reporting.test.mjs tests/reporter.test.mjs",
+      "actualResult": "Merged reports include a versioned machine-readable history analysis, current/prior reliability counters, coverage gaps, per-test owner/quarantine/sample states and escaped/filterable HTML history views."
     },
     {
       "id": "M3-08",
-      "requirement": "Bounded diagnostic repetition with first-failure preservation",
+      "requirement": "History-aware centralized quality-gate propagation",
+      "status": "PASS",
       "implementationPaths": [
-        "packages/cli/src/cli.ts",
+        "packages/core/src/gates.ts",
         "packages/cli/src/reliability-commands.ts"
       ],
-      "verification": [
-        "npm run build",
-        "CLI acceptance through exact-SHA CI"
+      "verification": "node --test tests/gates.test.mjs tests/reliability-cli.test.mjs",
+      "actualResult": "Current-run defects, invalid or expired quarantine and configured history thresholds converge in one decision and retain quality/infrastructure exit semantics without treating insufficient history as compliance."
+    },
+    {
+      "id": "M3-09",
+      "requirement": "Merged reports emit a portable checksum-verified history record",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/cli/src/cli.ts",
+        "packages/flake-analysis/src/history-record.ts",
+        "packages/flake-analysis/src/history-types.ts"
       ],
-      "status": "PASS"
+      "verification": "node --test tests/history.test.mjs tests/history-reporting.test.mjs",
+      "actualResult": "report merge writes history-record.json and includes it in completion checksums; record validation rejects checksum and run-identity disagreement."
+    },
+    {
+      "id": "M3-10",
+      "requirement": "GitHub Actions artifact history import is paginated, bounded and trust-separated",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/flake-analysis/src/github-history.ts",
+        "packages/cli/src/reliability-commands.ts"
+      ],
+      "verification": "node --test tests/github-history.test.mjs",
+      "actualResult": "Completed workflow runs and artifacts are paginated, artifact ZIPs are size/path/CRC bounded, declared and actual history checksums agree, identical duplicates are idempotent, conflicting duplicates fail, failed runs remain eligible, and PR/fork observations are untrusted."
+    },
+    {
+      "id": "M3-11",
+      "requirement": "Historical comparisons appear in every report format with explicit insufficient-data states",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/reporter/src/outputs.ts",
+        "packages/cli/src/cli.ts"
+      ],
+      "verification": "node --test tests/history-reporting.test.mjs tests/reporter.test.mjs",
+      "actualResult": "JSON, Markdown, JUnit and self-contained HTML receive the same bounded history analysis with N/F/I/P, observation windows, owners, per-test sample sufficiency and coverage-gap warnings; no baseline is rendered explicitly rather than as a zero rate."
+    },
+    {
+      "id": "M3-12",
+      "requirement": "Diagnostic repeat resolves a stable ID to one exact source location",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/cli/src/runner.ts",
+        "packages/cli/src/reliability-commands.ts"
+      ],
+      "verification": "node --test tests/repeat-selection.test.mjs tests/reliability-cli.test.mjs",
+      "actualResult": "The selected stable ID must resolve to exactly one logical test and source location; repeat invokes Playwright with file:line rather than title grep and rejects ambiguous source mappings."
     }
   ],
   "remainingBoundaries": [
-    "GitHub Actions artifact pagination/download adapter is not yet implemented.",
-    "Diagnostic repetition currently repeats a validated suite selection rather than a single stable test ID.",
-    "Historical metrics are available in JSON/CLI output but are not yet rendered in every HTML/JUnit view.",
-    "Coverage thresholds, LedgerGuard integration, published Action/npm artifacts and versioned docs remain later milestones."
-  ],
-  "sourceSha": "907eaa39c6dfc0252436c464728e23269d8e127c",
-  "verificationRun": {
-    "id": 36308672914,
-    "event": "pull_request",
-    "conclusion": "success",
-    "completedAt": "2026-09-27T09:19:22Z",
-    "requiredLanes": {
-      "verify": [
-        "ubuntu-latest/node-22",
-        "ubuntu-latest/node-24",
-        "macos-latest/node-22",
-        "macos-latest/node-24",
-        "windows-latest/node-22",
-        "windows-latest/node-24"
-      ],
-      "packedConsumers": [
-        "ubuntu-latest",
-        "macos-latest",
-        "windows-latest"
-      ],
-      "teamboard": "PostgreSQL API plus Chromium/Firefox/WebKit and packed npm/pnpm consumers",
-      "aggregate": "forgeqa-quality"
-    }
-  }
+    "GitHub Action external distribution and safe PR publication remain Phase 8.",
+    "LedgerGuard remains blocked on genuine product-facing auth/payment/UI surfaces.",
+    "Runtime coverage thresholds, comparable distributed benchmarks, versioned documentation deployment and public package/action release remain later phases."
+  ]
 }

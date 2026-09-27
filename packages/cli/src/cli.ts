@@ -22,11 +22,12 @@ import {
   toMarkdownSummary,
   validateShardEvidence
 } from '@azerish25-ux/forgeqa-reporter';
-import { createHistoryRecord, readQuarantine } from '@azerish25-ux/forgeqa-flake-analysis';
+import { analyzeHistory, createHistoryRecord, readHistoryRecords, readQuarantine } from '@azerish25-ux/forgeqa-flake-analysis';
 import {
   flakesCommand,
   gateCommand,
   historyImportCommand,
+  historyImportGitHubCommand,
   historyProvenance,
   quarantineAddCommand,
   quarantineRemoveCommand,
@@ -96,16 +97,20 @@ async function reportMerge(parsed: Parsed): Promise<void> {
     requireCompleteShards: true,
     maxQuarantineEntries: 20
   });
+  const history = parsed.options.has('history')
+    ? analyzeHistory(merged, await readHistoryRecords(String(parsed.options.get('history'))), Number(parsed.options.get('minimum-samples') || 20))
+    : undefined;
   const historyRecord = createHistoryRecord(merged, historyProvenance());
-  const outputs = {
+  const outputs: Record<string, string> = {
     'report.json': toJsonReport(merged),
-    'junit.xml': toJUnit(merged),
-    'summary.md': toMarkdownSummary(merged),
-    'index.html': toHtmlReport(merged),
+    'junit.xml': toJUnit(merged, history),
+    'summary.md': toMarkdownSummary(merged, history),
+    'index.html': toHtmlReport(merged, history),
     'history-record.json': `${JSON.stringify(historyRecord, null, 2)}\n`
   };
+  if (history) outputs['history-analysis.json'] = `${JSON.stringify(history, null, 2)}\n`;
   await Promise.all(Object.entries(outputs).map(([name, content]) => atomicWrite(resolve(output, name), content)));
-  const checksumPaths = ['report.json', 'junit.xml', 'summary.md', 'index.html', 'artifact-manifest.json', 'history-record.json'];
+  const checksumPaths = [...Object.keys(outputs), 'artifact-manifest.json'];
   const checksums: Record<string, string> = {};
   for (const name of checksumPaths) checksums[name] = sha256(await readFile(resolve(output, name)));
   await directoryChecksums(output, resolve(output, 'playwright-report'), checksums);
@@ -123,12 +128,13 @@ async function reportMerge(parsed: Parsed): Promise<void> {
     gate: merged.gate.outcome,
     nativeMergeExitCode: native.runnerExitCode,
     reconciliation,
+    history: history?.status ?? 'NO_BASELINE',
     checksums
   };
   await atomicWrite(resolve(output, 'complete.json'), `${JSON.stringify(complete, null, 2)}\n`);
   emit(
     parsed,
-    { runId: merged.runId, output, completion: merged.completion, tests: new Set(merged.attempts.map(attempt => attempt.executionId)).size, attempts: merged.attempts.length, gate: merged.gate, evidence: merged.evidence, historyRecord: resolve(output, 'history-record.json') },
+    { runId: merged.runId, output, completion: merged.completion, tests: new Set(merged.attempts.map(attempt => attempt.executionId)).size, attempts: merged.attempts.length, gate: merged.gate, evidence: merged.evidence, history: history ?? { status: 'NO_BASELINE' }, historyRecord: resolve(output, 'history-record.json') },
     `Merged ${shards.length} shards into ${output}. Native and ForgeQA evidence matched. ${merged.gate.outcome === 'pass' ? 'Quality gates passed.' : 'Quality gates failed.'}`
   );
   if (merged.completion !== 'complete') process.exitCode = 3;
@@ -142,7 +148,29 @@ async function reportServe(parsed: Parsed): Promise<void> {
 }
 
 function help(): string {
-  return `ForgeQA ${VERSION}\n\nCommands:\n  forgeqa init [--destination DIR] [--package-manager npm|pnpm] [--dry-run] [--json]\n  forgeqa doctor [--json]\n  forgeqa plan [--suite NAME] [--browsers LIST] [--workers N] [--shard I/N] [--json]\n  forgeqa run [selection options] [--shard I/N] [--manifest FILE] [--config FILE] [--playwright-config FILE] [--json]\n  forgeqa repeat [COUNT] [MAX_FAILURES] [TIME_BUDGET_MS] [selection options] [--output DIR]\n  forgeqa report merge --manifest FILE --output DIR SHARD...\n  forgeqa report serve [DIR] [--output DIR] [--json]\n  forgeqa history import REPORT_OR_DIR... [--output HISTORY_DIR] [--json]\n  forgeqa flakes --report FILE [--output HISTORY_DIR] [--minimum-samples N]\n  forgeqa quarantine validate [--file FILE] [--report FILE|--known-tests IDS]\n  forgeqa quarantine add TEST_ID OWNER REASON ISSUE EXPIRES_AT [PROJECTS] [--file FILE] [--report FILE|--known-tests IDS]\n  forgeqa quarantine remove TEST_ID [PROJECTS] [--file FILE]\n  forgeqa gate --report FILE\n  forgeqa migrate\n\nrepeat emits one result per bounded diagnostic iteration followed by repeat-summary.json. Diagnostic records are marked non-authoritative.\n\nExit codes: 0 compliant success, 1 quality failure, 2 usage/configuration, 3 infrastructure/report integrity, 130 interruption.\n`;
+  return `ForgeQA ${VERSION}
+
+Commands:
+  forgeqa init [--destination DIR] [--package-manager npm|pnpm] [--dry-run] [--json]
+  forgeqa doctor [--json]
+  forgeqa plan [--suite NAME] [--browsers LIST] [--workers N] [--shard I/N] [--json]
+  forgeqa run [selection options] [--shard I/N] [--manifest FILE] [--config FILE] [--playwright-config FILE] [--json]
+  forgeqa repeat --test-id STABLE_ID [COUNT] [MAX_FAILURES] [TIME_BUDGET_MS] [selection options] [--output DIR]
+  forgeqa report merge --manifest FILE --output DIR SHARD... [--history HISTORY_DIR]
+  forgeqa report serve [DIR] [--output DIR] [--json]
+  forgeqa history import REPORT_OR_DIR... [--output HISTORY_DIR] [--json]
+  forgeqa history import-github --repository OWNER/REPO [--workflow FILE] [--artifact-name PREFIX] [--max-runs N] [--token-env NAME] [--output HISTORY_DIR]
+  forgeqa flakes --report FILE [--history HISTORY_DIR] [--minimum-samples N] [--render DIR]
+  forgeqa quarantine validate [--file FILE] [--report FILE|--known-tests IDS]
+  forgeqa quarantine add TEST_ID OWNER REASON ISSUE EXPIRES_AT [PROJECTS] [--file FILE] [--report FILE|--known-tests IDS]
+  forgeqa quarantine remove TEST_ID [PROJECTS] [--file FILE]
+  forgeqa gate --report FILE
+  forgeqa migrate
+
+repeat resolves one stable ForgeQA ID to its exact source declaration, emits one result per bounded diagnostic iteration, and writes repeat-summary.json. Diagnostic records remain non-authoritative.
+
+Exit codes: 0 compliant success, 1 quality failure, 2 usage/configuration, 3 infrastructure/report integrity, 130 interruption.
+`;
 }
 
 export async function main(argv = process.argv.slice(2)): Promise<void> {
@@ -165,6 +193,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     case 'report merge': await reportMerge(parsed); break;
     case 'report serve': await reportServe(parsed); break;
     case 'history import': await historyImportCommand(parsed); break;
+    case 'history import-github': await historyImportGitHubCommand(parsed); break;
     case 'gate': await gateCommand(parsed); break;
     case 'flakes': await flakesCommand(parsed); break;
     case 'quarantine validate': await quarantineValidateCommand(parsed); break;

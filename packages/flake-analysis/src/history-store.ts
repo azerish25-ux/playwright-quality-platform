@@ -86,7 +86,8 @@ function entryFor(record: HistoryRecord): HistoryManifestEntry {
     testedCommit: record.result.revision.testedCommit,
     provenance: record.provenance,
     observedAt: record.observedAt,
-    checksum: record.checksum
+    checksum: record.checksum,
+    ...(record.source ? { source: record.source } : {})
   };
 }
 
@@ -106,7 +107,10 @@ async function resolveSource(path: string): Promise<string> {
   throw new IntegrityError(`History directory contains neither history-record.json nor report.json: ${path}`);
 }
 
-async function sourceRecord(path: string, options: Required<Pick<ImportHistoryOptions, 'provenance' | 'maxBytes'>> & { now: Date }): Promise<HistoryRecord> {
+async function sourceRecord(
+  path: string,
+  options: Required<Pick<ImportHistoryOptions, 'provenance' | 'maxBytes'>> & { now: Date }
+): Promise<HistoryRecord> {
   const file = await resolveSource(path);
   const value = await readBoundedHistoryJson(file, options.maxBytes);
   if (isHistoryRecordValue(value)) return validateHistoryRecord(value);
@@ -125,7 +129,12 @@ async function persistRecord(root: string, record: HistoryRecord): Promise<void>
   await atomicWrite(path, `${JSON.stringify(record, null, 2)}\n`);
 }
 
-function retention(entries: HistoryManifestEntry[], now: Date, maxRecords: number, maxAgeDays: number): { kept: HistoryManifestEntry[]; removed: HistoryManifestEntry[] } {
+function retention(
+  entries: HistoryManifestEntry[],
+  now: Date,
+  maxRecords: number,
+  maxAgeDays: number
+): { kept: HistoryManifestEntry[]; removed: HistoryManifestEntry[] } {
   const cutoff = now.getTime() - maxAgeDays * 86_400_000;
   const ordered = [...entries].sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt) || a.importKey.localeCompare(b.importKey));
   const kept: HistoryManifestEntry[] = [];
@@ -138,34 +147,51 @@ function retention(entries: HistoryManifestEntry[], now: Date, maxRecords: numbe
   return { kept, removed };
 }
 
-export async function importHistory(root: string, sources: string[], options: ImportHistoryOptions = {}): Promise<ImportHistoryResult> {
-  if (!sources.length) throw new ConfigurationError('history import requires at least one report file or report directory.');
+function limits(options: ImportHistoryOptions): { now: Date; maxRecords: number; maxAgeDays: number } {
   const now = options.now ?? new Date();
-  const provenance = options.provenance ?? 'trusted-default-branch';
-  const maxBytes = options.maxBytes ?? DEFAULT_HISTORY_MAX_BYTES;
   const maxRecords = options.maxRecords ?? DEFAULT_MAX_RECORDS;
   const maxAgeDays = options.maxAgeDays ?? DEFAULT_MAX_AGE_DAYS;
   if (!Number.isInteger(maxRecords) || maxRecords < 1 || maxRecords > 10_000) throw new ConfigurationError('History maxRecords must be between 1 and 10000.');
   if (!Number.isFinite(maxAgeDays) || maxAgeDays < 1 || maxAgeDays > 3650) throw new ConfigurationError('History maxAgeDays must be between 1 and 3650.');
+  return { now, maxRecords, maxAgeDays };
+}
+
+async function importPreparedHistory(
+  root: string,
+  input: HistoryRecord[],
+  options: ImportHistoryOptions
+): Promise<ImportHistoryResult> {
+  const { now, maxRecords, maxAgeDays } = limits(options);
+  const records = input.map(record => validateHistoryRecord(record));
   const store = resolve(root);
   return await withStoreLock(store, async () => {
     const manifest = await loadManifest(store, now);
     const entries = new Map(manifest.entries.map(entry => [entry.importKey, entry]));
-    const importedKeys: string[] = [];
+    const pending = new Map<string, HistoryRecord>();
     let skipped = 0;
-    for (const source of sources) {
-      const record = await sourceRecord(source, { provenance, maxBytes, now });
+    for (const record of records) {
+      const existingBatch = pending.get(record.importKey);
+      if (existingBatch) {
+        if (existingBatch.checksum !== record.checksum) throw new IntegrityError(`Conflicting duplicate history import for run ${record.result.runId}.`, { importKey: record.importKey });
+        skipped += 1;
+        continue;
+      }
       const existing = entries.get(record.importKey);
       if (existing) {
-        if (existing.checksum !== record.checksum) {
+        const stored = await readHistory(safe(store, existing.file));
+        if (existing.checksum !== record.checksum || stored.checksum !== record.checksum) {
           throw new IntegrityError(`Conflicting duplicate history import for run ${record.result.runId}.`, { importKey: record.importKey });
         }
         skipped += 1;
         continue;
       }
+      pending.set(record.importKey, record);
+    }
+    const importedKeys = [...pending.keys()].sort();
+    for (const importKey of importedKeys) {
+      const record = pending.get(importKey)!;
       await persistRecord(store, record);
-      entries.set(record.importKey, entryFor(record));
-      importedKeys.push(record.importKey);
+      entries.set(importKey, entryFor(record));
     }
     const { kept, removed } = retention([...entries.values()], now, maxRecords, maxAgeDays);
     for (const entry of removed) await rm(safe(store, entry.file), { force: true });
@@ -181,23 +207,24 @@ export async function importHistory(root: string, sources: string[], options: Im
   });
 }
 
-export async function writeHistory(root: string, result: Parameters<typeof createHistoryRecord>[0], provenance: HistoryProvenance): Promise<string> {
-  const record = createHistoryRecord(result, provenance);
-  const temporary = await writeTemporaryRecord(root, record);
-  try {
-    await importHistory(root, [temporary], { provenance, maxAgeDays: DEFAULT_MAX_AGE_DAYS, maxRecords: DEFAULT_MAX_RECORDS });
-  } finally {
-    await rm(temporary, { force: true });
-  }
-  return safe(root, `records/${record.importKey}.json`);
+export async function importHistory(root: string, sources: string[], options: ImportHistoryOptions = {}): Promise<ImportHistoryResult> {
+  if (!sources.length) throw new ConfigurationError('history import requires at least one report file or report directory.');
+  const now = options.now ?? new Date();
+  const provenance = options.provenance ?? 'trusted-default-branch';
+  const maxBytes = options.maxBytes ?? DEFAULT_HISTORY_MAX_BYTES;
+  const records = await Promise.all(sources.map(source => sourceRecord(source, { provenance, maxBytes, now })));
+  return await importPreparedHistory(root, records, options);
 }
 
-async function writeTemporaryRecord(root: string, record: HistoryRecord): Promise<string> {
-  const directory = safe(root, '.incoming');
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const path = safe(directory, `${record.importKey}.${process.pid}.json`);
-  await atomicWrite(path, `${JSON.stringify(record, null, 2)}\n`);
-  return path;
+export async function importHistoryRecords(root: string, records: HistoryRecord[], options: ImportHistoryOptions = {}): Promise<ImportHistoryResult> {
+  if (!records.length) throw new ConfigurationError('history import requires at least one record.');
+  return await importPreparedHistory(root, records, options);
+}
+
+export async function writeHistory(root: string, result: Parameters<typeof createHistoryRecord>[0], provenance: HistoryProvenance): Promise<string> {
+  const record = createHistoryRecord(result, provenance);
+  await importHistoryRecords(root, [record], { provenance, maxAgeDays: DEFAULT_MAX_AGE_DAYS, maxRecords: DEFAULT_MAX_RECORDS });
+  return safe(root, `records/${record.importKey}.json`);
 }
 
 export async function readHistory(file: string): Promise<HistoryRecord> {

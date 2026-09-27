@@ -6,11 +6,11 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { createJiti } from 'jiti';
-import { ConfigurationError, IntegrityError, resolveForgeConfig, sha256, stableHash, redactText, type ForgeConfigInput, type ResolveConfigOptions, type ResolvedForgeConfig, type SelectionManifest, type MergedRunResult, type ShardResult } from '@azerish25-ux/forgeqa-core';
+import { ConfigurationError, IntegrityError, resolveForgeConfig, sha256, stableHash, redactText, type ExpectedExecution, type ForgeConfigInput, type ResolveConfigOptions, type ResolvedForgeConfig, type SelectionManifest, type MergedRunResult, type ShardResult } from '@azerish25-ux/forgeqa-core';
 export interface Parsed { command: string[]; options: Map<string,string|boolean>; positionals: string[]; }
 export interface ShardSpec { index:number; total:number; }
 const booleanOptions=new Set(['json','dry-run','help','version']);
-const allowedOptions=new Set([...booleanOptions,'destination','package-manager','template','config','playwright-config','environment','suite','browsers','workers','retries','shard','manifest','output','report','quarantine','minimum-samples','file','known-tests']);
+const allowedOptions=new Set([...booleanOptions,'destination','package-manager','template','config','playwright-config','environment','suite','browsers','workers','retries','shard','manifest','output','report','quarantine','minimum-samples','file','known-tests','test-id','history','render','repository','workflow','artifact-name','token-env','max-runs']);
 export function parse(argv: string[]): Parsed {
   const options=new Map<string,string|boolean>(), positionals:string[]=[], command:string[]=[];
   let index=0;
@@ -74,6 +74,20 @@ function suitePattern(config:ResolvedForgeConfig,suite:string): string {
   const names=suite==='release'?['smoke','regression','release']:suite==='regression'?['smoke','regression']:[suite];
   return `(?:${[...new Set(names.flatMap(name=>membership[name]!))].join('|')})(?:\\s|$)`;
 }
+export interface StableTestSelection { expected: ExpectedExecution[]; selectors: string[]; }
+export function selectStableTest(expected:ExpectedExecution[],testId:string):StableTestSelection {
+  const stableId=testId.trim();
+  if(!stableId)throw new ConfigurationError('Stable test ID must not be empty.');
+  const matches=expected.filter(entry=>entry.logicalTestId===stableId).sort((a,b)=>a.executionId.localeCompare(b.executionId));
+  if(!matches.length)throw new ConfigurationError(`Unknown stable test ID: ${stableId}`);
+  const locations=new Set<string>();
+  for(const entry of matches) {
+    if(!entry.relativePath || !Number.isInteger(entry.line) || entry.line!<1)throw new IntegrityError(`Stable test ${stableId} is missing source location evidence.`);
+    locations.add(`${entry.relativePath}:${entry.line}`);
+  }
+  if(locations.size!==1)throw new IntegrityError(`Stable test ${stableId} resolves to multiple declarations.`);
+  return {expected:matches,selectors:[...locations].sort()};
+}
 interface ChildResult {code:number;stdout:string;stderr:string;interrupted:boolean;}
 function childEnvironment(requestPath:string,runDir:string): NodeJS.ProcessEnv {
   const env={...process.env,FORGEQA_RUN_REQUEST:requestPath,PLAYWRIGHT_BLOB_OUTPUT_DIR:resolve(runDir,'blob-report')};
@@ -119,6 +133,7 @@ async function discover(parsed:Parsed) {
   const args=['test','--config',nativeConfig,'--grep',grep,'--workers',String(config.workers),'--retries',String(config.retries),'--timeout',String(config.timeoutMs),'--forbid-only'];
   if(config.qualityGates?.failOnRetryRecovered)args.push('--fail-on-flaky-tests');
   if(parsed.options.has('manifest')) {
+    if(parsed.options.has('test-id'))throw new ConfigurationError('--test-id cannot be combined with --manifest. Discover the exact diagnostic target locally.');
     const manifestPath=resolve(opt(parsed,'manifest',''));
     const manifest=await boundedJson(manifestPath) as SelectionManifest;
     validateManifest(manifest,config,shard.total);
@@ -143,13 +158,21 @@ async function discover(parsed:Parsed) {
     if(part.expected.some(entry=>entry.shardIndex!==index || entry.shardTotal!==shard.total))throw new IntegrityError(`Shard discovery ${index}/${shard.total} reported contradictory identities.`);
     manifests.push(part);
   }
-  const expected=manifests.flatMap(value=>value.expected).sort((a,b)=>a.executionId.localeCompare(b.executionId));
-  if(!expected.length)throw new ConfigurationError('Empty test selection.');
-  if(new Set(expected.map(entry=>entry.executionId)).size!==expected.length)throw new IntegrityError('Distributed discovery produced duplicate executions.');
+  const discovered=manifests.flatMap(value=>value.expected).sort((a,b)=>a.executionId.localeCompare(b.executionId));
+  if(!discovered.length)throw new ConfigurationError('Empty test selection.');
+  if(new Set(discovered.map(entry=>entry.executionId)).size!==discovered.length)throw new IntegrityError('Distributed discovery produced duplicate executions.');
+  let expected=discovered;
+  let selectionArgs:string[]=[];
+  if(parsed.options.has('test-id')) {
+    if(shard.total!==1)throw new ConfigurationError('--test-id diagnostic selection does not accept distributed shards.');
+    const target=selectStableTest(discovered,opt(parsed,'test-id',''));
+    expected=target.expected;
+    selectionArgs=target.selectors;
+  }
   const manifest:SelectionManifest={schemaVersion:1,runId,configHash:config.configHash,selectionHash:stableHash(expected),expected};
   const manifestPath=resolve(runDir,'manifest.json');
   await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n',{mode:0o600});
-  return {config,runner,args,runDir,runId,manifest,manifestPath,request:{runId,runDir,mode:'discover' as const,suite,options},shard};
+  return {config,runner,args:[...args,...selectionArgs],runDir,runId,manifest,manifestPath,request:{runId,runDir,mode:'discover' as const,suite,options},shard};
 }
 export async function planCommand(parsed: Parsed): Promise<void> {
   const value=await discover(parsed);
