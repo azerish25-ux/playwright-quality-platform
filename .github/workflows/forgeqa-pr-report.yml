@@ -7,7 +7,7 @@ permissions:
   actions: read
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 concurrency:
   group: forgeqa-pr-report-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: false
