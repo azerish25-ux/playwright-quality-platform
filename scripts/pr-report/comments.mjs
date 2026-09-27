@@ -60,7 +60,7 @@ export function renderComment({ context, jobs, evidence, evidenceError }) {
     headSha: context.headSha,
     baseSha: context.baseSha,
   });
-  const rows = ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action', 'forgeqa-quality'].map((name) => {
+  const rows = ['verify', 'consumer', 'teamboard', 'ledgerguard', 'hardening', 'action', 'forgeqa-quality'].map((name) => {
     const result = jobs?.[name] ?? 'unavailable';
     return `| ${markdownEscape(name)} | ${markdownEscape(displayConclusion(result))} |`;
   });
