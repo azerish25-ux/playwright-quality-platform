@@ -70,8 +70,10 @@ test('LedgerGuard is an executable API-first external consumer contract', async 
 
 test('LedgerGuard consumer compilation is shared, isolated and completed before Docker startup', async () => {
   const harness = await text('scripts/ledgerguard-acceptance.mjs');
+  const support = await text('scripts/ledgerguard-acceptance-support.mjs');
   const preparation = await text('scripts/ledgerguard-consumer-preparation.mjs');
   const preflight = await text('scripts/ledgerguard-consumer-preflight.mjs');
+  const lab = await text('consumers/ledgerguard/src/lab.ts');
   assert(harness.includes(PINNED_LEDGERGUARD_SHA));
   assert.match(harness, /const preparedConsumers = await prepareLedgerGuardConsumers/);
   assert.match(harness, /for \(const \{ manager, consumer, resolved \} of preparedConsumers\)/);
@@ -93,12 +95,28 @@ test('LedgerGuard consumer compilation is shared, isolated and completed before 
   assert.match(preflight, /independentConsumers:\s*true/);
   assert.match(preflight, /failure\.json/);
 
+  assert.match(harness, /createManagerEnvironment\(manager\)/);
+  assert.match(harness, /COMPOSE_PROJECT_NAME=/);
+  assert.match(harness, /isolatedComposeProjects:\s*true/);
+  assert.match(harness, /retainConsumerRun/);
+  assert.match(harness, /managerFailures/);
   assert.match(harness, /independentConsumer:\s*true/);
   assert.match(harness, /reconciliationDiscrepancies/);
   assert.match(harness, /down', '--volumes', '--remove-orphans'/);
   assert.match(harness, /LedgerGuard acceptance leaked containers/);
   assert.match(harness, /LedgerGuard acceptance leaked volumes/);
+  assert.match(harness, /LedgerGuard acceptance leaked networks/);
   assert.doesNotMatch(harness, /continue-on-error|\|\| true/);
+
+  assert.match(support, /forgeqa-results/);
+  assert.match(support, /command\.stderr\.txt/);
+  assert.match(support, /escaped its owned results root/);
+  assert.match(support, /await cp\(runDirectory, destination, \{ recursive: true \}\)/);
+
+  assert.match(lab, /--force-recreate/);
+  assert.match(lab, /--wait-timeout', '120'/);
+  assert.match(lab, /Started LedgerGuardApplication/);
+  assert.match(lab, /waitForApplicationStartup/);
 
   const rootManifest = JSON.parse(await text('package.json'));
   assert.equal(

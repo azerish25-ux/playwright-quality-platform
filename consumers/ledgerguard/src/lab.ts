@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const INTEGER = /^-?[0-9]+$/;
+const STARTED = 'Started LedgerGuardApplication';
+const pauseBuffer = new Int32Array(new SharedArrayBuffer(4));
 
 export class LedgerGuardLab {
   private readonly root = resolve(required('LEDGERGUARD_ROOT'));
@@ -22,7 +24,14 @@ export class LedgerGuardLab {
 
   public up(...services: string[]): void {
     validateServices(services);
-    this.compose(['up', '-d', ...services]);
+    this.compose([
+      'up', '-d', '--force-recreate', '--no-deps', '--wait', '--wait-timeout', '120', ...services
+    ], 180_000);
+    this.waitForApplicationStartup(services, 120_000);
+    const running = this.runningServices();
+    for (const service of services) {
+      if (!running.has(service)) throw new Error(`LedgerGuard service ${service} did not remain running after restart.`);
+    }
   }
 
   public fundAccount(accountId: string, amountMinor: bigint): void {
@@ -102,6 +111,32 @@ export class LedgerGuardLab {
     return this.sql(query).trim();
   }
 
+  private waitForApplicationStartup(services: string[], timeoutMs: number): void {
+    const pending = new Set(services);
+    const last = new Map<string, string>();
+    const deadline = Date.now() + timeoutMs;
+    while (pending.size > 0 && Date.now() < deadline) {
+      for (const service of pending) {
+        try {
+          const logs = this.compose(['logs', '--no-color', '--tail', '300', service], 30_000);
+          last.set(service, logs.slice(-4_000));
+          if (logs.includes(STARTED)) pending.delete(service);
+        } catch (failure) {
+          last.set(service, failure instanceof Error ? failure.message : String(failure));
+        }
+      }
+      if (pending.size > 0) Atomics.wait(pauseBuffer, 0, 0, 500);
+    }
+    if (pending.size > 0) {
+      const details = [...pending]
+        .map(service => `${service}: ${last.get(service) ?? 'no startup logs'}`)
+        .join('\n');
+      throw new Error(
+        `LedgerGuard services did not finish application startup: ${[...pending].join(', ')}\n${details}`
+      );
+    }
+  }
+
   private sql(query: string): string {
     return execFileSync('docker', [
       'compose', '--ansi', 'never', '--env-file', this.envFile,
@@ -119,13 +154,13 @@ export class LedgerGuardLab {
     });
   }
 
-  private compose(args: string[]): string {
+  private compose(args: string[], timeout = 90_000): string {
     return execFileSync('docker', [
       'compose', '--ansi', 'never', '--env-file', this.envFile,
       '-f', resolve(this.root, 'compose.yaml'),
       '-f', resolve(this.root, 'compose.p07.yaml'),
       ...args
-    ], { cwd: this.root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 90_000 });
+    ], { cwd: this.root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout });
   }
 }
 

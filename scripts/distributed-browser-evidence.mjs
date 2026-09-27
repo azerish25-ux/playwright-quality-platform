@@ -6,7 +6,9 @@ import {fileURLToPath} from 'node:url';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const cli=resolve(root,'packages/cli/dist/cli.js');
-const temporary=await mkdtemp(resolve(root,'.tmp/browser-evidence-'));
+const temporaryRoot=resolve(root,'.tmp');
+await mkdir(temporaryRoot,{recursive:true});
+const temporary=await mkdtemp(join(temporaryRoot,'browser-evidence-'));
 const evidence=resolve(root,'evidence/browser-distributed');
 const forgeConfig=join(temporary,'forgeqa.config.ts');
 const playwrightConfig=join(temporary,'playwright.config.ts');

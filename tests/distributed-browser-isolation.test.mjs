@@ -4,6 +4,14 @@ import test from 'node:test';
 
 test('distributed browser evidence is isolated from preceding consumer lifecycle state', async () => {
   const source = await readFile('scripts/distributed-browser-evidence.mjs', 'utf8');
+  assert.match(source, /const temporaryRoot=resolve\(root,'\.tmp'\)/);
+  assert.match(source, /await mkdir\(temporaryRoot,\{recursive:true\}\)/);
+  assert.match(source, /mkdtemp\(join\(temporaryRoot,'browser-evidence-'\)\)/);
+  assert(
+    source.indexOf('await mkdir(temporaryRoot,{recursive:true})')
+      < source.indexOf("mkdtemp(join(temporaryRoot,'browser-evidence-'))"),
+    'The clean-checkout temporary parent must exist before mkdtemp runs.'
+  );
   assert.match(source, /const explicitConfigs=\['--config',forgeConfig,'--playwright-config',playwrightConfig\]/);
   assert.match(source, /env:isolatedEnvironment\(\)/);
   assert.match(source, /name\.startsWith\('FORGEQA_'\)/);
