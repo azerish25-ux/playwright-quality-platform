@@ -57,7 +57,8 @@ test('the privileged PR publisher runs trusted code only and treats PR artifacts
   assert.doesNotMatch(workflow, /pull_request_target/);
   assert.match(workflow, /actions:\s*read/);
   assert.match(workflow, /issues:\s*write/);
-  assert.match(workflow, /pull-requests:\s*read/);
+  assert.match(workflow, /pull-requests:\s*write/);
+  assert.doesNotMatch(workflow, /pull-requests:\s*read/);
   assert.match(workflow, /ref:\s*\$\{\{ github\.event\.repository\.default_branch \}\}/);
   assert.match(workflow, /path:\s*trusted-source/);
   assert.match(workflow, /persist-credentials:\s*false/);
