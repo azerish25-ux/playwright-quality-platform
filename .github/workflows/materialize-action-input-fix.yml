@@ -19,72 +19,27 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - name: Persist evidence for early action failures
+        env:
+          IMPORT_OLD: ICBzdGF0LAp9IGZyb20gJ25vZGU6ZnMvcHJvbWlzZXMnOw==
+          IMPORT_NEW: ICBzdGF0LAogIHdyaXRlRmlsZSwKfSBmcm9tICdub2RlOmZzL3Byb21pc2VzJzs=
+          BLOCK_OLD: ICAgIGNvbnN0IHdvcmtzcGFjZSA9IGVudi5HSVRIVUJfV09SS1NQQUNFIHx8IHByb2Nlc3MuY3dkKCk7CiAgICBjb25zdCByZXN1bHQ6IEZvcmdlQWN0aW9uUmVzdWx0ID0gewogICAgICBleGl0Q29kZTogY29kZSwKICAgICAgb3V0Y29tZTogY2xhc3NpZnlPdXRjb21lKGNvZGUpLAogICAgICBtb2RlOiBzYWZlSW5wdXRzLm1vZGUsCiAgICAgIHJ1bklkOiAnJywKICAgICAgdGVzdENvdW50OiAwLAogICAgICBhdHRlbXB0Q291bnQ6IDAsCiAgICAgIGZsYWt5Q291bnQ6IDAsCiAgICAgIHNoYXJkQ291bnQ6IHNhZmVJbnB1dHMuc2hhcmRDb3VudCwKICAgICAgbWFuaWZlc3RQYXRoOiAnJywKICAgICAgZXZpZGVuY2VQYXRoOiByZXNvbHZlKHdvcmtzcGFjZSwgc2FmZUlucHV0cy53b3JraW5nRGlyZWN0b3J5LCBzYWZlSW5wdXRzLm91dHB1dERpcmVjdG9yeSksCiAgICAgIHJlcG9ydFBhdGg6ICcnLAogICAgICBhcnRpZmFjdE5hbWU6IGBmb3JnZXFhLSR7KGVudi5HSVRIVUJfUlVOX0lEIHx8ICdsb2NhbCcpLnJlcGxhY2UoL1teQS1aYS16MC05Ll8tXS9nLCAnXycpfS0ke3NhZmVJbnB1dHMubW9kZX1gLAogICAgICBydW5Vcmw6ICcnLAogICAgICBlcnJvcjogbWVzc2FnZSwKICAgICAgLi4uKHNhZmVJbnB1dHMuc2hhcmRJbmRleCA9PT0gdW5kZWZpbmVkID8ge30gOiB7IHNoYXJkSW5kZXg6IHNhZmVJbnB1dHMuc2hhcmRJbmRleCB9KSwKICAgIH07CiAgICBhd2FpdCBwdWJsaXNoUmVzdWx0KHJlc3VsdCwgc2FmZUlucHV0cywgZW52KS5jYXRjaCgoKSA9PiB1bmRlZmluZWQpOw==
+          BLOCK_NEW: ICAgIGNvbnN0IHdvcmtzcGFjZSA9IGVudi5HSVRIVUJfV09SS1NQQUNFIHx8IHByb2Nlc3MuY3dkKCk7CiAgICBsZXQgZXZpZGVuY2VQYXRoOiBzdHJpbmc7CiAgICB0cnkgewogICAgICBjb25zdCB3b3JraW5nRGlyZWN0b3J5ID0gYXdhaXQgcmVzb2x2ZVdvcmtpbmdEaXJlY3Rvcnkod29ya3NwYWNlLCBzYWZlSW5wdXRzLndvcmtpbmdEaXJlY3RvcnkpOwogICAgICBldmlkZW5jZVBhdGggPSBhd2FpdCBlbnN1cmVEaXJlY3RvcnlXaXRoaW4od29ya2luZ0RpcmVjdG9yeSwgc2FmZUlucHV0cy5vdXRwdXREaXJlY3RvcnkpOwogICAgfSBjYXRjaCB7CiAgICAgIGV2aWRlbmNlUGF0aCA9IGF3YWl0IGVuc3VyZURpcmVjdG9yeVdpdGhpbihhd2FpdCByZWFscGF0aCh3b3Jrc3BhY2UpLCAnLmZvcmdlcWEvYWN0aW9uLWZhaWx1cmUnKTsKICAgIH0KICAgIGNvbnN0IHJlc3VsdDogRm9yZ2VBY3Rpb25SZXN1bHQgPSB7CiAgICAgIGV4aXRDb2RlOiBjb2RlLAogICAgICBvdXRjb21lOiBjbGFzc2lmeU91dGNvbWUoY29kZSksCiAgICAgIG1vZGU6IHNhZmVJbnB1dHMubW9kZSwKICAgICAgcnVuSWQ6ICcnLAogICAgICB0ZXN0Q291bnQ6IDAsCiAgICAgIGF0dGVtcHRDb3VudDogMCwKICAgICAgZmxha3lDb3VudDogMCwKICAgICAgc2hhcmRDb3VudDogc2FmZUlucHV0cy5zaGFyZENvdW50LAogICAgICBtYW5pZmVzdFBhdGg6ICcnLAogICAgICBldmlkZW5jZVBhdGgsCiAgICAgIHJlcG9ydFBhdGg6ICcnLAogICAgICBhcnRpZmFjdE5hbWU6IGBmb3JnZXFhLSR7KGVudi5HSVRIVUJfUlVOX0lEIHx8ICdsb2NhbCcpLnJlcGxhY2UoL1teQS1aYS16MC05Ll8tXS9nLCAnXycpfS0ke3NhZmVJbnB1dHMubW9kZX1gLAogICAgICBydW5Vcmw6ICcnLAogICAgICBlcnJvcjogbWVzc2FnZSwKICAgICAgLi4uKHNhZmVJbnB1dHMuc2hhcmRJbmRleCA9PT0gdW5kZWZpbmVkID8ge30gOiB7IHNoYXJkSW5kZXg6IHNhZmVJbnB1dHMuc2hhcmRJbmRleCB9KSwKICAgIH07CiAgICBhd2FpdCB3cml0ZUZpbGUocmVzb2x2ZShldmlkZW5jZVBhdGgsICdhY3Rpb24tZmFpbHVyZS5qc29uJyksIGAke0pTT04uc3RyaW5naWZ5KHsKICAgICAgc2NoZW1hVmVyc2lvbjogMSwKICAgICAgZ2VuZXJhdGVkQXQ6IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKSwKICAgICAgZXhpdENvZGU6IHJlc3VsdC5leGl0Q29kZSwKICAgICAgb3V0Y29tZTogcmVzdWx0Lm91dGNvbWUsCiAgICAgIG1vZGU6IHJlc3VsdC5tb2RlLAogICAgICBlcnJvcjogcmVzdWx0LmVycm9yLAogICAgfSwgbnVsbCwgMil9XG5gLCB7IG1vZGU6IDBvNjAwIH0pLmNhdGNoKCgpID0+IHVuZGVmaW5lZCk7CiAgICBhd2FpdCBwdWJsaXNoUmVzdWx0KHJlc3VsdCwgc2FmZUlucHV0cywgZW52KS5jYXRjaCgoKSA9PiB1bmRlZmluZWQpOw==
         run: |
           python - <<'PY'
+          import base64
+          import os
           from pathlib import Path
           path = Path('packages/github-action/src/main.ts')
           source = path.read_text()
-          import_old = "  stat,\n} from 'node:fs/promises';"
-          import_new = "  stat,\n  writeFile,\n} from 'node:fs/promises';"
-          if source.count(import_old) != 1:
-              raise SystemExit('Expected the unpatched fs import once.')
-          source = source.replace(import_old, import_new, 1)
-          old = '''    const workspace = env.GITHUB_WORKSPACE || process.cwd();
-    const result: ForgeActionResult = {
-      exitCode: code,
-      outcome: classifyOutcome(code),
-      mode: safeInputs.mode,
-      runId: '',
-      testCount: 0,
-      attemptCount: 0,
-      flakyCount: 0,
-      shardCount: safeInputs.shardCount,
-      manifestPath: '',
-      evidencePath: resolve(workspace, safeInputs.workingDirectory, safeInputs.outputDirectory),
-      reportPath: '',
-      artifactName: `forgeqa-${(env.GITHUB_RUN_ID || 'local').replace(/[^A-Za-z0-9._-]/g, '_')}-${safeInputs.mode}`,
-      runUrl: '',
-      error: message,
-      ...(safeInputs.shardIndex === undefined ? {} : { shardIndex: safeInputs.shardIndex }),
-    };
-    await publishResult(result, safeInputs, env).catch(() => undefined);'''
-          new = '''    const workspace = env.GITHUB_WORKSPACE || process.cwd();
-    let evidencePath: string;
-    try {
-      const workingDirectory = await resolveWorkingDirectory(workspace, safeInputs.workingDirectory);
-      evidencePath = await ensureDirectoryWithin(workingDirectory, safeInputs.outputDirectory);
-    } catch {
-      evidencePath = await ensureDirectoryWithin(await realpath(workspace), '.forgeqa/action-failure');
-    }
-    const result: ForgeActionResult = {
-      exitCode: code,
-      outcome: classifyOutcome(code),
-      mode: safeInputs.mode,
-      runId: '',
-      testCount: 0,
-      attemptCount: 0,
-      flakyCount: 0,
-      shardCount: safeInputs.shardCount,
-      manifestPath: '',
-      evidencePath,
-      reportPath: '',
-      artifactName: `forgeqa-${(env.GITHUB_RUN_ID || 'local').replace(/[^A-Za-z0-9._-]/g, '_')}-${safeInputs.mode}`,
-      runUrl: '',
-      error: message,
-      ...(safeInputs.shardIndex === undefined ? {} : { shardIndex: safeInputs.shardIndex }),
-    };
-    await writeFile(resolve(evidencePath, 'action-failure.json'), `${JSON.stringify({
-      schemaVersion: 1,
-      generatedAt: new Date().toISOString(),
-      exitCode: result.exitCode,
-      outcome: result.outcome,
-      mode: result.mode,
-      error: result.error,
-    }, null, 2)}\\n`, { mode: 0o600 }).catch(() => undefined);
-    await publishResult(result, safeInputs, env).catch(() => undefined);'''
-          if source.count(old) != 1:
-              raise SystemExit('Expected the unpatched failure-result block once.')
-          path.write_text(source.replace(old, new, 1))
+          pairs = [
+              (base64.b64decode(os.environ['IMPORT_OLD']).decode(), base64.b64decode(os.environ['IMPORT_NEW']).decode()),
+              (base64.b64decode(os.environ['BLOCK_OLD']).decode(), base64.b64decode(os.environ['BLOCK_NEW']).decode()),
+          ]
+          for old, new in pairs:
+              if source.count(old) != 1:
+                  raise SystemExit('Expected one unpatched source block.')
+              source = source.replace(old, new, 1)
+          path.write_text(source)
           PY
       - run: npm ci --ignore-scripts
       - run: npx --no-install tsc -b packages/github-action
