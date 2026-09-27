@@ -1,0 +1,98 @@
+name: Materialize action input repair
+on:
+  push:
+    branches: [feature/github-platform-hardening]
+permissions:
+  contents: write
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Persist evidence for early action failures
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('packages/github-action/src/main.ts')
+          source = path.read_text()
+          import_old = "  stat,\n} from 'node:fs/promises';"
+          import_new = "  stat,\n  writeFile,\n} from 'node:fs/promises';"
+          if source.count(import_old) != 1:
+              raise SystemExit('Expected the unpatched fs import once.')
+          source = source.replace(import_old, import_new, 1)
+          old = '''    const workspace = env.GITHUB_WORKSPACE || process.cwd();
+    const result: ForgeActionResult = {
+      exitCode: code,
+      outcome: classifyOutcome(code),
+      mode: safeInputs.mode,
+      runId: '',
+      testCount: 0,
+      attemptCount: 0,
+      flakyCount: 0,
+      shardCount: safeInputs.shardCount,
+      manifestPath: '',
+      evidencePath: resolve(workspace, safeInputs.workingDirectory, safeInputs.outputDirectory),
+      reportPath: '',
+      artifactName: `forgeqa-${(env.GITHUB_RUN_ID || 'local').replace(/[^A-Za-z0-9._-]/g, '_')}-${safeInputs.mode}`,
+      runUrl: '',
+      error: message,
+      ...(safeInputs.shardIndex === undefined ? {} : { shardIndex: safeInputs.shardIndex }),
+    };
+    await publishResult(result, safeInputs, env).catch(() => undefined);'''
+          new = '''    const workspace = env.GITHUB_WORKSPACE || process.cwd();
+    let evidencePath: string;
+    try {
+      const workingDirectory = await resolveWorkingDirectory(workspace, safeInputs.workingDirectory);
+      evidencePath = await ensureDirectoryWithin(workingDirectory, safeInputs.outputDirectory);
+    } catch {
+      evidencePath = await ensureDirectoryWithin(await realpath(workspace), '.forgeqa/action-failure');
+    }
+    const result: ForgeActionResult = {
+      exitCode: code,
+      outcome: classifyOutcome(code),
+      mode: safeInputs.mode,
+      runId: '',
+      testCount: 0,
+      attemptCount: 0,
+      flakyCount: 0,
+      shardCount: safeInputs.shardCount,
+      manifestPath: '',
+      evidencePath,
+      reportPath: '',
+      artifactName: `forgeqa-${(env.GITHUB_RUN_ID || 'local').replace(/[^A-Za-z0-9._-]/g, '_')}-${safeInputs.mode}`,
+      runUrl: '',
+      error: message,
+      ...(safeInputs.shardIndex === undefined ? {} : { shardIndex: safeInputs.shardIndex }),
+    };
+    await writeFile(resolve(evidencePath, 'action-failure.json'), `${JSON.stringify({
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      exitCode: result.exitCode,
+      outcome: result.outcome,
+      mode: result.mode,
+      error: result.error,
+    }, null, 2)}\\n`, { mode: 0o600 }).catch(() => undefined);
+    await publishResult(result, safeInputs, env).catch(() => undefined);'''
+          if source.count(old) != 1:
+              raise SystemExit('Expected the unpatched failure-result block once.')
+          path.write_text(source.replace(old, new, 1))
+          PY
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install tsc -b packages/github-action
+      - run: node --test tests/github-action.test.mjs tests/distributed.test.mjs tests/github-workflow.test.mjs
+      - name: Commit repaired source and exact distribution
+        run: |
+          git add packages/github-action/src/main.ts
+          git add -f packages/github-action/dist/*.js packages/github-action/dist/*.d.ts
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m "fix(action): honor runner inputs and retain failure evidence [skip ci]"
+          git push
