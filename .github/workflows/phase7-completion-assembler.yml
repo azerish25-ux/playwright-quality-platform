@@ -27,8 +27,26 @@ jobs:
       - name: Reconstruct and apply completion patch
         shell: bash
         run: |
-          cat .phase7/chunk*.b64 | base64 -d | gzip -d > scripts/apply-phase7-completion.py
+          cat \
+            .phase7/chunk00.b64 \
+            .phase7/mid00.b64 \
+            .phase7/mid01.b64 \
+            .phase7/mid02.b64 \
+            .phase7/mid03.b64 \
+            .phase7/mid04.b64 \
+            .phase7/mid05.b64 \
+            .phase7/mid06.b64 \
+            .phase7/mid07.b64 \
+            .phase7/chunk02.b64 \
+            > scripts/apply-phase7-completion.py.gz.b64
+          printf '%s  %s\n' '93aed33269a581e80f97a4615647f0be56ff11806c9eddac5106c389f42b4fea' 'scripts/apply-phase7-completion.py.gz.b64' | sha256sum -c -
+          base64 -d scripts/apply-phase7-completion.py.gz.b64 > scripts/apply-phase7-completion.py.gz
+          printf '%s  %s\n' '2120fc13bfbc31fb0275f533de707b2949a2cffab5c8c1d357c0b52611af3842' 'scripts/apply-phase7-completion.py.gz' | sha256sum -c -
+          gzip -t scripts/apply-phase7-completion.py.gz
+          gzip -dc scripts/apply-phase7-completion.py.gz > scripts/apply-phase7-completion.py
+          printf '%s  %s\n' 'dcf6664f13a22519d76e67a8b6be44ef80e40015c3774002d12b4fc0f7c11d73' 'scripts/apply-phase7-completion.py' | sha256sum -c -
           python3 scripts/apply-phase7-completion.py
+          rm -f scripts/apply-phase7-completion.py.gz scripts/apply-phase7-completion.py.gz.b64
           rm -rf .phase7
       - name: Refresh reproducible locks
         shell: bash
