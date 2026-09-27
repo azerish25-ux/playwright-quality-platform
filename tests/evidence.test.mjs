@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { mkdtemp, mkdir, readFile, rename, rm, symlink, writeFile } from 'node:fs/promises';
-import { basename, dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { RESULT_SCHEMA_VERSION, sha256 } from '@azerish25-ux/forgeqa-core';
 import { ResultJournal, mergeShardEvidence, reconcileNativeJson, validateShardEvidence } from '@azerish25-ux/forgeqa-reporter';
@@ -61,7 +62,7 @@ test('missing captured artifacts fail evidence integrity',async t=>{
 });
 
 test('captured artifact paths cannot escape the shard root',async t=>{
-  const marker=`../forgeqa-escape-${basename(await mkdtemp(join(tmpdir(),'name-')))}`;
+  const marker=`../forgeqa-escape-${randomUUID()}`;
   const value=await fixture(t,{artifactRelative:marker});
   await assert.rejects(()=>validateShardEvidence(value.journal.finalPath),/escapes its owned root/);
 });
