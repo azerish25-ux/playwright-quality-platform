@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "milestone": "M4 — GitHub platform hardening",
-  "sourceSha": "570bcd08c0334cd4f9776a8846e6dda8dbdbb10b",
-  "updatedAt": "2026-09-27T12:49:36Z",
+  "sourceSha": "24a5894628da0f5d21323202ca0628de0517523a",
+  "updatedAt": "2026-09-27T15:02:30Z",
   "requirements": [
     {
       "id": "M4-01",
@@ -83,8 +83,8 @@
     {
       "id": "M4-08",
       "requirement": "Fork-safe pull-request reporting",
-      "status": "PARTIAL",
-      "actualResult": "A trusted default-branch workflow_run publisher, pre-download metadata authorization, changed-workflow refusal, run-bound data-only report artifact, strict artifact/API/job cross-validation, stale-run prevention and idempotent bot-comment mutation are implemented with adversarial tests. Hosted default-branch comment publication and rerun update evidence are still required before this entry becomes PASS.",
+      "status": "PASS",
+      "actualResult": "The trusted default-branch workflow_run publisher authorizes metadata before download, refuses changed workflows, validates run-bound data-only evidence against GitHub API and job conclusions, prevents stale publication and mutates one bot-owned marker comment idempotently. Hosted PR #7 acceptance created comment 5856548977 after the first post-repair run and a later documentation-only revision updated that same comment in place with new run and head metadata while exactly one ForgeQA report comment remained. Pull-request code never executed with write credentials.",
       "implementationPaths": [
         ".github/workflows/ci.yml",
         ".github/workflows/forgeqa-pr-report.yml",
@@ -92,9 +92,10 @@
         "scripts/pr-report",
         "tests/github-pr-reporting.test.mjs",
         "tests/github-workflow.test.mjs",
-        "docs/github-action.md"
+        "docs/github-action.md",
+        "docs/delivery/pr-reporting-live-acceptance.md"
       ],
-      "verification": "Local Node 22 adversarial and workflow-invariant tests pass; exact-SHA hosted CI and live comment acceptance pending"
+      "verification": "CI run 36324283050 and publisher run 36324606250 created comment 5856548977; CI run 36327735451 at 24a5894628da0f5d21323202ca0628de0517523a and publisher run 36328071048 updated the same comment. Artifact 10934428253 (forgeqa-pr-report-36327735451-1) has digest sha256:a6fcb0aba7fb8ab958f7e1c9cea901b43c0462d84d0128dbeb52070c8634d89e; comment updated at 2026-09-27T15:02:26Z."
     },
     {
       "id": "M4-09",
