@@ -1,0 +1,119 @@
+name: Publish reviewed Phase 9 source
+
+on:
+  push:
+    branches:
+      - feature/ledgerguard-second-consumer
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase9-source-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: "${{ github.actor == 'azerish25-ux' && github.event.head_commit.message == 'chore: stage reviewed Phase 9 source' }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out staged branch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Verify and reconstruct reviewed payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/chunk-checksums" <<'SUMS'
+          c7a69de02109c94654dd6d9c8d4d23c034b46513fd35c448ead34022fc7b801d  .phase9/part-00
+          925cbd0ae1ba0f589f466e6e5e287b5c206b7b5d311fea2ed157ae2ba1d90d44  .phase9/part-01
+          5d81f22eacfbc3b8f70a68d6a5af3164971a589bf86128d56e4c62d1e6cc11d3  .phase9/part-02
+          6550afcd77c865d4af7da6cb90f4472c39ade7817d4e30fd9a48dab4d28c48dc  .phase9/part-03
+          b649fb86dfc0abfdcfaf27e6858d40da2af0e430a98d3ba915c41309555e3c9d  .phase9/part-04
+          7ffab744943dfef88013258f1b69d3591e39b2a57916b30e732ad792080c27b0  .phase9/part-05
+          SUMS
+          sha256sum --check "$RUNNER_TEMP/chunk-checksums"
+          cat .phase9/part-* > "$RUNNER_TEMP/phase9.b64"
+          base64 --decode "$RUNNER_TEMP/phase9.b64" > "$RUNNER_TEMP/phase9.tar.gz"
+          echo '88fc5059c7d6d03bb1b51a2dbb39975f2aae6285b4f76ad2759adaa921e370b5  '"$RUNNER_TEMP/phase9.tar.gz" | sha256sum --check
+
+      - name: Validate and materialize reviewed source
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ARCHIVE="$RUNNER_TEMP/phase9.tar.gz"
+          export DESTINATION="$RUNNER_TEMP/phase9-source"
+          python3 <<'PY'
+          import os
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          expected = sorted({
+              '.github/workflows/ci.yml',
+              'docs/delivery/ledgerguard-consumer-requirements.json',
+              'docs/ledgerguard-consumer.md',
+              'examples/ledgerguard-integration/README.md',
+              'examples/ledgerguard-integration/consumer/forgeqa.config.ts',
+              'examples/ledgerguard-integration/consumer/package.json',
+              'examples/ledgerguard-integration/consumer/playwright.config.ts',
+              'examples/ledgerguard-integration/consumer/src/client.ts',
+              'examples/ledgerguard-integration/consumer/src/contracts.ts',
+              'examples/ledgerguard-integration/consumer/tests/fixtures.ts',
+              'examples/ledgerguard-integration/consumer/tests/ledgerguard.api.spec.ts',
+              'examples/ledgerguard-integration/consumer/tsconfig.json',
+              'examples/ledgerguard-integration/contract.json',
+              'package.json',
+              'scripts/ledgerguard-acceptance.mjs',
+              'scripts/pr-report/comments.mjs',
+              'scripts/pr-report/evidence.mjs',
+              'scripts/pr-report/jobs.mjs',
+              'scripts/pr-report/shared.mjs',
+              'tests/consumers/packed.mjs',
+              'tests/github-pr-reporting-v2.test.mjs',
+              'tests/github-workflow.test.mjs',
+              'tests/ledgerguard-integration.test.mjs',
+          })
+          archive = Path(os.environ['ARCHIVE'])
+          destination = Path(os.environ['DESTINATION'])
+          destination.mkdir(parents=True, exist_ok=False)
+          with tarfile.open(archive, 'r:gz') as bundle:
+              files = []
+              for member in bundle.getmembers():
+                  name = member.name.removeprefix('./')
+                  path = PurePosixPath(name)
+                  if path.is_absolute() or '..' in path.parts:
+                      raise SystemExit(f'unsafe archive path: {member.name}')
+                  if member.issym() or member.islnk() or member.isdev():
+                      raise SystemExit(f'unsupported archive entry: {member.name}')
+                  if member.isfile():
+                      files.append(name)
+              if sorted(files) != expected:
+                  missing = sorted(set(expected) - set(files))
+                  extra = sorted(set(files) - set(expected))
+                  raise SystemExit(f'payload inventory mismatch; missing={missing}, extra={extra}')
+              bundle.extractall(destination, filter='data')
+          PY
+          rm "$DESTINATION/.github/workflows/ci.yml"
+          cp -a "$DESTINATION/." .
+          rm -rf .phase9
+
+      - name: Verify generated source and publish commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/ledgerguard-acceptance.mjs
+          node --check scripts/pr-report/comments.mjs
+          node --check scripts/pr-report/evidence.mjs
+          node --check scripts/pr-report/jobs.mjs
+          node --check scripts/pr-report/shared.mjs
+          node --test tests/ledgerguard-integration.test.mjs tests/github-pr-reporting-v2.test.mjs
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: add real LedgerGuard second consumer source'
+          git push origin HEAD:feature/ledgerguard-second-consumer
