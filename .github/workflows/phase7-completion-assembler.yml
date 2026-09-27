@@ -45,6 +45,26 @@ jobs:
           gzip -t scripts/apply-phase7-completion.py.gz
           gzip -dc scripts/apply-phase7-completion.py.gz > scripts/apply-phase7-completion.py
           printf '%s  %s\n' 'dcf6664f13a22519d76e67a8b6be44ef80e40015c3774002d12b4fc0f7c11d73' 'scripts/apply-phase7-completion.py' | sha256sum -c -
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/apply-phase7-completion.py')
+          source = path.read_text()
+          replacements = [
+              (r"JSON.stringify(manifest,null,2)+'\n'", r"JSON.stringify(manifest,null,2)+'\\n'", 2),
+              (r"},null,2)+'\n');", r"},null,2)+'\\n');", 2),
+              (r"JSON.stringify(history,null,2)+'\n'", r"JSON.stringify(history,null,2)+'\\n'", 1),
+              (r"JSON.stringify(historyRecord,null,2)+'\n'", r"JSON.stringify(historyRecord,null,2)+'\\n'", 1),
+              (r"${JSON.stringify(historyRecord, null, 2)}\n`", r"${JSON.stringify(historyRecord, null, 2)}\\n`", 2),
+              (r"${JSON.stringify(history, null, 2)}\n`", r"${JSON.stringify(history, null, 2)}\\n`", 1),
+          ]
+          for old, new, expected in replacements:
+              actual = source.count(old)
+              if actual != expected:
+                  raise SystemExit(f'escape repair mismatch: expected {expected}, found {actual}: {old!r}')
+              source = source.replace(old, new)
+          path.write_text(source)
+          PY
+          printf '%s  %s\n' '21a3fb96dc5058980e33964785b5091264541af8cb8f56889cec67341fcd7d34' 'scripts/apply-phase7-completion.py' | sha256sum -c -
           python3 scripts/apply-phase7-completion.py
           rm -f scripts/apply-phase7-completion.py.gz scripts/apply-phase7-completion.py.gz.b64
           rm -rf .phase7
