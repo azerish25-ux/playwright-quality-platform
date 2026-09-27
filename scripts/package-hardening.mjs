@@ -151,7 +151,8 @@ try {
     });
   }
 
-  const dependencies = Object.fromEntries([...tarballsByName.entries()].map(([name, path]) => [name, `file:${path.replaceAll('\\', '/')}`]));
+  const stagedForgeQa = Object.fromEntries([...tarballsByName.entries()].map(([name, path]) => [name, `file:${path.replaceAll('\\', '/')}`]));
+  const dependencies = { ...stagedForgeQa };
   for (const external of ['@playwright/test', '@types/node', 'playwright', 'playwright-core', 'jiti']) {
     const externalPath = resolve(root, 'node_modules', ...external.split('/'));
     await stat(externalPath);
@@ -161,13 +162,15 @@ try {
   for (const manager of ['npm', 'pnpm']) {
     const consumer = resolve(staging, `consumer-${manager}`);
     await mkdir(consumer, { recursive: true, mode: 0o700 });
-    await writeFile(resolve(consumer, 'package.json'), `${JSON.stringify({
+    const consumerManifest = {
       name: `forgeqa-hardening-${manager}`,
       version: '1.0.0',
       private: true,
       type: 'module',
       dependencies,
-    }, null, 2)}\n`);
+      ...(manager === 'pnpm' ? { pnpm: { overrides: stagedForgeQa } } : {}),
+    };
+    await writeFile(resolve(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
     await writeFile(resolve(consumer, 'index.mjs'), `${contract.packages.map((entry, index) => `import * as p${index} from '${entry.name}';`).join('\n')}\nconst modules = [${contract.packages.map((_, index) => `p${index}`).join(',')}];\nif (modules.some((value) => !value || Object.keys(value).length === 0)) throw new Error('A public package exposed no exports.');\nconsole.log(JSON.stringify(modules.map((value) => Object.keys(value).sort())));\n`);
     await writeFile(resolve(consumer, 'index.ts'), `${contract.packages.map((entry, index) => `import * as p${index} from '${entry.name}';`).join('\n')}\nexport const packageExportCounts = [${contract.packages.map((_, index) => `Object.keys(p${index}).length`).join(',')}];\n`);
     await writeFile(resolve(consumer, 'tsconfig.json'), `${JSON.stringify({
