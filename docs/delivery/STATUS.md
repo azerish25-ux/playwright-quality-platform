@@ -1,62 +1,38 @@
-# Delivery checkpoint — historical reliability and governed quarantine
+# Delivery checkpoint — Phase 7 historical reliability
 
-**ForgeQA now has executable distributed evidence integrity plus an exact-SHA-verified local history, reliability, diagnostic-repeat and quarantine foundation; the complete ForgeQA product is not released.**
+**The Phase 7 historical-reliability milestone is implemented and verified at an exact source revision; the complete ForgeQA product is not released.**
 
-The Phase 7 implementation checkpoint is `907eaa39c6dfc0252436c464728e23269d8e127c`. [CI run 36308672914](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36308672914) completed successfully for that exact SHA on September 27, 2026. It passed the six Linux/macOS/Windows Node 22/24 verification jobs, all three independent packed-consumer jobs, the PostgreSQL TeamBoard Chromium/Firefox/WebKit and packed-consumer lane, and the aggregate `forgeqa-quality` gate. Treat these statements as a dated checkpoint, not a perpetual green badge.
+The recorded source checkpoint is `09bca4d1bed24081466d56de9a27faeae1968027`. [CI run 36315295764](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36315295764) is the exact-source pull-request verification for the code described below. Statuses describe observations at that checkpoint; subsequent changes require their own exact-SHA checks.
 
-The prerequisite distributed-evidence hardening was reconciled with `main` in `7ffaca4cc3daff7534f94ea67376462be15876b3`, verified by [CI run 36307845271](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36307845271), and merged through pull request #2 as `f5aa2b9d398761c49c3048e4cb1c5349dd3b8b28`.
+## Verified platform behavior
 
-## Implemented distributed-evidence behavior
+- Real config-driven Playwright discovery and execution, typed composable fixtures, strict native and CLI gates, journal/finalization integrity, and canonical JSON/JUnit/Markdown/HTML output.
+- Native distributed Playwright execution with immutable expected inventories, real shard dimensions and stable execution identities.
+- Strict distributed evidence validation: finalized journals, completion markers, checksums, captured attachments and Playwright blob reports are validated before merge.
+- Native blob reports merge through Playwright's supported command, and native counts/outcomes/projects are reconciled exactly with canonical ForgeQA results before publication.
+- PostgreSQL-backed TeamBoard executes eight API cases and four UI journeys in Chromium, Firefox and WebKit, including workspace and independent npm/pnpm package consumers.
+- The exact checkpoint passed all six Linux/macOS/Windows Node 22/24 verification jobs, all three independent consumer jobs, the PostgreSQL/three-browser TeamBoard job and the aggregate gate.
 
-- Immutable planning and genuine native Playwright shard execution with strict expected-inventory reconciliation.
-- One finalized ForgeQA journal and one Playwright blob report per shard.
-- Fail-closed validation of run/shard identity, completion markers, journal checksums, captured artifact paths, regular-file ownership, size and SHA-256.
-- Collision-safe copying of screenshots, traces, videos, logs and attachments into shard-namespaced merged output.
-- Playwright `merge-reports` generation of native HTML and JSON evidence.
-- Exact native/canonical reconciliation by file, title, project, retry index and outcome; matching totals alone are insufficient.
-- Canonical JSON, JUnit, Markdown and static HTML reports, artifact manifest and checksummed completion record.
-- Loopback-only local report serving with traversal, symlink, method, MIME, cache and browser-hardening controls.
-- Real two-shard Chromium diagnostic acceptance retaining screenshot and trace bytes while retry-recovered failure remains a strict nonzero quality result.
-- PostgreSQL-backed TeamBoard API and Chromium/Firefox/WebKit UI journeys, including deterministic account transitions and owned-data cleanup.
+## Historical reliability delivered
 
-## Implemented Phase 7 behavior
+- Immutable, versioned, checksum-verified local history records are written atomically and retain trusted-default-branch, untrusted-PR, synthetic and diagnostic provenance.
+- `forgeqa history import` can rebuild bounded history from paginated completed GitHub Actions runs and artifacts. Failed workflow runs remain eligible; deleted, expired, inaccessible or malformed artifacts become explicit coverage gaps rather than invented zero flake rates.
+- Artifact ZIP ingestion rejects traversal, absolute paths, symbolic links, unsupported compression, CRC mismatch, oversized archives, excessive entry counts and conflicting duplicate run identities.
+- Merged distributed reports publish a portable `history-record.json`, and the completion record covers its checksum.
+- Comparable cohorts require compatible repository, consumer, suite, environment, browser/project, selection, configuration, schema and framework dimensions.
+- Reliability outputs use the defined `N`, `F`, `I` and `P` populations, preserve numerator/denominator and observation-window information, and expose `NO_BASELINE`, `INSUFFICIENT_HISTORY` and `HISTORY_INCOMPLETE` states.
+- `forgeqa repeat --test-id` resolves one stable logical test to one exact discovered source location and runs bounded diagnostic repetitions without contaminating authoritative history.
+- Quarantine add/remove/validate remains explicit, owner-bound and expiry-bound; quarantined tests remain selected and their failures and retry recovery remain blocking under the default policy.
+- Machine-readable history analysis, Markdown, JUnit and self-contained HTML expose the same comparison, sample, owner, quarantine and history-gap information.
 
-- Immutable, checksummed per-run history records under a manifest-controlled local store.
-- Atomic imports with a store lock, bounded JSON reads, safe paths and bounded retention.
-- Idempotent identical imports and fail-closed rejection of conflicting duplicate identities.
-- Separate `trusted-default-branch`, `untrusted-pr`, `synthetic` and `diagnostic` provenance classes.
-- Comparable cohorts constrained by schema, repository, configuration and project/browser/environment dimensions.
-- Default 30-day, 50-run history window with an explicit 20-execution minimum-sample state.
-- Aggregate and per-test `N`, `F`, `I`, `P`, retry-recovery, observation-window, failed-attempt-cost, owner and browser/environment metrics.
-- Explicit `NO_BASELINE`, `INSUFFICIENT_HISTORY` and `HISTORY_INCOMPLETE` states instead of invented zero rates.
-- Distributed report merging now emits `history-record.json` and includes its checksum in `complete.json`.
-- Executable `forgeqa history import` and history-aware `forgeqa flakes` commands.
-- Bounded diagnostic `forgeqa repeat` with isolated iterations, zero native retries, first-failure preservation, time/count/failure budgets and diagnostic provenance.
-- Atomic `quarantine add`, `quarantine validate` and `quarantine remove` with exact stable IDs, ownership, issue, reason, dates and optional exact project scope.
-- Quarantine remains metadata only: selected tests continue to run and failing outcomes remain blocking.
-- Adversarial tests cover duplicate idempotency, conflicting duplicates, concurrent imports, checksum tampering, provenance separation and the quarantine add/remove lifecycle.
-
-The detailed milestone matrices are [distributed-evidence-requirements.json](distributed-evidence-requirements.json) and [history-reliability-requirements.json](history-reliability-requirements.json).
-
-## Failure semantics
-
-- Exit `0`: complete, internally consistent and policy-compliant evidence.
-- Exit `1`: complete evidence with an application, quality-policy or quarantine-policy failure.
-- Exit `2`: invalid usage or configuration.
-- Exit `3`: missing, corrupt, tampered, incomplete or contradictory evidence/history.
-- Exit `130`: interrupted execution.
+The detailed M3 requirement ledger is [history-reliability-requirements.json](history-reliability-requirements.json). All twelve recorded entries pass at the checkpoint above.
 
 ## Explicit remaining boundaries
 
-- The GitHub Actions artifact pagination/download history adapter is not yet implemented; current history import consumes local downloaded report evidence.
-- Diagnostic repetition currently repeats a validated suite selection rather than selecting one exact stable test ID.
-- Historical reliability output is available through JSON/CLI analysis but is not yet rendered in every HTML and JUnit surface.
-- The standalone GitHub Action distribution is not yet published or verified through an immutable external tag.
-- LedgerGuard is not yet a functioning second consumer of released ForgeQA packages.
-- npm packages are source candidates, not registry releases; npm ownership and publication authorization are not assumed.
-- The versioned documentation website, maintained 90/85 runtime coverage gates, comparative distributed benchmarks and complete release hardening remain unverified.
-- No Marketplace listing, npm publication or production-ready status is claimed.
+GitHub Action external distribution, aggregate publication as a reusable public action, fork-safe pull-request publication and actual action-release tests remain Phase 8 work.
 
-## Phase 7 completion follow-up
+LedgerGuard has an executable foundation, but the inspected revision lacks the required product-facing authentication/payment/UI integration. No fake second application is substituted.
 
-The follow-up implementation closes the three explicitly recorded Phase 7 boundaries: paginated GitHub Actions artifact history import, exact stable-test-ID diagnostic repetition, and historical reliability in HTML/JUnit/Markdown/JSON output. The requirement ledger remains marked `IMPLEMENTED_AWAITING_EXACT_SHA_CI` until the delivered commit completes the full repository matrix; no green claim is made by this source edit alone.
+The 90/85 runtime coverage thresholds, comparable distributed benchmarks, complete generic fixture lifecycle/property coverage, versioned documentation deployment, npm publication, standalone immutable Action release and Marketplace state remain unverified or unreleased. Source-candidate tarballs are not registry publications.
+
+See [requirements.json](requirements.json) for the broader product matrix and [defects.md](defects.md) for repaired defects and regression evidence.
