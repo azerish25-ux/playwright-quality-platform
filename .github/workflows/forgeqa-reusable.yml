@@ -2,112 +2,265 @@ name: ForgeQA reusable
 on:
   workflow_call:
     inputs:
-      suite: { type: string, default: regression }
-      browsers: { type: string, default: chromium }
-      shard-count: { type: number, default: 1 }
-      workers: { type: number, default: 1 }
-permissions: { contents: read }
+      suite:
+        description: ForgeQA suite name
+        required: false
+        type: string
+        default: regression
+      browsers:
+        description: Comma-separated Playwright browser or project names
+        required: false
+        type: string
+        default: chromium
+      environment:
+        description: ForgeQA environment profile
+        required: false
+        type: string
+        default: local
+      working-directory:
+        description: Consumer directory inside the caller checkout
+        required: false
+        type: string
+        default: .
+      config:
+        description: ForgeQA configuration path relative to working-directory
+        required: false
+        type: string
+        default: forgeqa.config.ts
+      playwright-config:
+        description: Playwright configuration path relative to working-directory
+        required: false
+        type: string
+        default: playwright.config.ts
+      package-manager:
+        description: auto, npm, pnpm, or none
+        required: false
+        type: string
+        default: auto
+      install-dependencies:
+        description: Install from the frozen lockfile in each isolated job
+        required: false
+        type: boolean
+        default: true
+      browser-install:
+        description: none, install, or with-deps for shard jobs
+        required: false
+        type: string
+        default: with-deps
+      build-command:
+        description: Optional trusted caller build command
+        required: false
+        type: string
+        default: ''
+      application-command:
+        description: Optional trusted application command for each shard job
+        required: false
+        type: string
+        default: ''
+      readiness-url:
+        description: HTTP(S) readiness endpoint required with application-command
+        required: false
+        type: string
+        default: ''
+      readiness-timeout-seconds:
+        description: Bounded application readiness deadline
+        required: false
+        type: number
+        default: 60
+      shard-count:
+        description: Number of independent GitHub jobs
+        required: false
+        type: number
+        default: 1
+      workers:
+        description: Playwright workers in each shard job
+        required: false
+        type: number
+        default: 1
+      artifact-retention-days:
+        description: Evidence retention in days
+        required: false
+        type: number
+        default: 7
+      reporting-mode:
+        description: summary or none
+        required: false
+        type: string
+        default: summary
+    outputs:
+      outcome:
+        description: Final ForgeQA outcome
+        value: ${{ jobs.forgeqa-quality.outputs.outcome }}
+      run-id:
+        description: Final ForgeQA run identity
+        value: ${{ jobs.forgeqa-quality.outputs.run-id }}
+      test-count:
+        description: Final logical test count
+        value: ${{ jobs.forgeqa-quality.outputs.test-count }}
+      attempt-count:
+        description: Final attempt count
+        value: ${{ jobs.forgeqa-quality.outputs.attempt-count }}
+      flaky-count:
+        description: Final retry-recovered test count
+        value: ${{ jobs.forgeqa-quality.outputs.flaky-count }}
+      report-artifact-name:
+        description: Merged report artifact name
+        value: ${{ jobs.forgeqa-quality.outputs.artifact-name }}
+permissions:
+  contents: read
 jobs:
   plan:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+      run-id: ${{ steps.plan.outputs.run-id }}
+      artifact-name: ${{ steps.plan.outputs.artifact-name }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with: { node-version: 24, package-manager-cache: false }
-      - run: npm ci --ignore-scripts
-      - run: npm run build
+        with:
+          node-version: 24
+          package-manager-cache: false
       - id: matrix
+        name: Validate and materialize shard matrix
         env:
           SHARD_COUNT: ${{ inputs.shard-count }}
-        run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\\n')"
-      - name: Materialize immutable execution manifest
-        env:
-          SUITE: ${{ inputs.suite }}
-          BROWSERS: ${{ inputs.browsers }}
-          SHARD_COUNT: ${{ inputs.shard-count }}
-          WORKERS: ${{ inputs.workers }}
-        run: |
-          node packages/cli/dist/cli.js plan --suite "$SUITE" --browsers "$BROWSERS" --workers "$WORKERS" --shard "1/$SHARD_COUNT" --json > forgeqa-plan.json
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('forgeqa-plan.json','utf8'));fs.mkdirSync('.forgeqa-plan',{recursive:true});fs.copyFileSync(p.manifestPath,'.forgeqa-plan/manifest.json')"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\n')"
+      - id: plan
+        name: Create immutable ForgeQA execution manifest
+        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        with:
+          mode: plan
+          suite: ${{ inputs.suite }}
+          browsers: ${{ inputs.browsers }}
+          environment: ${{ inputs.environment }}
+          working-directory: ${{ inputs.working-directory }}
+          config: ${{ inputs.config }}
+          playwright-config: ${{ inputs.playwright-config }}
+          package-manager: ${{ inputs.package-manager }}
+          install-dependencies: ${{ inputs.install-dependencies }}
+          browser-install: none
+          build-command: ${{ inputs.build-command }}
+          workers: ${{ inputs.workers }}
+          shard-count: ${{ inputs.shard-count }}
+          output-directory: .forgeqa/action-plan
+          artifact-retention-days: ${{ inputs.artifact-retention-days }}
+          reporting-mode: ${{ inputs.reporting-mode }}
+      - name: Upload immutable execution manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .forgeqa-plan/manifest.json
+          path: ${{ steps.plan.outputs.manifest-path }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: ${{ inputs.artifact-retention-days }}
   shard:
     needs: plan
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with: { node-version: 24, package-manager-cache: false }
-      - run: npm ci --ignore-scripts
-      - run: npm run build
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Download immutable execution manifest
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
           path: .forgeqa-plan
       - id: execute
-        continue-on-error: true
-        env:
-          SUITE: ${{ inputs.suite }}
-          BROWSERS: ${{ inputs.browsers }}
-          SHARD_COUNT: ${{ inputs.shard-count }}
-          SHARD_INDEX: ${{ matrix.shard }}
-          WORKERS: ${{ inputs.workers }}
-        run: |
-          node packages/cli/dist/cli.js run --suite "$SUITE" --browsers "$BROWSERS" --workers "$WORKERS" --shard "$SHARD_INDEX/$SHARD_COUNT" --manifest .forgeqa-plan/manifest.json --json > forgeqa-shard.json
+        name: Execute ForgeQA shard ${{ matrix.shard }}/${{ inputs.shard-count }}
+        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        with:
+          mode: run
+          suite: ${{ inputs.suite }}
+          browsers: ${{ inputs.browsers }}
+          environment: ${{ inputs.environment }}
+          working-directory: ${{ inputs.working-directory }}
+          config: ${{ inputs.config }}
+          playwright-config: ${{ inputs.playwright-config }}
+          package-manager: ${{ inputs.package-manager }}
+          install-dependencies: ${{ inputs.install-dependencies }}
+          browser-install: ${{ inputs.browser-install }}
+          build-command: ${{ inputs.build-command }}
+          application-command: ${{ inputs.application-command }}
+          readiness-url: ${{ inputs.readiness-url }}
+          readiness-timeout-seconds: ${{ inputs.readiness-timeout-seconds }}
+          workers: ${{ inputs.workers }}
+          shard-count: ${{ inputs.shard-count }}
+          shard-index: ${{ matrix.shard }}
+          manifest: .forgeqa-plan/manifest.json
+          output-directory: .forgeqa/action-shard-${{ matrix.shard }}
+          artifact-retention-days: ${{ inputs.artifact-retention-days }}
+          reporting-mode: ${{ inputs.reporting-mode }}
       - name: Upload complete shard evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}-of-${{ inputs.shard-count }}
-          path: |
-            forgeqa-results/**
-            forgeqa-shard.json
+          path: ${{ steps.execute.outputs.evidence-path }}
           if-no-files-found: error
-          retention-days: 7
-      - name: Propagate shard outcome
-        if: always() && steps.execute.outcome != 'success'
-        run: exit 1
+          retention-days: ${{ inputs.artifact-retention-days }}
   forgeqa-quality:
     name: forgeqa-quality
     needs: [plan, shard]
     if: always() && needs.plan.result == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    outputs:
+      outcome: ${{ steps.merge.outputs.outcome }}
+      run-id: ${{ steps.merge.outputs.run-id }}
+      test-count: ${{ steps.merge.outputs.test-count }}
+      attempt-count: ${{ steps.merge.outputs.attempt-count }}
+      flaky-count: ${{ steps.merge.outputs.flaky-count }}
+      artifact-name: ${{ steps.merge.outputs.artifact-name }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with: { node-version: 24, package-manager-cache: false }
-      - run: npm ci --ignore-scripts
-      - run: npm run build
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Download immutable execution manifest
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
           path: .forgeqa-plan
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - name: Download all shard evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           pattern: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: .forgeqa-shards
-      - name: Merge native blobs, artifacts, and canonical ForgeQA evidence
-        run: |
-          mapfile -d '' shards < <(find .forgeqa-shards -type f -name 'attempts.ndjson.final.json' -print0 | sort -z)
-          if [ "${#shards[@]}" -eq 0 ]; then echo 'No finalized shard evidence was downloaded.' >&2; exit 3; fi
-          node packages/cli/dist/cli.js report merge --manifest .forgeqa-plan/manifest.json --output forgeqa-merged "${shards[@]}" --json
-      - name: Upload canonical merged report
+      - id: merge
+        name: Merge and enforce canonical ForgeQA evidence
+        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        with:
+          mode: merge
+          working-directory: ${{ inputs.working-directory }}
+          package-manager: ${{ inputs.package-manager }}
+          install-dependencies: ${{ inputs.install-dependencies }}
+          browser-install: none
+          build-command: ${{ inputs.build-command }}
+          shard-count: ${{ inputs.shard-count }}
+          manifest: .forgeqa-plan/manifest.json
+          evidence-directory: .forgeqa-shards
+          output-directory: .forgeqa/action-merged
+          artifact-retention-days: ${{ inputs.artifact-retention-days }}
+          reporting-mode: ${{ inputs.reporting-mode }}
+      - name: Upload canonical merged evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: forgeqa-merged-${{ github.run_id }}-${{ github.run_attempt }}
-          path: forgeqa-merged
+          name: ${{ steps.merge.outputs.artifact-name }}
+          path: ${{ steps.merge.outputs.evidence-path }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: ${{ inputs.artifact-retention-days }}
