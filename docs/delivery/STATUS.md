@@ -48,13 +48,22 @@ Hosted PR #7 acceptance first created comment `5856548977` after CI run `3632428
 
 Detailed acceptance evidence is recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md).
 
+
+## Phase 9 LedgerGuard consumer candidate implemented
+
+ForgeQA now contains a genuine API-first second-consumer harness under `consumers/ledgerguard`. It pins `azerish25-ux/transaction-reliability-lab` to verified P07A source `9478663f97f9dc65d0c85117f244e1b8b80c37cb`, whose application verification run is `36319414655`.
+
+The candidate starts LedgerGuard's real PostgreSQL, RabbitMQ, API, outbox, two payment-worker and two scheduler topology; installs all eight packed ForgeQA packages into isolated npm and pnpm consumers; executes twelve authentication, authorization, ownership, transfer, payment, adjustment and scheduling tests; compares both consumer identity inventories; reconciles financial state; and fails on leaked containers or volumes. PR-report schema version 2 adds the required `ledgerguard` lane to the trusted aggregate.
+
+This section records implementation, not hosted acceptance. M5-08 remains `NOT_RUN` until the new lane passes at the exact ForgeQA source revision. LedgerGuard still has no genuine React product interface, so M5-09 remains `BLOCKED`; no fabricated UI is substituted. See [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) and [../ledgerguard-consumer.md](../ledgerguard-consumer.md).
+
 ## Explicit remaining boundaries
 
 No immutable public action release tag, controlled major alias, standalone action-distribution release or external consumer against a released action is claimed. Source-level `uses: ./` acceptance is not substituted for released-action acceptance.
 
 No GitHub Marketplace listing or Marketplace account-owner terms acceptance is claimed.
 
-LedgerGuard now has verified API functionality, but ForgeQA's genuine second-consumer harness has not yet been implemented. LedgerGuard still has no React product interface, and no mock or copied application is substituted for the required integration.
+LedgerGuard's genuine API-first second-consumer harness is implemented but has not yet produced a hosted exact-head acceptance record. LedgerGuard still has no React product interface, and no mock or copied application is substituted for browser coverage.
 
 The 90/85 runtime coverage thresholds, comparable distributed benchmarks, complete generic fixture lifecycle/property coverage, versioned documentation deployment and npm publication remain unverified or unreleased. Source-candidate tarballs are not registry publications.
 

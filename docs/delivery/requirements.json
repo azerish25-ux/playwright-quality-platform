@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "sourceSha": "e9f4bf76337813d442f57fc054df5cef9f1cfac3",
-  "updatedAt": "2026-09-26T22:20:21Z",
+  "updatedAt": "2026-09-27T16:21:17Z",
   "requirements": [
     {
       "id": "R-001",
@@ -162,14 +162,17 @@
     {
       "id": "R-013",
       "requirement": "LedgerGuard real consumer",
-      "status": "BLOCKED",
-      "actualResult": "The inspected LedgerGuard foundation lacks the required product-facing auth/payment/UI surfaces; no substituted fake consumer is used.",
+      "status": "PARTIAL",
+      "actualResult": "A genuine API-first LedgerGuard consumer is implemented against verified P07A SHA 9478663f97f9dc65d0c85117f244e1b8b80c37cb. It contains twelve real API journeys, isolated npm/pnpm packed-package adoption, reconciliation and infrastructure-cleanup gates. Hosted exact-head acceptance is not yet recorded, and real UI coverage remains blocked by the absent LedgerGuard product interface.",
       "implementationPaths": [
-        "examples/ledgerguard-integration"
+        "examples/ledgerguard-integration",
+        "scripts/ledgerguard-acceptance.mjs",
+        ".github/workflows/ci.yml",
+        "docs/delivery/ledgerguard-consumer-requirements.json"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "node --test tests/ledgerguard-contract.test.mjs; hosted ledgerguard CI lane required for PASS",
       "expectedBehavior": "LedgerGuard real consumer",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "ledgerguard-consumer-candidate"
     },
     {
       "id": "R-014",

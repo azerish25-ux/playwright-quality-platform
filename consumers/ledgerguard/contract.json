@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "consumer": "ledgerguard",
+  "status": "IMPLEMENTED_AWAITING_HOSTED_ACCEPTANCE",
+  "applicationRepository": "azerish25-ux/transaction-reliability-lab",
+  "applicationSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+  "applicationVerificationRun": 36319414655,
+  "mode": "api-first",
+  "uiClaimed": false,
+  "testCount": 12,
+  "packageManagers": [
+    "npm",
+    "pnpm"
+  ],
+  "requiredCapabilities": [
+    "authentication",
+    "session-revocation",
+    "customer-admin-separation",
+    "account-ownership",
+    "transfers",
+    "idempotency",
+    "insufficient-funds-atomicity",
+    "async-terminal-status",
+    "cancellation",
+    "refund",
+    "reversal",
+    "scheduled-transfers",
+    "two-scheduler-single-effect",
+    "financial-reconciliation",
+    "owned-infrastructure-cleanup"
+  ]
+}

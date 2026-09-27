@@ -1,1 +1,13 @@
-{"schemaVersion":1,"consumer":"ledgerguard","status":"BLOCKED","reason":"No implemented LedgerGuard application was available at the inspected revision; no endpoints or credentials were invented.","requiredCapabilities":["authentication","customer-admin-separation","account-ownership","transfers","idempotency","async-terminal-status","reversal-refund"]}
+{
+  "schemaVersion": 3,
+  "consumer": "ledgerguard",
+  "status": "IMPLEMENTED_AWAITING_HOSTED_ACCEPTANCE",
+  "executablePath": "consumers/ledgerguard",
+  "applicationRepository": "azerish25-ux/transaction-reliability-lab",
+  "applicationSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+  "applicationVerificationRun": 36319414655,
+  "mode": "api-first",
+  "uiClaimed": false,
+  "testCount": 12,
+  "packageManagers": ["npm", "pnpm"]
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "applicationRepository": "azerish25-ux/transaction-reliability-lab",
+  "applicationSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+  "applicationVerificationRun": 36319414655,
+  "requirements": [
+    {
+      "id": "M5-01",
+      "requirement": "Exact verified LedgerGuard revision pin",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [".github/workflows/ci.yml", "scripts/ledgerguard-acceptance.mjs"]
+    },
+    {
+      "id": "M5-02",
+      "requirement": "Executable external consumer using public ForgeQA packages",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["consumers/ledgerguard"]
+    },
+    {
+      "id": "M5-03",
+      "requirement": "Authentication, authorization, ownership, transfer and idempotency coverage",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["consumers/ledgerguard/tests/auth.api.spec.ts", "consumers/ledgerguard/tests/transfers.api.spec.ts"]
+    },
+    {
+      "id": "M5-04",
+      "requirement": "Asynchronous settlement, cancellation, refund and reversal coverage",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["consumers/ledgerguard/tests/payments.api.spec.ts"]
+    },
+    {
+      "id": "M5-05",
+      "requirement": "Two-scheduler one-effect and schedule lifecycle coverage",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["consumers/ledgerguard/tests/schedules.api.spec.ts"]
+    },
+    {
+      "id": "M5-06",
+      "requirement": "Independent npm and pnpm packed-package acceptance",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["scripts/ledgerguard-acceptance.mjs"]
+    },
+    {
+      "id": "M5-07",
+      "requirement": "Financial reconciliation and owned infrastructure cleanup gates",
+      "status": "IMPLEMENTED",
+      "implementationPaths": ["consumers/ledgerguard/src/lab.ts", "scripts/ledgerguard-acceptance.mjs"]
+    },
+    {
+      "id": "M5-08",
+      "requirement": "Hosted exact-source LedgerGuard consumer acceptance",
+      "status": "NOT_RUN",
+      "implementationPaths": [".github/workflows/ci.yml"],
+      "verification": "The new required ledgerguard job must pass at the exact ForgeQA head revision."
+    },
+    {
+      "id": "M5-09",
+      "requirement": "Real LedgerGuard browser UI acceptance",
+      "status": "BLOCKED",
+      "implementationPaths": [],
+      "verification": "Blocked until LedgerGuard provides its genuine product interface; no mock UI is substituted."
+    }
+  ]
+}

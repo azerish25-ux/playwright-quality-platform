@@ -10,7 +10,7 @@ import {
 } from './shared.mjs';
 
 function laneKey(name) {
-  if (name === 'teamboard' || name === 'action' || name === 'forgeqa-quality') return name;
+  if (name === 'teamboard' || name === 'ledgerguard' || name === 'action' || name === 'forgeqa-quality') return name;
   if (name === 'verify' || name.startsWith('verify (')) return 'verify';
   if (name === 'consumer' || name.startsWith('consumer (')) return 'consumer';
   return undefined;
@@ -27,6 +27,7 @@ export function summarizeRequiredJobs(jobs) {
   const summary = {};
   for (const [name, expectedCount] of Object.entries(REQUIRED_LANES)) {
     const laneJobs = grouped.get(name);
+    if (name === 'ledgerguard' && laneJobs.length === 0) continue;
     assert(laneJobs.length === expectedCount, `Required lane ${name} expected ${expectedCount} job(s), observed ${laneJobs.length}.`);
     const conclusions = laneJobs.map((job) => {
       assert(typeof job.conclusion === 'string' && ALLOWED_CONCLUSIONS.has(job.conclusion), `Required lane ${name} has an incomplete or unsupported conclusion.`);
@@ -47,7 +48,10 @@ function needsResult(value) {
 export function validateReportAgainstJobs(report, jobs) {
   assert(isObject(report) && isObject(report.aggregate), 'Validated report is missing aggregate results.');
   assert(isObject(jobs), 'Required-job summary is missing.');
-  for (const name of ['verify', 'consumer', 'teamboard', 'action']) {
+  const lanes = Object.hasOwn(report.aggregate, 'ledgerguard')
+    ? ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action']
+    : ['verify', 'consumer', 'teamboard', 'action'];
+  for (const name of lanes) {
     assert(report.aggregate[name] === needsResult(jobs[name]), `Report ${name} result contradicts GitHub job conclusions.`);
   }
   assert(report.aggregate.gateStep === (jobs['forgeqa-quality'] === 'success' ? 'success' : 'failure'), 'Report aggregate gate contradicts the forgeqa-quality job conclusion.');

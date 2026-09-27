@@ -4,7 +4,7 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **First-consumer milestone:** native execution, typed fixtures, strict reporting and a real PostgreSQL-backed TeamBoard are now implemented. The first-pass TeamBoard inventory has been exercised in the workspace and isolated npm/pnpm consumers across Chromium, Firefox and WebKit. Exact-source evidence and remaining checks are tracked in the [delivery status](docs/delivery/STATUS.md); this is not a publication claim.
 
-> **Release status:** source implementation, local package build, and self-tests are available. npm publication, a standalone action tag, a live documentation deployment, the real LedgerGuard consumer and full release acceptance remain unverified external deliverables. The repository does not claim those are complete.
+> **Release status:** source implementation, local package build, self-tests, and an exact-revision API-first LedgerGuard consumer are available. The new LedgerGuard lane still requires hosted exact-source acceptance before it can be promoted from implementation evidence to verified release evidence. npm publication, a standalone action tag, a live documentation deployment, and full release acceptance remain external deliverables.
 
 ## Why it exists
 
@@ -66,9 +66,10 @@ export default defineForgeConfig({
 - [`docs/security.md`](docs/security.md) — trust boundaries and artifact privacy
 - [`docs/delivery/requirements.json`](docs/delivery/requirements.json) — factual status matrix
 - [`examples/demo-saas`](examples/demo-saas) — Working TeamBoard application, PostgreSQL migrations and consumer suites
-- [`examples/ledgerguard-integration`](examples/ledgerguard-integration) — fail-closed second-consumer contract
+- [`consumers/ledgerguard`](consumers/ledgerguard) — executable API-first LedgerGuard consumer pinned to verified P07A source
+- [`docs/ledgerguard-consumer.md`](docs/ledgerguard-consumer.md) — revision, trust, topology, package and evidence boundaries
 - [`adrs`](adrs) — engineering decisions
 
 ## Current limitations
 
-The first-consumer milestone does not complete the full assignment. The status matrix intentionally marks unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. In particular, this commit does not claim published npm packages, a Marketplace listing, deployed docs, a complete release acceptance decision, or an executed LedgerGuard application integration. Actual cross-platform job results are recorded separately in the delivery checkpoint.
+The implemented product does not complete every release requirement. The status matrix intentionally marks unexecuted external requirements as `BLOCKED`, `PARTIAL`, or `NOT_RUN` instead of equating files with verified behavior. The LedgerGuard harness is real and executable, but this source revision does not claim its new hosted lane has passed until an exact-head GitHub run records that evidence. It also does not claim a LedgerGuard browser UI, published npm packages, a Marketplace listing, deployed docs, or a complete release acceptance decision.

@@ -24,7 +24,8 @@
     "benchmark": "node benchmarks/run.mjs",
     "test:integration": "node --test --test-concurrency=1 tests/integration/*.test.mjs",
     "test:consumers": "node tests/consumers/packed.mjs",
-    "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs && node scripts/distributed-browser-evidence.mjs"
+    "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs && node scripts/distributed-browser-evidence.mjs",
+    "test:ledgerguard": "node scripts/ledgerguard-acceptance.mjs"
   },
   "license": "MIT",
   "devDependencies": {

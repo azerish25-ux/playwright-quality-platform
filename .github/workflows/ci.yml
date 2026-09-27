@@ -109,6 +109,33 @@ jobs:
             examples/demo-saas/forgeqa-results/
           if-no-files-found: error
           retention-days: 7
+  ledgerguard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - name: Check out verified LedgerGuard P07A source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: azerish25-ux/transaction-reliability-lab
+          ref: 9478663f97f9dc65d0c85117f244e1b8b80c37cb
+          path: .tmp/ledgerguard
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run test:ledgerguard
+        env:
+          LEDGERGUARD_ROOT: ${{ github.workspace }}/.tmp/ledgerguard
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: ledgerguard-evidence-${{ github.sha }}
+          path: evidence/ledgerguard/
+          if-no-files-found: error
+          retention-days: 14
   action:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -151,7 +178,7 @@ jobs:
           retention-days: 7
   forgeqa-quality:
     if: always()
-    needs: [verify, consumer, teamboard, action]
+    needs: [verify, consumer, teamboard, ledgerguard, action]
     runs-on: ubuntu-latest
     steps:
       - id: enforce
@@ -160,11 +187,13 @@ jobs:
           VERIFY_RESULT: '${{ needs.verify.result }}'
           CONSUMER_RESULT: '${{ needs.consumer.result }}'
           TEAMBOARD_RESULT: '${{ needs.teamboard.result }}'
+          LEDGERGUARD_RESULT: '${{ needs.ledgerguard.result }}'
           ACTION_RESULT: '${{ needs.action.result }}'
         run: |
           test "$VERIFY_RESULT" = success
           test "$CONSUMER_RESULT" = success
           test "$TEAMBOARD_RESULT" = success
+          test "$LEDGERGUARD_RESULT" = success
           test "$ACTION_RESULT" = success
       - name: Materialize data-only PR report
         if: always() && github.event_name == 'pull_request'
@@ -180,6 +209,7 @@ jobs:
           REPORT_VERIFY_RESULT: ${{ needs.verify.result }}
           REPORT_CONSUMER_RESULT: ${{ needs.consumer.result }}
           REPORT_TEAMBOARD_RESULT: ${{ needs.teamboard.result }}
+          REPORT_LEDGERGUARD_RESULT: ${{ needs.ledgerguard.result }}
           REPORT_ACTION_RESULT: ${{ needs.action.result }}
           REPORT_GATE_OUTCOME: ${{ steps.enforce.outcome }}
         run: |
@@ -197,7 +227,7 @@ jobs:
             return value;
           };
           const report = {
-            schemaVersion: 1,
+            schemaVersion: 2,
             kind: 'forgeqa-pr-report',
             repository: required('REPORT_REPOSITORY'),
             workflow: required('REPORT_WORKFLOW'),
@@ -213,6 +243,7 @@ jobs:
               verify: required('REPORT_VERIFY_RESULT'),
               consumer: required('REPORT_CONSUMER_RESULT'),
               teamboard: required('REPORT_TEAMBOARD_RESULT'),
+              ledgerguard: required('REPORT_LEDGERGUARD_RESULT'),
               action: required('REPORT_ACTION_RESULT'),
               gateStep: required('REPORT_GATE_OUTCOME'),
             },
