@@ -131,7 +131,7 @@ jobs:
         run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\n')"
       - id: plan
         name: Create immutable ForgeQA execution manifest
-        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
         with:
           mode: plan
           suite: ${{ inputs.suite }}
@@ -178,7 +178,7 @@ jobs:
           path: .forgeqa-plan
       - id: execute
         name: Execute ForgeQA shard ${{ matrix.shard }}/${{ inputs.shard-count }}
-        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
         with:
           mode: run
           suite: ${{ inputs.suite }}
@@ -239,10 +239,10 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           pattern: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
-          path: ${{ inputs.working-directory }}/.forgeqa-shards
+          path: .forgeqa-shards
       - id: merge
         name: Merge and enforce canonical ForgeQA evidence
-        uses: azerish25-ux/playwright-quality-platform@f51572db42112e040bb10f378cda66e4e22364a2
+        uses: azerish25-ux/playwright-quality-platform@72d5016a3247ff4c7c3cc8e2662fa4653d7eebbe
         with:
           mode: merge
           working-directory: ${{ inputs.working-directory }}
