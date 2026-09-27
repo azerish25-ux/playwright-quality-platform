@@ -24,7 +24,8 @@ export function defineForgePlaywrightConfig(input: ForgeConfigInput, native: Tes
   const projects = native.projects ?? (config.browsers ?? ['chromium']).map(browser => ({ name: browser, use: { browserName: browser } }));
   const selected = request?.options.cli?.browsers;
   const actualProjects = selected ? projects.filter(project => !project.use?.browserName || selected.includes(project.use.browserName)) : projects;
-  const configured = native.reporter === undefined ? [['list'] as [string]] : typeof native.reporter === 'string' ? [[native.reporter] as [string]] : native.reporter.map(entry => [entry[0], entry[1]] as [string, Record<string, unknown>?]);
+  type ReporterList = Exclude<NonNullable<TestConfig['reporter']>, string>;
+  const configured = (native.reporter === undefined ? [['list']] : typeof native.reporter === 'string' ? [[native.reporter]] : [...native.reporter]) as ReporterList;
   if (request?.mode !== 'discover' && !configured.some(([name]) => name === 'blob')) configured.push(['blob', { outputDir: resolve(runDir, 'blob-report') }]);
   if (!configured.some(([name]) => name === '@azerish25-ux/forgeqa-playwright/reporter')) configured.push(['@azerish25-ux/forgeqa-playwright/reporter']);
   return defineConfig({
