@@ -1,14 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
+import { prepareLedgerGuardConsumers } from './ledgerguard-consumer-preparation.mjs';
 
 const LEDGERGUARD_SHA = '9478663f97f9dc65d0c85117f244e1b8b80c37cb';
-const packages = ['core', 'api', 'test-data', 'reporter', 'flake-analysis', 'playwright', 'github-action', 'cli'];
 const root = process.cwd();
 const npm = process.env.npm_execpath;
 if (!npm) throw new Error('Run LedgerGuard acceptance through npm run test:ledgerguard.');
@@ -16,7 +15,6 @@ if (!npm) throw new Error('Run LedgerGuard acceptance through npm run test:ledge
 const ledgerRoot = resolve(process.env.LEDGERGUARD_ROOT ?? '.tmp/ledgerguard');
 const evidence = resolve('evidence/ledgerguard');
 const temporary = await mkdtemp(join(tmpdir(), 'ForgeQA LedgerGuard '));
-const artifacts = join(temporary, 'packages');
 const runtimeEnv = join(temporary, 'ledgerguard.env');
 const project = `forgeqa-ledger-${randomBytes(4).toString('hex')}`;
 const startedAt = new Date().toISOString();
@@ -34,13 +32,20 @@ let httpPort;
 let rabbitPort;
 let sourceSha = process.env.FORGEQA_SOURCE_SHA ?? 'unknown';
 
+await rm(evidence, { recursive: true, force: true });
 await mkdir(evidence, { recursive: true });
-await mkdir(artifacts, { recursive: true });
 
 try {
   sourceSha = process.env.FORGEQA_SOURCE_SHA ?? (await command('git', ['rev-parse', 'HEAD'], { cwd: root })).trim();
   const ledgerSha = (await command('git', ['rev-parse', 'HEAD'], { cwd: ledgerRoot })).trim();
   assert.equal(ledgerSha, LEDGERGUARD_SHA, 'LedgerGuard checkout must match the verified P07A source SHA.');
+
+  const preparedConsumers = await prepareLedgerGuardConsumers({
+    root,
+    npm,
+    temporary,
+    evidenceDirectory: evidence
+  });
 
   await command('docker', ['info'], { timeoutMs: 60_000 });
   await command('docker', ['compose', 'version'], { timeoutMs: 60_000 });
@@ -61,45 +66,26 @@ try {
   const baseUrl = `http://127.0.0.1:${httpPort}`;
   const system = await waitForReadiness(baseUrl, 180_000);
   assert.equal(system.databaseRole, 'ledger_runtime');
-  const running = new Set((await command('docker', [...compose, 'ps', '--status', 'running', '--services'], { cwd: ledgerRoot })).split(/\s+/).filter(Boolean));
-  for (const service of ['postgres', 'rabbitmq', 'api', 'outbox-publisher', 'payment-worker-a', 'payment-worker-b', 'scheduler-a', 'scheduler-b']) {
+  const running = new Set((await command('docker', [
+    ...compose,
+    'ps', '--status', 'running', '--services'
+  ], { cwd: ledgerRoot })).split(/\s+/).filter(Boolean));
+  for (const service of [
+    'postgres',
+    'rabbitmq',
+    'api',
+    'outbox-publisher',
+    'payment-worker-a',
+    'payment-worker-b',
+    'scheduler-a',
+    'scheduler-b'
+  ]) {
     assert(running.has(service), `LedgerGuard service ${service} must be running.`);
   }
 
-  const packageSpecs = {};
-  const packageChecksums = {};
-  for (const directory of packages) {
-    const metadata = JSON.parse(await readFile(join(root, 'packages', directory, 'package.json'), 'utf8'));
-    const packedOutput = await node([npm, 'pack', `./packages/${directory}`, '--pack-destination', artifacts, '--json', '--ignore-scripts'], {
-      cwd: root,
-      timeoutMs: 3 * 60_000
-    });
-    const packed = JSON.parse(packedOutput)[0];
-    assert(packed.files.some(file => file.path === 'dist/index.js'));
-    assert(packed.files.some(file => file.path === 'dist/index.d.ts'));
-    assert(!packed.files.some(file => /(^|\/)(node_modules|\.env|src|test-results|\.auth)(\/|$)/.test(file.path)));
-    const archive = join(artifacts, packed.filename);
-    packageSpecs[metadata.name] = `file:${archive.replace(/\\/g, '/')}`;
-    packageChecksums[packed.filename] = createHash('sha256').update(await readFile(archive)).digest('hex');
-  }
-  await writeFile(join(evidence, 'package-checksums.json'), `${JSON.stringify(packageChecksums, null, 2)}\n`);
-
   const managerRuns = [];
   let expectedIdentities;
-  for (const manager of ['npm', 'pnpm']) {
-    const consumer = join(temporary, `ledgerguard-${manager}`);
-    await copyConsumer(consumer);
-    await installPackedConsumer(consumer, manager, packageSpecs);
-
-    const require = createRequire(join(consumer, 'package.json'));
-    await cp(join(root, 'tests/consumers/public-exports.mjs'), join(consumer, 'public-exports.mjs'));
-    const resolved = JSON.parse(await node([join(consumer, 'public-exports.mjs'), ...Object.keys(packageSpecs)], {
-      cwd: consumer,
-      timeoutMs: 60_000
-    }));
-    assert.equal(Object.keys(resolved.entries).length, packages.length);
-
-    await node([require.resolve('typescript/bin/tsc'), '--noEmit'], { cwd: consumer, timeoutMs: 2 * 60_000 });
+  for (const { manager, consumer, resolved } of preparedConsumers) {
     const runEnvironment = {
       ...process.env,
       FORGEQA_SOURCE_SHA: sourceSha,
@@ -130,7 +116,11 @@ try {
       .map(attempt => `${attempt.logicalTestId}:${attempt.project}:${attempt.environment}`)
       .sort();
     if (expectedIdentities === undefined) expectedIdentities = identities;
-    else assert.deepEqual(identities, expectedIdentities, 'npm and pnpm consumers must execute the same LedgerGuard identity set.');
+    else assert.deepEqual(
+      identities,
+      expectedIdentities,
+      'npm and pnpm consumers must execute the same LedgerGuard identity set.'
+    );
 
     const destination = join(evidence, manager);
     await rm(destination, { recursive: true, force: true });
@@ -150,7 +140,9 @@ try {
     managerRuns.push(sanitized);
   }
 
-  const reconciliation = Number(await sqlScalar(compose, ledgerRoot,
+  const reconciliation = Number(await sqlScalar(
+    compose,
+    ledgerRoot,
     "SELECT count(*) FROM ledger.account_balances b JOIN ledger.accounts a ON a.id=b.account_id "
     + "WHERE b.posted_minor::numeric<>(SELECT coalesce(sum(CASE WHEN a.kind='WALLET_LIABILITY' "
     + "THEN CASE WHEN e.side='CREDIT' THEN e.amount_minor::numeric ELSE -e.amount_minor::numeric END "
@@ -197,11 +189,18 @@ try {
         timeoutMs: 4 * 60_000,
         allowFailure: false
       });
-      const containers = (await command('docker', ['ps', '-aq', '--filter', `label=com.docker.compose.project=${project}`], { allowFailure: true })).trim();
-      const volumes = (await command('docker', ['volume', 'ls', '-q', '--filter', `label=com.docker.compose.project=${project}`], { allowFailure: true })).trim();
+      const containers = (await command('docker', [
+        'ps', '-aq', '--filter', `label=com.docker.compose.project=${project}`
+      ], { allowFailure: true })).trim();
+      const volumes = (await command('docker', [
+        'volume', 'ls', '-q', '--filter', `label=com.docker.compose.project=${project}`
+      ], { allowFailure: true })).trim();
       assert.equal(containers, '', 'LedgerGuard acceptance leaked containers.');
       assert.equal(volumes, '', 'LedgerGuard acceptance leaked volumes.');
-      await writeFile(join(evidence, 'cleanup.json'), `${JSON.stringify({ containers: 0, volumes: 0, project }, null, 2)}\n`);
+      await writeFile(
+        join(evidence, 'cleanup.json'),
+        `${JSON.stringify({ containers: 0, volumes: 0, project }, null, 2)}\n`
+      );
     } catch (cleanupFailure) {
       if (primaryFailure === undefined) {
         primaryFailure = cleanupFailure;
@@ -217,7 +216,6 @@ try {
 }
 
 if (primaryFailure !== undefined) throw primaryFailure;
-
 
 async function writeFailure(failure) {
   await writeFile(join(evidence, 'failure.json'), `${JSON.stringify({
@@ -257,46 +255,6 @@ function runtimeEnvironment({ httpPort, rabbitPort }) {
   ].join('\n');
 }
 
-async function copyConsumer(destination) {
-  await mkdir(destination, { recursive: true });
-  const source = join(root, 'consumers/ledgerguard');
-  await cp(source, destination, {
-    recursive: true,
-    filter: candidate => !relative(source, candidate).split(/[\\/]/).some(part =>
-      ['node_modules', 'forgeqa-results', 'test-results', '.forgeqa'].includes(part)
-    )
-  });
-}
-
-async function installPackedConsumer(consumer, manager, specs) {
-  const manifestPath = join(consumer, 'package.json');
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  manifest.dependencies = { ...manifest.dependencies, ...specs };
-  for (const name of Object.keys(specs)) {
-    if (manifest.devDependencies) delete manifest.devDependencies[name];
-  }
-  manifest.devDependencies = {
-    ...manifest.devDependencies,
-    '@playwright/test': '1.58.2',
-    'typescript': '5.8.3',
-    '@types/node': '22.18.6'
-  };
-  manifest.pnpm = { overrides: specs };
-  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-
-  const executable = manager === 'npm' ? npm : join(root, 'node_modules/pnpm/bin/pnpm.cjs');
-  await node([executable, 'install', '--ignore-scripts', ...(manager === 'npm' ? ['--no-audit', '--no-fund'] : [])], {
-    cwd: consumer,
-    timeoutMs: 8 * 60_000
-  });
-  await node([
-    executable,
-    ...(manager === 'npm'
-      ? ['ci', '--ignore-scripts', '--no-audit', '--no-fund']
-      : ['install', '--frozen-lockfile', '--ignore-scripts'])
-  ], { cwd: consumer, timeoutMs: 8 * 60_000 });
-}
-
 async function sqlScalar(compose, cwd, query) {
   return (await command('docker', [
     ...compose,
@@ -315,11 +273,20 @@ async function waitForReadiness(baseUrl, timeoutMs) {
   let last = 'not attempted';
   while (Date.now() < deadline) {
     try {
-      const healthResponse = await fetch(`${baseUrl}/actuator/health/readiness`, { signal: AbortSignal.timeout(5_000) });
-      const systemResponse = await fetch(`${baseUrl}/api/v1/system`, { signal: AbortSignal.timeout(5_000) });
+      const healthResponse = await fetch(`${baseUrl}/actuator/health/readiness`, {
+        signal: AbortSignal.timeout(5_000)
+      });
+      const systemResponse = await fetch(`${baseUrl}/api/v1/system`, {
+        signal: AbortSignal.timeout(5_000)
+      });
       const health = await healthResponse.json();
       const system = await systemResponse.json();
-      if (healthResponse.ok && systemResponse.ok && health.status === 'UP' && system.databaseRole === 'ledger_runtime') return system;
+      if (
+        healthResponse.ok
+        && systemResponse.ok
+        && health.status === 'UP'
+        && system.databaseRole === 'ledger_runtime'
+      ) return system;
       last = JSON.stringify({ health, system });
     } catch (failure) {
       last = failure instanceof Error ? failure.message : String(failure);
@@ -336,8 +303,12 @@ async function freePort() {
     server.listen(0, '127.0.0.1', resolvePromise);
   });
   const address = server.address();
-  if (address === null || typeof address === 'string') throw new Error('Could not allocate an acceptance port.');
-  await new Promise((resolvePromise, reject) => server.close(error => error ? reject(error) : resolvePromise()));
+  if (address === null || typeof address === 'string') {
+    throw new Error('Could not allocate an acceptance port.');
+  }
+  await new Promise((resolvePromise, reject) => {
+    server.close(error => error ? reject(error) : resolvePromise());
+  });
   return address.port;
 }
 

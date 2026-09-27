@@ -57,7 +57,7 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
   }, { scope: 'worker' }],
 
   customer: async ({ forge, baseURL }, use, testInfo) => {
-    const actor = await registeredActor(baseURL!, forge.runId, forge.namespace, testInfo, 1);
+    const actor = await registeredActor(requiredBaseURL(baseURL), forge.runId, forge.namespace, testInfo, 1);
     try {
       await use(actor);
     } finally {
@@ -66,7 +66,7 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
   },
 
   otherCustomer: async ({ forge, baseURL }, use, testInfo) => {
-    const actor = await registeredActor(baseURL!, forge.runId, forge.namespace, testInfo, 2);
+    const actor = await registeredActor(requiredBaseURL(baseURL), forge.runId, forge.namespace, testInfo, 2);
     try {
       await use(actor);
     } finally {
@@ -75,7 +75,7 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
   },
 
   admin: async ({ baseURL }, use) => {
-    const context = await requests.newContext({ baseURL });
+    const context = await requests.newContext({ baseURL: requiredBaseURL(baseURL) });
     const client = new LedgerGuardClient(context);
     await client.refreshCsrf();
     const result = await client.login(
@@ -132,6 +132,13 @@ async function registeredActor(
 export function commandKey(testInfo: TestInfo, prefix: string, sequence = 0): string {
   const suffix = stableHash({ testId: testInfo.testId, retry: testInfo.retry, prefix, sequence }).slice(0, 32);
   return `${prefix}-${suffix}`;
+}
+
+function requiredBaseURL(value: string | undefined): string {
+  if (!value) {
+    throw new Error('LedgerGuard Playwright baseURL is required for external-consumer acceptance.');
+  }
+  return value;
 }
 
 function required(name: string): string {
