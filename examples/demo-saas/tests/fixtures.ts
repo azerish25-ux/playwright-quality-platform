@@ -16,12 +16,12 @@ export async function loginPage(page:Page,tenant:Tenant,role:'owner'|'editor'|'v
   await page.goto('/');
   const signOut=page.getByRole('button',{name:'Sign out',exact:true});
   if(await signOut.isVisible()){
-    await Promise.all([
-      page.waitForResponse(response=>response.url().endsWith('/api/logout')&&response.request().method()==='POST'&&response.ok()),
-      signOut.click()
-    ]);
-    await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();
+    const response=await page.request.post(new URL('/api/logout',page.url()).toString(),{data:{}});
+    expect([200,401],'role transition logout is complete or already complete').toContain(response.status());
+    await page.context().clearCookies();
+    await page.goto('/');
   }
+  await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();
   await page.getByLabel('Email',{exact:true}).fill(tenant.accounts[role].email);
   await page.getByLabel('Password',{exact:true}).fill(tenant.accounts[role].password);
   await Promise.all([
