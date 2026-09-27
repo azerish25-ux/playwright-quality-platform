@@ -173,7 +173,7 @@ try {
     await writeFile(resolve(consumer, 'tsconfig.json'), `${JSON.stringify({
       compilerOptions: {
         target: 'ES2022',
-        lib: ['ES2022', 'ESNext.Disposable'],
+        lib: ['ES2022', 'DOM', 'DOM.Iterable', 'ESNext.Disposable'],
         module: 'NodeNext',
         moduleResolution: 'NodeNext',
         types: ['node'],
