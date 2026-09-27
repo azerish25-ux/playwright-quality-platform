@@ -55,15 +55,11 @@ try{
   assert.equal(second.status,0,second.stderr);
   const firstJson=JSON.parse(first.stdout);
   const secondJson=JSON.parse(second.stdout);
-  const dirs=[firstJson.runDir,secondJson.runDir];
-  const bundles=[];
-  for(let index=0;index<dirs.length;index++){
-    const source=join(dirs[index],'blob-report');
-    const destination=join(temporary,`blob-${index+1}`);
-    await import('node:fs/promises').then(({cp})=>cp(source,destination,{recursive:true}));
-    bundles.push(destination);
-  }
-  const merge=await invoke(['report','merge','--manifest',manifest,'--output',join(evidence,'merged'),...bundles,'--json'],temporary);
+  const finalizedReports=[
+    join(firstJson.runDir,'attempts.ndjson.final.json'),
+    join(secondJson.runDir,'attempts.ndjson.final.json')
+  ];
+  const merge=await invoke(['report','merge','--manifest',manifest,'--output',join(evidence,'merged'),...finalizedReports,'--json'],temporary);
   assert.equal(merge.status,0,merge.stderr);
   const summary=JSON.parse(merge.stdout);
   assert.equal(summary.tests,4);

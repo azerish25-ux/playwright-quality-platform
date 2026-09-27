@@ -27,6 +27,7 @@ test('distributed browser evidence is isolated from preceding consumer lifecycle
   assert.match(source, /\['plan','--suite','release','--shard','1\/2','--json'/);
   assert.doesNotMatch(source, /--shard-total/);
   assert.match(source, /planJson\.shardTotal\?\?planJson\.shardCount/);
-  assert.match(source, /invoke\(\['report','merge','--manifest',manifest,'--output',join\(evidence,'merged'\),\.\.\.bundles,'--json'\]/);
-  assert.doesNotMatch(source, /\['merge'|--expected|--mode','merge'/);
+  assert.match(source, /const finalizedReports=\[\s*join\(firstJson\.runDir,'attempts\.ndjson\.final\.json'\),\s*join\(secondJson\.runDir,'attempts\.ndjson\.final\.json'\)\s*\]/);
+  assert.match(source, /invoke\(\['report','merge','--manifest',manifest,'--output',join\(evidence,'merged'\),\.\.\.finalizedReports,'--json'\]/);
+  assert.doesNotMatch(source, /blob-report|\['merge'|--expected|--mode','merge'/);
 });
