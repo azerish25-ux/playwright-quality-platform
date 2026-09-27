@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "milestone": "M4 — GitHub platform hardening",
+  "sourceSha": "570bcd08c0334cd4f9776a8846e6dda8dbdbb10b",
+  "updatedAt": "2026-09-27T12:49:36Z",
+  "requirements": [
+    {
+      "id": "M4-01",
+      "requirement": "Callable JavaScript action with committed Node 24 distribution",
+      "status": "PASS",
+      "actualResult": "action.yml points to a tracked compiled ESM runtime. CI source tests assert the declared entrypoint exists and contains the maintained action implementation.",
+      "implementationPaths": ["action.yml", "packages/github-action/src", "packages/github-action/dist"],
+      "verification": "tests/github-workflow.test.mjs; CI run 36319982582 action job"
+    },
+    {
+      "id": "M4-02",
+      "requirement": "Validated action inputs and workspace-confined paths",
+      "status": "PASS",
+      "actualResult": "Typed mode, integer, boolean, enum and list inputs fail closed. Working directories, CLI/config/manifest paths, output roots and downloaded evidence are real-path checked against GITHUB_WORKSPACE.",
+      "implementationPaths": ["packages/github-action/src/input.ts", "packages/github-action/src/main.ts"],
+      "verification": "tests/github-action.test.mjs in CI run 36319982582"
+    },
+    {
+      "id": "M4-03",
+      "requirement": "Credential-minimized dependency, application and Playwright lifecycle",
+      "status": "PASS",
+      "actualResult": "Dependency installation can receive registry authentication, while GitHub/Actions/registry credentials are stripped from application, ForgeQA and Playwright child processes. Owned application process groups have readiness deadlines and bounded teardown.",
+      "implementationPaths": ["packages/github-action/src/main.ts", "docs/github-action.md"],
+      "verification": "tests/github-action.test.mjs in CI run 36319982582"
+    },
+    {
+      "id": "M4-04",
+      "requirement": "Bounded single-runner sharding under one worker budget",
+      "status": "PASS",
+      "actualResult": "Run mode plans once, allocates a bounded local shard pool, divides the total worker budget, preserves every shard result and merges canonical/native evidence before returning policy status.",
+      "implementationPaths": ["packages/github-action/src/main.ts"],
+      "verification": "tests/github-action.test.mjs and the two-shard source action acceptance in CI run 36319982582"
+    },
+    {
+      "id": "M4-05",
+      "requirement": "Reusable plan, distributed shard and aggregate merge workflow",
+      "status": "PASS",
+      "actualResult": "The reusable workflow creates one immutable manifest, executes fail-fast-disabled matrix shards with one pinned action payload, uploads complete evidence on failure and runs a stable forgeqa-quality merge job.",
+      "implementationPaths": [".github/workflows/forgeqa-reusable.yml"],
+      "verification": "tests/github-workflow.test.mjs in CI run 36319982582"
+    },
+    {
+      "id": "M4-06",
+      "requirement": "Strict quality and infrastructure failure propagation",
+      "status": "PASS",
+      "actualResult": "Exit codes 1, 2, 3 and 130 remain nonzero after output and evidence generation. Missing, symbolic-link, duplicate or contradictory shard evidence fails closed.",
+      "implementationPaths": ["packages/github-action/src/main.ts", ".github/workflows/forgeqa-reusable.yml"],
+      "verification": "tests/github-action.test.mjs; tests/github-workflow.test.mjs in CI run 36319982582"
+    },
+    {
+      "id": "M4-07",
+      "requirement": "Actual local action execution against a real ForgeQA consumer",
+      "status": "PASS",
+      "actualResult": "The repository executed its tracked action through uses: ./ against a real API-only consumer with two shards, merged canonical/native evidence, verified success/test/attempt outputs and uploaded the resulting evidence package.",
+      "implementationPaths": ["scripts/prepare-action-consumer.mjs", ".github/workflows/ci.yml"],
+      "verification": "Exact-source CI run 36319982582 action job at 570bcd08c0334cd4f9776a8846e6dda8dbdbb10b"
+    },
+    {
+      "id": "M4-08",
+      "requirement": "Fork-safe pull-request reporting",
+      "status": "PARTIAL",
+      "actualResult": "Least-privilege job summaries and authenticated workflow artifacts are implemented without pull_request_target or write tokens. Idempotent pull-request comment publication is not implemented.",
+      "implementationPaths": ["packages/github-action/src/main.ts", ".github/workflows/forgeqa-reusable.yml"],
+      "verification": "Source review and CI run 36319982582"
+    },
+    {
+      "id": "M4-09",
+      "requirement": "Immutable public action release and controlled major alias",
+      "status": "NOT_RUN",
+      "actualResult": "A callable source distribution exists, but no release tag, standalone distribution-repository revision or major alias is claimed.",
+      "implementationPaths": ["action.yml", "packages/github-action/dist"],
+      "verification": "Release milestone"
+    },
+    {
+      "id": "M4-10",
+      "requirement": "External consumer verifies the released immutable action",
+      "status": "NOT_RUN",
+      "actualResult": "Source-repository uses: ./ acceptance passed; a separate consumer has not yet executed an immutable released tag.",
+      "implementationPaths": [".github/workflows/ci.yml"],
+      "verification": "Release milestone"
+    },
+    {
+      "id": "M4-11",
+      "requirement": "GitHub Marketplace publication state tracked separately",
+      "status": "NOT_RUN",
+      "actualResult": "No Marketplace listing or account-owner terms acceptance is claimed.",
+      "implementationPaths": ["docs/github-action.md"],
+      "verification": "Account-owner release prerequisite"
+    }
+  ]
+}

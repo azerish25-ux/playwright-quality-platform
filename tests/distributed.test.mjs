@@ -15,10 +15,10 @@ test('shard syntax is strict and bounded',()=>{
 
 test('reusable workflow creates a dynamic independent shard matrix and aggregate gate',async()=>{
   const content=await readFile(resolve(root,'.github/workflows/forgeqa-reusable.yml'),'utf8');
-  assert.match(content,/fromJson\(needs\.plan\.outputs\.matrix\)/);
+  assert.match(content,/fromJSON\(needs\.plan\.outputs\.matrix\)/);
   assert.match(content,/fail-fast:\s*false/);
   assert.match(content,/name:\s*forgeqa-quality/);
-  assert.match(content,/report merge --manifest/);
+  assert.match(content,/mode:\s*merge/);
   assert.match(content,/pattern: forgeqa-shard-/);
   assert.doesNotMatch(content,/matrix:\s*\n\s*shard:\s*\[1\]/);
 });
