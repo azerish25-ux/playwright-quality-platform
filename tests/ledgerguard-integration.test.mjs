@@ -12,6 +12,7 @@ const sources = await Promise.all([
   'examples/ledgerguard-integration/consumer/tests/ledgerguard.api.spec.ts',
 ].map((path) => readFile(path, 'utf8')));
 const combined = sources.join('\n');
+const fixtures = sources[1];
 
 test('LedgerGuard second consumer is executable and pinned to reviewed source', () => {
   assert.equal(contract.schemaVersion, 2);
@@ -22,6 +23,8 @@ test('LedgerGuard second consumer is executable and pinned to reviewed source', 
   assert.match(workflow, new RegExp(`ref: ${pinned}`));
   assert.match(workflow, /needs: \[verify, consumer, teamboard, ledgerguard, action\]/);
   assert.match(workflow, /LEDGERGUARD_RESULT/);
+  assert.match(fixtures, /actors:\s*\[async \(\{ forge \}, use\)[\s\S]+scope:\s*'worker'/);
+  assert.doesNotMatch(workflow, /LEDGERGUARD_AUTH_(?:IDENTITY|IP)_LIMIT/);
 });
 
 test('LedgerGuard consumer contains no fake UI, fixed sleeps, private imports, or response interception', () => {

@@ -48,18 +48,19 @@ async function authenticatedContext(baseURL: string, email: string, password: st
 }
 
 export const test = createForgeTest(base).extend<{
-  actors: Actors;
   commandKey: CommandKey;
   publicApi: ForgeHttpClient;
+}, {
+  actors: Actors;
 }>({
-  actors: async ({ baseURL }, use) => {
+  actors: [async ({ forge }, use) => {
     const password = process.env.LEDGER_DEMO_PASSWORD;
     if (!password) throw new Error('LEDGER_DEMO_PASSWORD is required for the real LedgerGuard consumer.');
     const sessions = await Promise.all([
-      authenticatedContext(baseURL!, 'alice@example.test', password),
-      authenticatedContext(baseURL!, 'bob@example.test', password),
-      authenticatedContext(baseURL!, 'merchant@example.test', password),
-      authenticatedContext(baseURL!, 'admin@example.test', password),
+      authenticatedContext(forge.config.baseUrl, 'alice@example.test', password),
+      authenticatedContext(forge.config.baseUrl, 'bob@example.test', password),
+      authenticatedContext(forge.config.baseUrl, 'merchant@example.test', password),
+      authenticatedContext(forge.config.baseUrl, 'admin@example.test', password),
     ]);
     const [alice, bob, merchant, admin] = sessions;
     expect(alice!.identity.role).toBe('CUSTOMER');
@@ -79,7 +80,7 @@ export const test = createForgeTest(base).extend<{
         await item.context.dispose();
       }
     }
-  },
+  }, { scope: 'worker' }],
   commandKey: async ({ forge }, use, testInfo: TestInfo) => {
     let sequence = 0;
     const logicalTestId = testInfo.titlePath.join('/');
