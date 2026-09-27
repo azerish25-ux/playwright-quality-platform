@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parse, planCommand, runCommand, doctorCommand, type Parsed } from './runner.js';
 import { mergeNativeBlobReports } from './native-merge.js';
 import { serveReport } from './serve.js';
@@ -204,8 +205,16 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
 }
 
-const entrypoint = process.argv[1];
-if (entrypoint && import.meta.url === pathToFileURL(entrypoint).href) {
+function isDirectExecution(moduleUrl: string, entrypoint: string | undefined): boolean {
+  if (!entrypoint) return false;
+  try {
+    return realpathSync(fileURLToPath(moduleUrl)) === realpathSync(resolve(entrypoint));
+  } catch {
+    return moduleUrl === pathToFileURL(resolve(entrypoint)).href;
+  }
+}
+
+if (isDirectExecution(import.meta.url, process.argv[1])) {
   main().catch((error: unknown) => {
     const forge = toForgeError(error);
     if (process.argv.includes('--json')) process.stdout.write(`${JSON.stringify({ exitCode: forge.exitCode, error: { code: forge.code, message: forge.message, details: forge.details } })}\n`);
