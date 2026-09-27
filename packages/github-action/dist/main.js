@@ -629,7 +629,7 @@ async function executePrepared(context) {
         }
         if (inputs.mode === 'merge') {
             const manifest = await requireRegularFileWithin(context.workspace, inputs.manifest, 'manifest');
-            const evidence = await realpath(resolve(context.workingDirectory, inputs.evidenceDirectory)).catch(() => {
+            const evidence = await realpath(resolve(context.workspace, inputs.evidenceDirectory)).catch(() => {
                 throw new ActionFailure(`evidence-directory does not exist: ${inputs.evidenceDirectory}`, 2);
             });
             if (!isWithin(context.workspace, evidence))
