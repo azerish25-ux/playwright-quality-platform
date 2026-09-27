@@ -67,24 +67,29 @@ function environment(root, extra = {}) {
     GITHUB_SERVER_URL: 'https://github.example',
     GITHUB_TOKEN: 'canary-github-token',
     NODE_AUTH_TOKEN: 'canary-registry-token',
-    INPUT_CLI_PATH: 'fake-cli.mjs',
-    INPUT_INSTALL_DEPENDENCIES: 'false',
-    INPUT_BROWSER_INSTALL: 'none',
-    INPUT_REPORTING_MODE: 'none',
-    INPUT_OUTPUT_DIRECTORY: '.forgeqa/action',
+    'INPUT_CLI-PATH': 'fake-cli.mjs',
+    'INPUT_INSTALL-DEPENDENCIES': 'false',
+    'INPUT_BROWSER-INSTALL': 'none',
+    'INPUT_REPORTING-MODE': 'none',
+    'INPUT_OUTPUT-DIRECTORY': '.forgeqa/action',
     ...extra,
   };
 }
 
-test('input validation distinguishes local shards from explicit matrix shards', () => {
-  const local = parseActionInputs({ INPUT_SHARD_COUNT: '4', INPUT_INSTALL_DEPENDENCIES: 'false' });
+test('input validation matches GitHub runner naming and distinguishes local from matrix shards', () => {
+  const local = parseActionInputs({
+    'INPUT_WORKING-DIRECTORY': 'nested',
+    'INPUT_SHARD-COUNT': '4',
+    'INPUT_INSTALL-DEPENDENCIES': 'false',
+  });
+  assert.equal(local.workingDirectory, 'nested');
   assert.equal(local.shardCount, 4);
   assert.equal(local.shardIndex, undefined);
   assert.throws(() => parseActionInputs({
-    INPUT_SHARD_COUNT: '4', INPUT_SHARD_INDEX: '2', INPUT_INSTALL_DEPENDENCIES: 'false',
+    'INPUT_SHARD-COUNT': '4', 'INPUT_SHARD-INDEX': '2', 'INPUT_INSTALL-DEPENDENCIES': 'false',
   }), /requires a manifest/);
   assert.throws(() => parseActionInputs({
-    INPUT_APPLICATION_COMMAND: 'npm start', INPUT_INSTALL_DEPENDENCIES: 'false',
+    'INPUT_APPLICATION-COMMAND': 'npm start', 'INPUT_INSTALL-DEPENDENCIES': 'false',
   }), /requires readiness-url/);
   assert.equal(classifyOutcome(0), 'success');
   assert.equal(classifyOutcome(1), 'quality-failure');
@@ -100,14 +105,28 @@ test('workspace and readiness validation reject escape and credential-bearing UR
   assert.throws(() => validateReadinessUrl('https://user:password@example.test/ready'), /must not contain credentials/);
 });
 
+test('early validation failure still produces bounded uploadable evidence', async (t) => {
+  const { root } = await workspace(t);
+  await mkdir(join(root, 'nested'));
+  const result = await executeAction(environment(root, {
+    'INPUT_WORKING-DIRECTORY': 'nested',
+    INPUT_CONFIG: 'missing.ts',
+  }));
+  assert.equal(result.exitCode, 2);
+  assert.match(result.evidencePath, /nested[\\/]\.forgeqa[\\/]action$/);
+  const failure = JSON.parse(await readFile(join(result.evidencePath, 'action-failure.json'), 'utf8'));
+  assert.equal(failure.outcome, 'infrastructure-failure');
+  assert.match(failure.error, /does not exist/);
+});
+
 test('local shard mode plans once, enforces a worker budget, merges evidence and strips credentials', async (t) => {
   const { root } = await workspace(t);
   const outputs = join(root, 'github-output.txt');
   const result = await executeAction(environment(root, {
     GITHUB_OUTPUT: outputs,
-    INPUT_SHARD_COUNT: '2',
+    'INPUT_SHARD-COUNT': '2',
     INPUT_WORKERS: '4',
-    INPUT_MAX_LOCAL_SHARDS: '2',
+    'INPUT_MAX-LOCAL-SHARDS': '2',
   }));
   assert.equal(result.exitCode, 0, result.error);
   assert.equal(result.outcome, 'success');
@@ -133,7 +152,7 @@ test('local shard mode plans once, enforces a worker budget, merges evidence and
 test('quality failure remains nonzero after all local shard evidence is merged', async (t) => {
   const { root } = await workspace(t);
   const result = await executeAction(environment(root, {
-    INPUT_SHARD_COUNT: '2',
+    'INPUT_SHARD-COUNT': '2',
     INPUT_WORKERS: '2',
     FAKE_QUALITY_SHARD: '1',
   }));
@@ -157,8 +176,8 @@ test('merge mode rejects symbolic-link evidence before invoking report code', as
   const result = await executeAction(environment(root, {
     INPUT_MODE: 'merge',
     INPUT_MANIFEST: 'manifest.json',
-    INPUT_EVIDENCE_DIRECTORY: 'evidence',
-    INPUT_SHARD_COUNT: '1',
+    'INPUT_EVIDENCE-DIRECTORY': 'evidence',
+    'INPUT_SHARD-COUNT': '1',
   }));
   assert.equal(result.exitCode, 3);
   assert.match(result.error, /symbolic link/);
