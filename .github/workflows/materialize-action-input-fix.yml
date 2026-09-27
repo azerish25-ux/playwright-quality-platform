@@ -42,7 +42,7 @@ jobs:
           path.write_text(source)
           PY
       - run: npm ci --ignore-scripts
-      - run: npx --no-install tsc -b packages/github-action
+      - run: npm run build
       - run: node --test tests/github-action.test.mjs tests/distributed.test.mjs tests/github-workflow.test.mjs
       - name: Commit repaired source and exact distribution
         run: |
