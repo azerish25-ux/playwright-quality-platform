@@ -1,0 +1,56 @@
+name: ForgeQA PR report publisher
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: forgeqa-pr-report-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted default-branch publisher only
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: trusted-source
+          persist-credentials: false
+      - id: authorize
+        name: Validate run, PR freshness, workflow trust and artifact bounds
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          FORGEQA_EXPECTED_WORKFLOW: CI
+          FORGEQA_EXPECTED_WORKFLOW_PATH: .github/workflows/ci.yml
+        run: node trusted-source/scripts/publish-pr-report.mjs --authorize-download
+      - id: download
+        name: Download the authorized run-bound data-only report
+        if: steps.authorize.outputs.download-approved == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.authorize.outputs.artifact-name }}
+          path: ${{ runner.temp }}/forgeqa-pr-report
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Publish or update the stable ForgeQA comment
+        if: always()
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          FORGEQA_EXPECTED_WORKFLOW: CI
+          FORGEQA_EXPECTED_WORKFLOW_PATH: .github/workflows/ci.yml
+          FORGEQA_EVIDENCE_DIRECTORY: ${{ runner.temp }}/forgeqa-pr-report
+          FORGEQA_DOWNLOAD_OUTCOME: ${{ steps.download.outcome }}
+        run: node trusted-source/scripts/publish-pr-report.mjs

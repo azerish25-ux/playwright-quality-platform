@@ -1,8 +1,8 @@
 # Delivery checkpoint — Phase 8 GitHub platform hardening
 
-**The source-distributed GitHub Action and reusable-workflow milestone is implemented and verified at an exact source revision; the complete ForgeQA product is not released.**
+**The source-distributed GitHub Action and reusable-workflow milestone is implemented and verified at an exact source revision; the complete ForgeQA product is not released. Fork-safe PR comment publication is implemented in the current candidate but remains pending hosted default-branch acceptance.**
 
-The recorded code checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. [CI run 36319982582](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36319982582) is the exact-source pull-request verification for that revision. It completed successfully on September 27, 2026. Statuses below describe observations at that checkpoint; later source changes require their own exact-SHA checks.
+The recorded verified code checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. [CI run 36319982582](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36319982582) is the exact-source pull-request verification for that revision. It completed successfully on September 27, 2026. Statuses below describe observations at that checkpoint unless a later candidate boundary is stated explicitly; later source changes require their own exact-SHA checks.
 
 ## Verified platform behavior
 
@@ -27,11 +27,26 @@ The recorded code checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. [CI 
 - The source repository exercised `uses: ./` against a real two-test API-only consumer, ran two shards, merged the native and canonical evidence, verified action outputs and uploaded the evidence artifact.
 - Workflow tests enforce the tracked action entrypoint, immutable internal references, absence of failure masking, aggregate-gate wiring and cross-platform line-ending behavior.
 
-The detailed M4 requirement ledger is [github-platform-requirements.json](github-platform-requirements.json). M4-01 through M4-07 pass at the checkpoint above. M4-08 remains partial, and release-specific M4-09 through M4-11 remain not run.
+The detailed M4 requirement ledger is [github-platform-requirements.json](github-platform-requirements.json). M4-01 through M4-07 pass at the verified checkpoint. Release-specific M4-09 through M4-11 remain not run.
+
+## PR reporting candidate implemented
+
+The current candidate adds the remaining M4-08 engineering surface:
+
+- pull-request CI emits a run/attempt-bound, data-only report artifact even when the aggregate quality step fails;
+- a separate `workflow_run` publisher executes only default-branch source with narrowly scoped read/comment permissions and never checks out pull-request code;
+- GitHub API metadata resolves PR association when `workflow_run.pull_requests` is empty, which occurs in this repository's real PR runs;
+- artifact names, metadata, extracted paths, size/file bounds, schema fields, revisions, timestamps, job inventory and conclusions fail closed;
+- current head and newer-run checks execute both before processing and immediately before mutation;
+- one bot-owned marker comment is created or updated idempotently, paginated lookup is supported, attacker marker comments are ignored and duplicate bot comments are removed;
+- missing evidence or comment permission does not become a clean result and does not alter the originating CI conclusion;
+- a pre-download authorization pass rejects changed CI workflows and oversized, missing, duplicate or expired artifacts before extraction;
+- report claims are cross-checked against GitHub's exact-attempt job inventory and conclusions rather than trusted from PR-produced JSON;
+- focused tests cover fork metadata, stale/superseded runs, malformed or oversized artifacts, traversal/symlinks, pagination, API retry, duplicate comments, permission denial and workflow trust invariants.
+
+M4-08 remains `PARTIAL` until the candidate passes exact-SHA hosted CI from a pull request and the merged default-branch publisher is exercised against a later PR, including update-in-place behavior.
 
 ## Explicit remaining boundaries
-
-Idempotent pull-request comment publication has not been implemented. Current pull-request reporting is limited to least-privilege job summaries and authenticated workflow artifacts.
 
 No immutable public action release tag, controlled major alias, standalone action-distribution release or external consumer against a released action is claimed. Source-level `uses: ./` acceptance is not substituted for released-action acceptance.
 
