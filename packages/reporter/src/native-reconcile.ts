@@ -8,7 +8,10 @@ import {
 } from '@azerish25-ux/forgeqa-core';
 
 interface NativeExecution {
-  key: string;
+  file: string;
+  title: string;
+  line?: number;
+  column?: number;
   project: string;
   outcomes: AttemptOutcome[];
   retries: number[];
@@ -23,128 +26,119 @@ function normalizeFile(value: string): string {
   return path.replace(/^\.\//, '');
 }
 function executionKey(project: string, file: string, title: string): string {
-  return JSON.stringify([project, normalizeFile(file), title.trim().replace(/\s+/g, ' ')]);
+  return JSON.stringify([project, normalizeFile(file), normalizedTitle(title)]);
 }
-function outcome(status: unknown, expectedStatus: unknown): AttemptOutcome {
-  if (status === 'skipped') return 'skipped';
-  if (status === 'interrupted') return 'cancelled';
-  if (status === 'passed') return expectedStatus === 'passed' || expectedStatus === undefined ? 'passed' : 'unexpected-pass';
-  if (status === expectedStatus) return 'expected-failure';
-  if (status === 'timedOut') return 'timed-out';
-  return 'failed';
+function normalizedTitle(value: string): string {
+  return value.trim().replace(/\s+/g, ' ');
 }
-function outcomeCounts(): Record<AttemptOutcome, number> {
-  return { passed: 0, failed: 0, 'timed-out': 0, skipped: 0, 'expected-failure': 0, 'unexpected-pass': 0, cancelled: 0 };
-}
-function sortedRecord(record: Record<string, number>): string {
-  return JSON.stringify(Object.fromEntries(Object.entries(record).sort(([a], [b]) => a.localeCompare(b))));
-}
-function signature(key: string, retries: number[], outcomes: AttemptOutcome[]): string {
-  return `${key}\u0000${retries.map((retry, index) => `${retry}:${outcomes[index]}`).join(',')}`;
-}
-function inventoryKey(execution: ExpectedExecution): string {
-  if (!execution.relativePath || !execution.title) throw new IntegrityError(`Expected execution ${execution.executionId} lacks file/title identity required for native reconciliation.`);
-  return executionKey(execution.project, execution.relativePath, execution.title);
-}
-function firstDifference(left: string[], right: string[]): { index: number; forgeqa?: string; native?: string } | undefined {
-  const length = Math.max(left.length, right.length);
-  for (let index = 0; index < length; index += 1) {
-    const forgeqa = left[index];
-    const native = right[index];
-    if (forgeqa === native) continue;
-    const result: { index: number; forgeqa?: string; native?: string } = { index };
-    if (forgeqa !== undefined) result.forgeqa = forgeqa;
-    if (native !== undefined) result.native = native;
-    return result;
-  }
-  return undefined;
-}
+function sourceLocationMatches(execution: ExpectedExecution, native: NativeExecution): boolean {
+  if (native.line !== undefined && execution.line !== native.line) return false;
+  if (native.column !== undefinYY	‰ˆ^Xİ][Û‹˜ÛÛ[[ˆOOH˜]]™K˜ÛÛ[[ŠH™]\›ˆ˜[ÙNÂˆ™]\›ˆYNÂŸB™[˜İ[Ûˆ˜]]™R[™[ÜRÙ^J^Xİ][Ûˆ˜]]™Q^Xİ][Û‹[™[ÜNˆ^XİY^Xİ][Û–×JNˆİš[™ÈÂˆÛÛœİ˜]]™Qš[HH›Ü›X[^™Qš[J^Xİ][Û‹™š[JNÂˆÛÛœİ]HH›Ü›X[^™Y]J^Xİ][Û‹]JNÂˆÛÛœİØ[™Y]\ÈH[™[ÜK™š[\ŠØ[™Y]HO‚ˆØ[™Y]Kœ›Ú™XİOOH^Xİ][Û‹œ›Ú™Xİˆ	‰ˆ\[ÙˆØ[™Y]Kœ™[]]™T]OOH	Üİš[™ÉÂˆ	‰ˆ›Ü›X[^™Y]JØ[™Y]K]HÏÈ	ÉÊHOOH]Bˆ	‰ˆÛİ\˜ÙSØØ][Û“X]Ú\ÊØ[™Y]K^Xİ][ÛŠBˆ
+NÂˆÛÛœİ^XİHØ[™Y]\Ë™š[\ŠØ[™Y]HOˆ›Ü›X[^™Qš[JØ[™Y]Kœ™[]]™T]JHOOH˜]]™Qš[JNÂˆYˆ
+^Xİ›[™İOOHJH™]\›ˆ[™[ÜRÙ^J^XİÌHJNÂˆYˆ
+^Xİ›[™İˆJHÂˆ›İÈ™]È[YÜš]Q\œ›ÜŠ˜]]™H^]ÜšYÚÛİ\˜ÙHY[]H\È[XšYİ[İ\È›Üˆ	Ù^Xİ][Û‹œ›Ú™XİKÉÛ˜]]™Qš[_KÉİ]_K˜
+NÂˆBˆÛÛœİİY™š^HØ[™Y]\Ë™š[\ŠØ[™Y]HOˆÂˆÛÛœİØ[›ÛšXØ[š[HH›Ü›X[^™Qš[JØ[™Y]Kœ™[]]™T]JNÂˆ™]\›ˆØ[›ÛšXØ[š[K™[™ÕÚ]
+ÉÛ˜]]™Qš[_X
+NÂˆJNÂˆYˆ
+İY™š^›[™İOOHJH™]\›ˆ[™[ÜRÙ^JİY™š^ÌHJNÂˆYˆ
+İY™š^›[™İˆJHÂˆ›İÈ™]È[YÜš]Q\œ›ÜŠ˜]]™H^]ÜšYÚÛİ\˜ÙHY[]H\È[XšYİ[İ\È›Üˆ	Ù^Xİ][Û‹œ›Ú™XİKÉÛ˜]]™Qš[_KÉİ]_K˜
+NÂˆBˆ™]\›ˆ^Xİ][Û’Ù^J^Xİ][Û‹œ›Ú™Xİ˜]]™Qš[K^Xİ][Û‹]JNÂŸB™[˜İ[Ûˆİ]ÛÛYJİ]\Îˆ[šÛ›İÛ‹^XİYİ]\Îˆ[šÛ›İÛŠNˆ][\İ]ÛÛYHÂˆYˆ
+İ]\ÈOOH	ÜÚÚ\Y	ÊH™]\›ˆ	ÜÚÚ\Y	ÎÂˆYˆ
+İ]\ÈOOH	Ú[\œ\Y	ÊH™]\›ˆ	ØØ[˜Ù[Y	ÎÂˆYˆ
+İ]\ÈOOH	Ü\ÜÙY	ÊH™]\›ˆ^XİYİ]\ÈOOH	Ü\ÜÙY	È^XİYİ]\ÈOOH[™Yš[™YÈ	Ü\ÜÙY	Èˆ	İ[™^XİY\\ÜÉÎÂˆYˆ
+İ]\ÈOOH^XİYİ]\ÊH™]\›ˆ	Ù^XİYY˜Z[\™IÎÂˆYˆ
+İ]\ÈOOH	İ[YYİ]	ÊH™]\›ˆ	İ[YY[İ]	ÎÂˆ™]\›ˆ	Ù˜Z[Y	ÎÂŸB™[˜İ[Ûˆİ]ÛÛYPÛİ[Ê
+Nˆ™XÛÜ™][\İ]ÛÛYK[X™\ˆÂˆ™]\›ˆÈ\ÜÙYˆ˜Z[Yˆ	İ[YY[İ]	ÎˆÚÚ\Yˆ	Ù^XİYY˜Z[\™IÎˆ	İ[™^XİY\\ÜÉÎˆØ[˜Ù[YˆNÂŸB™[˜İ[ÛˆÛÜY™XÛÜ™
+™XÛÜ™ˆ™XÛÜ™İš[™Ë[X™\ŠNˆİš[™ÈÂˆ™]\›ˆ”ÓÓ‹œİš[™ÚYJØš™Xİ™œ›ÛQ[šY\ÊØš™Xİ™[šY\Ê™XÛÜ™
+KœÛÜ
 
-export function reconcileNativeJson(run: MergedRunResult, nativeJson: unknown): NativeReportReconciliation {
-  const root = asRecord(nativeJson);
-  if (!root) throw new IntegrityError('Native Playwright JSON report must be an object.');
-  if (!run.inventory?.length) throw new IntegrityError('Canonical execution inventory is required for native report reconciliation.');
+ØWKØ—JHOˆK›ØØ[PÛÛ\\™JŠJJJNÂŸB™[˜İ[ÛˆÚYÛ˜]\™JÙ^Nˆİš[™Ë™]šY\Îˆ[X™\–×Kİ]ÛÛY\Îˆ][\İ]ÛÛYV×JNˆİš[™ÈÂˆ™]\›ˆ	ÚÙ^_WL	Ü™]šY\Ë›X\
 
-  const native: NativeExecution[] = [];
-  const visitSuite = (value: unknown, inheritedFile = ''): void => {
-    const suite = asRecord(value);
-    if (!suite) return;
-    const suiteFile = typeof suite['file'] === 'string' ? suite['file'] : inheritedFile;
-    for (const child of asArray(suite['suites'])) visitSuite(child, suiteFile);
-    for (const specValue of asArray(suite['specs'])) {
-      const spec = asRecord(specValue);
-      if (!spec) continue;
-      const file = typeof spec['file'] === 'string' ? spec['file'] : suiteFile;
-      const title = typeof spec['title'] === 'string' ? spec['title'] : '';
-      if (!file || !title) throw new IntegrityError('Native Playwright JSON is missing a spec file or title.');
-      for (const testValue of asArray(spec['tests'])) {
-        const nativeTest = asRecord(testValue);
-        if (!nativeTest) continue;
-        const project = typeof nativeTest['projectName'] === 'string' ? nativeTest['projectName'] : '';
-        const attempts = asArray(nativeTest['results']).map(resultValue => {
-          const result = asRecord(resultValue);
-          if (!result) throw new IntegrityError('Native Playwright JSON contains an invalid result.');
-          const retry = typeof result['retry'] === 'number' ? result['retry'] : 0;
-          return { retry, outcome: outcome(result['status'], nativeTest['expectedStatus']) };
-        }).sort((a, b) => a.retry - b.retry);
-        if (!attempts.length) throw new IntegrityError(`Native Playwright execution ${project}/${file}/${title} contains no attempts.`);
-        if (attempts.some((attempt, index) => attempt.retry !== index)) throw new IntegrityError(`Native Playwright execution ${project}/${file}/${title} has a missing or duplicate retry index.`);
-        native.push({ key: executionKey(project, file, title), project, retries: attempts.map(item => item.retry), outcomes: attempts.map(item => item.outcome) });
-      }
-    }
-  };
-  for (const suite of asArray(root['suites'])) visitSuite(suite);
+™]K[™^
+HOˆ	Ü™]_N‰Ûİ]ÛÛY\ÖÚ[™^_X
+Kš›Ú[Š	Ë	Ê_XÂŸB™[˜İ[Ûˆ[™[ÜRÙ^J^Xİ][Ûˆ^XİY^Xİ][ÛŠNˆİš[™ÈÂˆYˆ
+Y^Xİ][Û‹œ™[]]™T]Y^Xİ][Û‹]JH›İÈ™]È[YÜš]Q\œ›ÜŠ^XİY^Xİ][Ûˆ	Ù^Xİ][Û‹™^Xİ][Û’YHXÚÜÈš[Kİ]HY[]H™\]Z\™Y›Üˆ˜]]™H™XÛÛ˜Ú[X][Û‹˜
+NÂˆ™]\›ˆ^Xİ][Û’Ù^J^Xİ][Û‹œ›Ú™Xİ^Xİ][Û‹œ™[]]™T]^Xİ][Û‹]JNÂŸB™[˜İ[Ûˆš\œİY™™\™[˜ÙJYˆİš[™Ö×KšYÚˆİš[™Ö×JNˆÈ[™^ˆ[X™\È›Ü™Ù\XOÎˆİš[™ÎÈ˜]]™OÎˆİš[™ÈH[™Yš[™YÂˆÛÛœİ[™İHX]›X^
+Y›[™İšYÚ›[™İ
+NÂˆ›Üˆ
+][™^HÈ[™^[™İÈ[™^
+ÏHJHÂˆÛÛœİ›Ü™Ù\XHHYÚ[™^NÂˆÛÛœİ˜]]™HHšYÚÚ[™^NÂˆYˆ
+›Ü™Ù\XHOOH˜]]™JHÛÛ[YNÂˆÛÛœİ™\İ[ˆÈ[™^ˆ[X™\È›Ü™Ù\XOÎˆİš[™ÎÈ˜]]™OÎˆİš[™ÈHHÈ[™^NÂˆYˆ
+›Ü™Ù\XHOOH[™Yš[™Y
+H™\İ[™›Ü™Ù\XHH›Ü™Ù\XNÂˆYˆ
+˜]]™HOOH[™Yš[™Y
+H™\İ[›˜]]™HH˜]]™NÂˆ™]\›ˆ™\İ[ÂˆBˆ™]\›ˆ[™Yš[™YÂŸB‚™^Ü[˜İ[Ûˆ™XÛÛ˜Ú[S˜]]™RœÛÛŠ[ˆY\™ÙY[”™\İ[˜]]™RœÛÛˆ[šÛ›İÛŠNˆ˜]]™T™\Ü™XÛÛ˜Ú[X][ÛˆÂˆÛÛœİ›ÛİH\Ô™XÛÜ™
+˜]]™RœÛÛŠNÂˆYˆ
+\›Ûİ
+H›İÈ™]È[YÜš]Q\œ›ÜŠ	Ó˜]]™H^]ÜšYÚ”ÓÓˆ™\Ü]\İ™H[ˆØš™Xİ‰ÊNÂˆYˆ
+\[‹š[™[ÜOË›[™İ
+H›İÈ™]È[YÜš]Q\œ›ÜŠ	ĞØ[›ÛšXØ[^Xİ][Ûˆ[™[ÜH\È™\]Z\™Y›Üˆ˜]]™H™\Ü™XÛÛ˜Ú[X][Û‹‰ÊNÂ‚ˆÛÛœİ˜]]™Nˆ˜]]™Q^Xİ][Û–×HH×NÂˆÛÛœİš\Ú]İZ]HH
+˜[YNˆ[šÛ›İÛ‹[š\š]Yš[HH	ÉÊNˆ›ÚYOˆÂˆÛÛœİİZ]HH\Ô™XÛÜ™
+˜[YJNÂˆYˆ
+\İZ]JH™]\›ÂˆÛÛœİİZ]Qš[HH\[ÙˆİZ]VÉÙš[I×HOOH	Üİš[™ÉÈÈİZ]VÉÙš[I×Hˆ[š\š]Yš[NÂˆ›Üˆ
+ÛÛœİÚ[Ùˆ\Ğ\œ˜^JİZ]VÉÜİZ]\É×JJHš\Ú]İZ]JÚ[İZ]Qš[JNÂˆ›Üˆ
+ÛÛœİÜXÕ˜[YHÙˆ\Ğ\œ˜^JİZ]VÉÜÜXÜÉ×JJHÂˆÛÛœİÜXÈH\Ô™XÛÜ™
+ÜXÕ˜[YJNÂˆYˆ
+\ÜXÊHÛÛ[YNÂˆÛÛœİš[HH\[ÙˆÜXÖÉÙš[I×HOOH	Üİš[™ÉÈÈÜXÖÉÙš[I×HˆİZ]Qš[NÂˆÛÛœİ]HH\[ÙˆÜXÖÉİ]I×HOOH	Üİš[™ÉÈÈÜXÖÉİ]I×Hˆ	ÉÎÂˆÛÛœİ[™HH\[ÙˆÜXÖÉÛ[™I×HOOH	Û[X™\‰ÈÈÜXÖÉÛ[™I×Hˆ[™Yš[™YÂˆÛÛœİÛÛ[[ˆH\[ÙˆÜXÖÉØÛÛ[[‰×HOOH	Û[X™\‰ÈÈÜXÖÉØÛÛ[[‰×Hˆ[™Yš[™YÂˆYˆ
+Yš[H]]JH›İÈ™]È[YÜš]Q\œ›ÜŠ	Ó˜]]™H^]ÜšYÚ”ÓÓˆ\ÈZ\ÜÚ[™ÈHÜXÈš[HÜˆ]K‰ÊNÂˆ›Üˆ
+ÛÛœİ\İ˜[YHÙˆ\Ğ\œ˜^JÜXÖÉİ\İÉ×JJHÂˆÛÛœİ˜]]™U\İH\Ô™XÛÜ™
+\İ˜[YJNÂˆYˆ
+[˜]]™U\İ
+HÛÛ[YNÂˆÛÛœİ›Ú™XİH\[Ùˆ˜]]™U\İÉÜ›Ú™Xİ˜[YI×HOOH	Üİš[™ÉÈÈ˜]]™U\İÉÜ›Ú™Xİ˜[YI×Hˆ	ÉÎÂˆÛÛœİ][\ÈH\Ğ\œ˜^J˜]]™U\İÉÜ™\İ[É×JK›X\
+™\İ[˜[YHOˆÂˆÛÛœİ™\İ[H\Ô™XÛÜ™
+™\İ[˜[YJNÂˆYˆ
+\™\İ[
+H›İÈ™]È[YÜš]Q\œ›ÜŠ	Ó˜]]™H^]ÜšYÚ”ÓÓˆÛÛZ[œÈ[ˆ[˜[Y™\İ[‰ÊNÂˆÛÛœİ™]HH\[Ùˆ™\İ[ÉÜ™]I×HOOH	Û[X™\‰ÈÈ™\İ[ÉÜ™]I×HˆÂˆ™]\›ˆÈ™]Kİ]ÛÛYNˆİ]ÛÛYJ™\İ[ÉÜİ]\É×K˜]]™U\İÉÙ^XİYİ]\É×JHNÂˆJKœÛÜ
 
-  const expectedByExecution = new Map(run.inventory.map(execution => [execution.executionId, execution]));
-  if (expectedByExecution.size !== run.inventory.length) throw new IntegrityError('Canonical execution inventory contains duplicate execution IDs.');
-  const attemptsByExecution = new Map<string, typeof run.attempts>();
-  for (const attempt of run.attempts) attemptsByExecution.set(attempt.executionId, [...(attemptsByExecution.get(attempt.executionId) ?? []), attempt]);
-  const forgeSignatures: string[] = [];
-  const nativeSignatures: string[] = [];
-  const forgeOutcomes = outcomeCounts();
-  const nativeOutcomes = outcomeCounts();
-  const forgeProjects: Record<string, number> = {};
-  const nativeProjects: Record<string, number> = {};
+KŠHOˆKœ™]HH‹œ™]JNÂˆYˆ
+X][\Ë›[™İ
+H›İÈ™]È[YÜš]Q\œ›ÜŠ˜]]™H^]ÜšYÚ^Xİ][Ûˆ	Ü›Ú™XİKÉÙš[_KÉİ]_HÛÛZ[œÈ›È][\Ë˜
+NÂˆYˆ
+][\ËœÛÛYJ
+][\[™^
+HOˆ][\œ™]HOOH[™^
+JH›İÈ™]È[YÜš]Q\œ›ÜŠ˜]]™H^]ÜšYÚ^Xİ][Ûˆ	Ü›Ú™XİKÉÙš[_KÉİ]_H\ÈHZ\ÜÚ[™ÈÜˆ\XØ]H™]H[™^˜
+NÂˆ˜]]™Kœ\Ú
+Èš[K]K‹‹Š[™HOOH[™Yš[™YÈÈ[™HHˆßJK‹‹ŠÛÛ[[ˆOOH[™Yš[™YÈÈÛÛ[[ˆHˆßJK›Ú™Xİ™]šY\Îˆ][\Ë›X\
+][HOˆ][Kœ™]JKİ]ÛÛY\Îˆ][\Ë›X\
+][HOˆ][K›İ]ÛÛYJHJNÂˆBˆBˆNÂˆ›Üˆ
+ÛÛœİİZ]HÙˆ\Ğ\œ˜^J›ÛİÉÜİZ]\É×JJHš\Ú]İZ]JİZ]JNÂ‚ˆÛÛœİ^XİYQ^Xİ][ÛˆH™]ÈX\
+[‹š[™[ÜK›X\
+^Xİ][ÛˆOˆÙ^Xİ][Û‹™^Xİ][Û’Y^Xİ][Û—JJNÂˆYˆ
+^XİYQ^Xİ][Û‹œÚ^™HOOH[‹š[™[ÜK›[™İ
+H›İÈ™]È[YÜš]Q\œ›ÜŠ	ĞØ[›ÛšXØ[^Xİ][Ûˆ[™[ÜHÛÛZ[œÈ\XØ]H^Xİ][ÛˆQË‰ÊNÂˆÛÛœİ][\ĞQ^Xİ][ÛˆH™]ÈX\İš[™Ë\[Ùˆ[‹˜][\ÏŠ
+NÂˆ›Üˆ
+ÛÛœİ][\Ùˆ[‹˜][\ÊH][\ĞQ^Xİ][Û‹œÙ]
+][\™^Xİ][Û’YË‹‹Š][\ĞQ^Xİ][Û‹™Ù]
+][\™^Xİ][Û’Y
+HÏÈ×JK][\JNÂˆÛÛœİ›Ü™ÙTÚYÛ˜]\™\Îˆİš[™Ö×HH×NÂˆÛÛœİ˜]]™TÚYÛ˜]\™\Îˆİš[™Ö×HH×NÂˆÛÛœİ›Ü™ÙSİ]ÛÛY\ÈHİ]ÛÛYPÛİ[Ê
+NÂˆÛÛœİ˜]]™Sİ]ÛÛY\ÈHİ]ÛÛYPÛİ[Ê
+NÂˆÛÛœİ›Ü™ÙT›Ú™XİÎˆ™XÛÜ™İš[™Ë[X™\ˆHßNÂˆÛÛœİ˜]]™T›Ú™XİÎˆ™XÛÜ™İš[™Ë[X™\ˆHßNÂ‚ˆ›Üˆ
+ÛÛœİ^Xİ][ÛˆÙˆ[‹š[™[ÜJHÂˆÛÛœİ][\ÈHË‹‹Š][\ĞQ^Xİ][Û‹™Ù]
+^Xİ][Û‹™^Xİ][Û’Y
+HÏÈ×JWKœÛÜ
 
-  for (const execution of run.inventory) {
-    const attempts = [...(attemptsByExecution.get(execution.executionId) ?? [])].sort((a, b) => a.retry - b.retry);
-    if (!attempts.length) throw new IntegrityError(`Canonical execution ${execution.executionId} contains no attempts.`);
-    if (attempts.some((attempt, index) => attempt.retry !== index)) throw new IntegrityError(`Canonical execution ${execution.executionId} has a missing or duplicate retry index.`);
-    const key = inventoryKey(execution);
-    forgeSignatures.push(signature(key, attempts.map(item => item.retry), attempts.map(item => item.outcome)));
-    forgeProjects[execution.project] = (forgeProjects[execution.project] ?? 0) + 1;
-    for (const attempt of attempts) forgeOutcomes[attempt.outcome] += 1;
-  }
-  for (const executionId of attemptsByExecution.keys()) if (!expectedByExecution.has(executionId)) throw new IntegrityError(`Canonical attempts contain unexpected execution ${executionId}.`);
-  for (const execution of native) {
-    nativeSignatures.push(signature(execution.key, execution.retries, execution.outcomes));
-    nativeProjects[execution.project] = (nativeProjects[execution.project] ?? 0) + 1;
-    for (const value of execution.outcomes) nativeOutcomes[value] += 1;
-  }
-  forgeSignatures.sort(); nativeSignatures.sort();
-  const forgeAttempts = run.attempts.length;
-  const nativeAttempts = native.reduce((total, execution) => total + execution.outcomes.length, 0);
-  const difference = firstDifference(forgeSignatures, nativeSignatures);
-  if (difference || native.length !== run.inventory.length || nativeAttempts !== forgeAttempts || sortedRecord(nativeOutcomes) !== sortedRecord(forgeOutcomes) || sortedRecord(nativeProjects) !== sortedRecord(forgeProjects)) {
-    throw new IntegrityError('Native Playwright report disagrees with the canonical ForgeQA result.', {
-      nativeTests: native.length,
-      forgeTests: run.inventory.length,
-      nativeAttempts,
-      forgeAttempts,
-      nativeOutcomes,
-      forgeOutcomes,
-      nativeProjects,
-      forgeProjects,
-      firstIdentityOrRetryDifference: difference
-    });
-  }
-  return {
-    status: 'MATCHED',
-    forgeqaTests: run.inventory.length,
-    nativeTests: native.length,
-    forgeqaAttempts: forgeAttempts,
-    nativeAttempts,
-    outcomes: forgeOutcomes,
-    projects: forgeProjects
-  };
-}
+KŠHOˆKœ™]HH‹œ™]JNÂˆYˆ
+X][\Ë›[™İ
+H›İÈ™]È[YÜš]Q\œ›ÜŠØ[›ÛšXØ[^Xİ][Ûˆ	Ù^Xİ][Û‹™^Xİ][Û’YHÛÛZ[œÈ›È][\Ë˜
+NÂˆYˆ
+][\ËœÛÛYJ
+][\[™^
+HOˆ][\œ™]HOOH[™^
+JH›İÈ™]È[YÜš]Q\œ›ÜŠØ[›ÛšXØ[^Xİ][Ûˆ	Ù^Xİ][Û‹™^Xİ][Û’YH\ÈHZ\ÜÚ[™ÈÜˆ\XØ]H™]H[™^˜
+NÂˆÛÛœİÙ^HH[™[ÜRÙ^J^Xİ][ÛŠNÂˆ›Ü™ÙTÚYÛ˜]\™\Ëœ\Ú
+ÚYÛ˜]\™JÙ^K][\Ë›X\
+][HOˆ][Kœ™]JK][\Ë›X\
+][HOˆ][K›İ]ÛÛYJJJNÂˆ›Ü™ÙT›Ú™XİÖÙ^Xİ][Û‹œ›Ú™XİHH
+›Ü™ÙT›Ú™XİÖÙ^Xİ][Û‹œ›Ú™XİHÏÈ
+H
+ÈNÂˆ›Üˆ
+ÛÛœİ][\Ùˆ][\ÊH›Ü™ÙSİ]ÛÛY\ÖØ][\›İ]ÛÛYWH
+ÏHNÂˆBˆ›Üˆ
+ÛÛœİ^Xİ][Û’YÙˆ][\ĞQ^Xİ][Û‹šÙ^\Ê
+JHYˆ
+Y^XİYQ^Xİ][Û‹š\Ê^Xİ][Û’Y
+JH›İÈ™]È[YÜš]Q\œ›ÜŠØ[›ÛšXØ[][\ÈÛÛZ[ˆ[™^XİY^Xİ][Ûˆ	Ù^Xİ][Û’YK˜
+NÂˆ›Üˆ
+ÛÛœİ^Xİ][ÛˆÙˆ˜]]™JHÂˆ˜]]™TÚYÛ˜]\™\Ëœ\Ú
+ÚYÛ˜]\™J˜]]™R[™[ÜRÙ^J^Xİ][Û‹[‹š[™[ÜJK^Xİ][Û‹œ™]šY\Ë^Xİ][Û‹›İ]ÛÛY\ÊJNÂˆ˜]]™T›Ú™XİÖåxecution.project] = (nativeProjects[•á•ÕÑ¥½¸¹ÁÉ½©•Ñt€üü€À¤€¬€Äì(€€€™½È€¡½¹ÍĞÙ…±Õ”½˜•á•ÕÑ¥½¸¹½ÕÑ½µ•Ì¤¹…Ñ¥Ù•=ÕÑ½µ•ÍmÙ…±Õ•t€¬ô€Äì(€ô(€™½É•M¥¹…ÑÕÉ•Ì¹Í½ÉĞ ¤ì¹…Ñ¥Ù•M¥¹…ÑÕÉ•Ì¹Í½ÉĞ ¤ì(€½¹ÍĞ™½É•ÑÑ•µÁÑÌ€ôÉÕ¸¹…ÑÑ•µÁÑÌ¹±•¹Ñ ì(€½¹ÍĞ¹…Ñ¥Ù•ÑÑ•µÁÑÌ€ô¹…Ñ¥Ù”¹É•‘Õ” ¡Ñ½Ñ…°°•á•ÕÑ¥½¸¤€ôøÑ½Ñ…°€¬•á•ÕÑ¥½¸¹½ÕÑ½µ•Ì¹±•¹Ñ °€À¤ì(€½¹ÍĞ‘¥™™•É•¹”€ô™¥ÉÍÑ¥™™•É•¹”¡™½É•M¥¹…ÑÕÉ•Ì°¹…Ñ¥Ù•M¥¹…ÑÕÉ•Ì¤ì(€¥˜€¡‘¥™™•É•¹”ñğ¹…Ñ¥Ù”¹±•¹Ñ €„ôôÉÕ¸¹¥¹Ù•¹Ñ½Éä¹±•¹Ñ ñğ¹…Ñ¥Ù•ÑÑ•µÁÑÌ€„ôô™½É•ÑÑ•µÁÑÌñğÍ½ÉÑ•‘I•½É¡¹…Ñ¥Ù•=ÕÑ½µ•Ì¤€„ôôÍ½ÉÑ•‘I•½É¡™½É•=ÕÑ½µ•Ì¤ñğÍ½ÉÑ•‘I•½É¡¹…Ñ¥Ù•AÉ½©•ÑÌ¤€„ôôÍ½ÉÑ•‘I•½É¡™½É•AÉ½©•ÑÌ¤¤ì(€€€Ñ¡É½Ü¹•Ü%¹Ñ•É¥ÑåÉÉ½È 9…Ñ¥Ù”A±…åİÉ¥¡ĞÉ•Á½ÉĞ‘¥Í…É••Ìİ¥Ñ Ñ¡”…¹½¹¥…°½É•EÉ•ÍÕ±Ğ¸œ°ì(€€€€€¹…Ñ¥Ù•Q•ÍÑÌè¹…Ñ¥Ù”¹±•¹Ñ °(€€€€€™½É•Q•ÍÑÌèÉÕ¸¹¥¹Ù•¹Ñ½Éä¹±•¹Ñ °(€€€€€¹…Ñ¥Ù•ÑÑ•µÁÑÌ°(€€€€€™½É•ÑÑ•µÁÑÌ°(€€€€€¹…Ñ¥Ù•=ÕÑ½µ•Ì°(€€€€€™½É•=ÕÑ½µ•Ì°(€€€€€¹…Ñ¥Ù•AÉ½©•ÑÌ°(€€€€€™½É•AÉ½©•ÑÌ°(€€€€€™¥ÉÍÑ%‘•¹Ñ¥Ñå=ÉI•ÑÉå¥™™•É•¹”è‘¥™™•É•¹”(€€€ô¤ì(€ô(€É•ÑÕÉ¸ì(€€€ÍÑ…ÑÕÌè€5Q!œ°(€€€™½É•Å…Q•ÍÑÌèÉÕ¸¹¥¹Ù•¹Ñ½Éä¹±•¹Ñ °(€€€¹…Ñ¥Ù•Q•ÍÑÌè¹…Ñ¥Ù”¹±•¹Ñ °(€€€™½É•Å…ÑÑ•µÁÑÌè™½É•ÑÑ•µÁÑÌ°(€€€¹…Ñ¥Ù•ÑÑ•µÁÑÌ°(€€€½ÕÑ½µ•Ìè™½É•=ÕÑ½µ•Ì°(€€€ÁÉ½©•ÑÌè™½É•AÉ½©•ÑÌ(€ôì)ô

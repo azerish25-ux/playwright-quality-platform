@@ -10,7 +10,7 @@ import { ResultJournal, mergeShardEvidence, reconcileNativeJson, validateShardEv
 const revision={repository:'repo',sourceCommit:'source',testedCommit:'tested'};
 const inventory=[{executionId:'execution-1',logicalTestId:'test-1',project:'api',environment:'local',shardIndex:1,shardTotal:1,title:'case 1',relativePath:'sample.spec.ts',repetition:0}];
 function runWith(attempts){return {schemaVersion:RESULT_SCHEMA_VERSION,runId:'run-1',completion:'complete',selectionHash:'selection',configHash:'config',revision,attempts,missingExecutions:[],unexpectedExecutions:[],duplicateExecutions:[],shardIds:['shard-1'],inventory};}
-function nativeWith({title='case 1',status='passed',expectedStatus='passed',retry=0}={}){return {suites:[{file:'sample.spec.ts',specs:[{title,tests:[{projectName:'api',expectedStatus,results:[{status,retry}]}]}]}]};}
+function nativeWith({title='case 1',file='sample.spec.ts',line, column,status='passed',expectedStatus='passed',retry=0}={}){return {suites:[{file,specs:[{title,...(line===undefined?{}:{line}),...(column===undefined?{}:{column}),tests:[{projectName:'api',expectedStatus,results:[{status,retry}]}]}]}]};}
 async function fixture(t,{artifactRelative='attachments/diagnostic.txt',duplicate=false,blobCount=1}={}){
   const root=await mkdtemp(join(tmpdir(),'forgeqa-evidence-'));
   t.after(()=>rm(root,{recursive:true,force:true}));
@@ -94,4 +94,33 @@ test('native and canonical outcome disagreement fails closed',()=>{
 test('same-count native identity substitution fails closed',()=>{
   const attempt={schemaVersion:RESULT_SCHEMA_VERSION,attemptId:'attempt-1',executionId:'execution-1',logicalTestId:'test-1',retry:0,outcome:'passed',startedAt:'2026-01-01T00:00:00Z',durationMs:4,project:'api'};
   assert.throws(()=>reconcileNativeJson(runWith([attempt]),nativeWith({title:'different test'})),/disagrees/);
+});
+
+
+test('native reconciliation uniquely restores the consumer-root prefix omitted by Playwright testDir output',()=>{
+  const locatedInventory=[{...inventory[0],relativePath:'tests/sample.spec.ts',line:7,column:3}];
+  const attempt={schemaVersion:RESULT_SCHEMA_VERSION,attemptId:'attempt-1',executionId:'execution-1',logicalTestId:'test-1',retry:0,outcome:'passed',startedAt:'2026-01-01T00:00:00Z',durationMs:4,project:'api'};
+  const run={...runWith([attempt]),inventory:locatedInventory};
+  const reconciliation=reconcileNativeJson(run,nativeWith({file:'sample.spec.ts',line:7,column:3}));
+  assert.equal(reconciliation.status,'MATCHED');
+});
+
+test('native reconciliation rejects ambiguous testDir-relative suffix identities',()=>{
+  const ambiguousInventory=[
+    {...inventory[0],executionId:'execution-1',relativePath:'alpha/sample.spec.ts',line:7,column:3},
+    {...inventory[0],executionId:'execution-2',logicalTestId:'test-2',relativePath:'beta/sample.spec.ts',line:7,column:3}
+  ];
+  const attempts=[
+    {schemaVersion:RESULT_SCHEMA_VERSION,attemptId:'attempt-1',executionId:'execution-1',logicalTestId:'test-1',retry:0,outcome:'passed',startedAt:'2026-01-01T00:00:00Z',durationMs:4,project:'api'},
+    {schemaVersion:RESULT_SCHEMA_VERSION,attemptId:'attempt-2',executionId:'execution-2',logicalTestId:'test-2',retry:0,outcome:'passed',startedAt:'2026-01-01T00:00:00Z',durationMs:4,project:'api'}
+  ];
+  const run={...runWith(attempts),inventory:ambiguousInventory};
+  assert.throws(()=>reconcileNativeJson(run,nativeWith({file:'sample.spec.ts',line:7,column:3})),/ambiguous/);
+});
+
+test('native reconciliation does not repair a source-location substitution',()=>{
+  const locatedInventory=[{...inventory[0],relativePath:'tests/sample.spec.ts',line:7,column:3}];
+  const attempt={schemaVersion:RESULT_SCHEMA_VERSION,attemptId:'attempt-1',executionId:'execution-1',logicalTestId:'test-1',retry:0,outcome:'passed',startedAt:'2026-01-01T00:00:00Z',durationMs:4,project:'api'};
+  const run={...runWith([attempt]),inventory:locatedInventory};
+  assert.throws(()=>reconcileNativeJson(run,nativeWith({file:'sample.spec.ts',line:8,column:3})),/disagrees/);
 });
