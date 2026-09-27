@@ -1,6 +1,6 @@
 # Fork-safe PR reporting — hosted acceptance
 
-This pull request is a data-only hosted acceptance probe for the ForgeQA pull-request publisher merged at `d872bd3f7f5b24b9b68c2c03fb08b6045c91d96d`.
+This pull request is a data-only hosted acceptance probe for the ForgeQA pull-request publisher introduced at `d872bd3f7f5b24b9b68c2c03fb08b6045c91d96d` and permission-repaired at `9f607d13bfe7fcb314c66ea87220ea2e0448d8e9`.
 
 It intentionally changes documentation only. It does not modify `.github/workflows/ci.yml`, `.github/workflows/forgeqa-pr-report.yml`, publisher source, action code, package code, tests, or consumer applications.
 
@@ -8,10 +8,14 @@ It intentionally changes documentation only. It does not modify `.github/workflo
 
 1. Run the complete required CI matrix from this pull request.
 2. Let the trusted default-branch `workflow_run` publisher validate the run-bound report artifact and create one bot-owned ForgeQA comment.
-3. Add a second documentation-only commit to this branch.
+3. Add a later documentation-only commit to this branch.
 4. Run CI again and verify that the publisher updates the same comment instead of creating a duplicate.
 5. Record the exact run IDs, publisher run IDs, comment ID, tested revisions, and final requirement status here and in the Phase 8 requirement ledger.
 
-## Evidence
+## Evidence collected so far
 
-Live creation and update-in-place evidence is pending the hosted runs initiated by this pull request.
+- Initial docs-only CI run `36323432365` completed successfully.
+- Initial publisher run `36323734608` validated the workflow, pull request, bounded artifact metadata and downloaded report, but GitHub rejected comment creation because the token had only `pull-requests: read`.
+- Permission-repair PR #8 passed full CI run `36323934631` at `b23540cf0709a9030a3c751a62772cb190846595` and was merged as `9f607d13bfe7fcb314c66ea87220ea2e0448d8e9`.
+
+The next hosted run from this documentation-only commit is the first post-repair comment-creation attempt. Update-in-place evidence remains pending a later commit.
