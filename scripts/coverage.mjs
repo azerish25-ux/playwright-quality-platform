@@ -25,6 +25,7 @@ const testFiles = [
   'tests/reporter.test.mjs',
   'tests/flake.test.mjs',
   'tests/hardening/property-invariants.test.mjs',
+  'tests/hardening/edge-invariants.test.mjs',
   'tests/hardening/seeded-defects.test.mjs',
   'tests/compatibility/pre-release-contracts.test.mjs',
 ];
