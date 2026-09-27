@@ -20,6 +20,23 @@ async function waitForPayment(actor: Actor, id: string, state: PaymentRecord['st
   return result.body;
 }
 
+async function waitForSettledProjection(actor: Actor, id: string): Promise<PaymentRecord> {
+  const result = await pollUntil({
+    operation: () => actor.client.paymentById(id),
+    until: value => value.status === 200
+      && 'state' in value.body
+      && value.body.state === 'SETTLED'
+      && value.body.projectionState === 'SETTLED'
+      && value.body.projectionVersion === value.body.version
+      && Boolean(value.body.journalId),
+    timeoutMs: 70_000,
+    intervalMs: 300,
+    describe: `LedgerGuard payment ${id} and its observational projection to converge on SETTLED`
+  });
+  if (!('state' in result.body)) throw new Error(`Payment ${id} did not produce a payment record.`);
+  return result.body;
+}
+
 test('asynchronous payment reaches one settled terminal projection', {
   tag: '@release',
   annotation: [forgeId('ledgerguard-payment-terminal-status'), forgeOwner('platform-quality')]
@@ -34,7 +51,7 @@ test('asynchronous payment reaches one settled terminal projection', {
   const pending = pendingReceipt(accepted.body);
   expect(pending.state).toBe('PENDING');
 
-  const settled = await waitForPayment(fundedPair.payer, pending.id, 'SETTLED');
+  const settled = await waitForSettledProjection(fundedPair.payer, pending.id);
   expect(settled.projectionState).toBe('SETTLED');
   expect(settled.projectionVersion).toBe(settled.version);
   expect(settled.journalId).toBeTruthy();

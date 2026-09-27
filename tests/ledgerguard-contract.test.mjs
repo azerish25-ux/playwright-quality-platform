@@ -47,6 +47,11 @@ test('LedgerGuard is an executable API-first external consumer contract', async 
   assert.equal((source.match(/\btest\('/g) ?? []).length, 12);
   assert.doesNotMatch(source, /\.skip\(|test\.fixme|waitForTimeout|setTimeout\([^,]+,\s*[1-9][0-9]{4,}/);
   assert.doesNotMatch(source, /packages\/.+\/src|@azerish25-ux\/.+\/src/);
+  assert.match(source, /INSUFFICIENT_FUNDS/);
+  assert.doesNotMatch(source, /TRANSFER_REJECTED/);
+  assert.match(source, /waitForSettledProjection/);
+  assert.match(source, /projectionState === 'SETTLED'/);
+  assert.match(source, /projectionVersion === value\.body\.version/);
   for (const capability of [
     'auth-session',
     'role-separation',

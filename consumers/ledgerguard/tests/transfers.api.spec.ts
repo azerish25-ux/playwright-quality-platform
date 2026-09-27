@@ -83,14 +83,20 @@ test('insufficient funds leaves balances and transfer inventory unchanged', {
   const beforeTransfers = await fundedPair.payer.client.transfers();
   if (!('postedMinor' in beforeAccount.body)) throw new Error('Expected payer account balance.');
 
-  const rejected = await fundedPair.payer.client.transfer({
+  const key = commandKey(testInfo, 'transfer-insufficient');
+  const intent = {
     sourceId: fundedPair.source.id,
     recipientRef: fundedPair.destination.publicRef,
     amountMinor: '1000000',
-    currency: 'CAD'
-  }, commandKey(testInfo, 'transfer-insufficient'));
+    currency: 'CAD' as const
+  };
+  const rejected = await fundedPair.payer.client.transfer(intent, key);
+  const replay = await fundedPair.payer.client.transfer(intent, key);
   expect(rejected.status).toBe(422);
-  expect('code' in rejected.body && rejected.body.code).toBe('TRANSFER_REJECTED');
+  expect(replay.status).toBe(422);
+  expect(replay.replayed).toBe(true);
+  expect(replay.body).toEqual(rejected.body);
+  expect('code' in rejected.body && rejected.body.code).toBe('INSUFFICIENT_FUNDS');
 
   const afterAccount = await fundedPair.payer.client.account(fundedPair.source.id);
   const afterTransfers = await fundedPair.payer.client.transfers();
