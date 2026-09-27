@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "milestone": "M3-history-reliability",
-  "status": "IMPLEMENTED_AWAITING_EXACT_SHA_CI",
+  "status": "PASS",
   "requirements": [
     {
       "id": "M3-01",
@@ -14,7 +14,8 @@
       "verification": [
         "tests/history.test.mjs: history import is immutable and identical duplicates are idempotent",
         "tests/history.test.mjs: history records reject checksum tampering"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-02",
@@ -26,7 +27,8 @@
       ],
       "verification": [
         "tests/history.test.mjs: conflicting duplicate history identity fails closed"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-03",
@@ -38,7 +40,8 @@
       ],
       "verification": [
         "tests/history.test.mjs: concurrent identical imports serialize without corrupting the manifest"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-04",
@@ -52,7 +55,8 @@
       ],
       "verification": [
         "tests/history.test.mjs: historical analysis separates trusted comparable runs from untrusted and incompatible observations"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-05",
@@ -67,7 +71,8 @@
       "verification": [
         "tests/history.test.mjs: historical analysis separates trusted comparable runs from untrusted and incompatible observations",
         "tests/flake.test.mjs"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-06",
@@ -79,7 +84,8 @@
       "verification": [
         "npm run build",
         "npm run test"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-07",
@@ -92,7 +98,8 @@
       "verification": [
         "tests/history.test.mjs: quarantine add and remove are explicit, atomic and do not mask policy",
         "tests/flake.test.mjs"
-      ]
+      ],
+      "status": "PASS"
     },
     {
       "id": "M3-08",
@@ -104,7 +111,8 @@
       "verification": [
         "npm run build",
         "CLI acceptance through exact-SHA CI"
-      ]
+      ],
+      "status": "PASS"
     }
   ],
   "remainingBoundaries": [
@@ -112,5 +120,29 @@
     "Diagnostic repetition currently repeats a validated suite selection rather than a single stable test ID.",
     "Historical metrics are available in JSON/CLI output but are not yet rendered in every HTML/JUnit view.",
     "Coverage thresholds, LedgerGuard integration, published Action/npm artifacts and versioned docs remain later milestones."
-  ]
+  ],
+  "sourceSha": "907eaa39c6dfc0252436c464728e23269d8e127c",
+  "verificationRun": {
+    "id": 36308672914,
+    "event": "pull_request",
+    "conclusion": "success",
+    "completedAt": "2026-09-27T09:19:22Z",
+    "requiredLanes": {
+      "verify": [
+        "ubuntu-latest/node-22",
+        "ubuntu-latest/node-24",
+        "macos-latest/node-22",
+        "macos-latest/node-24",
+        "windows-latest/node-22",
+        "windows-latest/node-24"
+      ],
+      "packedConsumers": [
+        "ubuntu-latest",
+        "macos-latest",
+        "windows-latest"
+      ],
+      "teamboard": "PostgreSQL API plus Chromium/Firefox/WebKit and packed npm/pnpm consumers",
+      "aggregate": "forgeqa-quality"
+    }
+  }
 }
