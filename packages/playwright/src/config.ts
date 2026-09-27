@@ -24,7 +24,9 @@ export function defineForgePlaywrightConfig(input: ForgeConfigInput, native: Tes
   const projects = native.projects ?? (config.browsers ?? ['chromium']).map(browser => ({ name: browser, use: { browserName: browser } }));
   const selected = request?.options.cli?.browsers;
   const actualProjects = selected ? projects.filter(project => !project.use?.browserName || selected.includes(project.use.browserName)) : projects;
-  const reporters = native.reporter === undefined ? [['list'] as const] : typeof native.reporter === 'string' ? [[native.reporter] as const] : native.reporter;
+  const configured = native.reporter === undefined ? [['list'] as [string]] : typeof native.reporter === 'string' ? [[native.reporter] as [string]] : native.reporter.map(entry => [entry[0], entry[1]] as [string, Record<string, unknown>?]);
+  if (request?.mode !== 'discover' && !configured.some(([name]) => name === 'blob')) configured.push(['blob', { outputDir: resolve(runDir, 'blob-report') }]);
+  if (!configured.some(([name]) => name === '@azerish25-ux/forgeqa-playwright/reporter')) configured.push(['@azerish25-ux/forgeqa-playwright/reporter']);
   return defineConfig({
     ...native,
     forbidOnly: true,
@@ -38,7 +40,7 @@ export function defineForgePlaywrightConfig(input: ForgeConfigInput, native: Tes
       screenshot: (config.artifactPolicy?.screenshot ?? 'only-on-failure') as 'only-on-failure',
       video: (config.artifactPolicy?.video ?? 'retain-on-failure') as 'retain-on-failure' },
     projects: actualProjects,
-    reporter: [...reporters, ['@azerish25-ux/forgeqa-playwright/reporter']],
+    reporter: configured,
     metadata: { ...native.metadata, forgeqa: {
       schemaVersion: 1, runId, runDir, root: process.cwd(),
       config: { ...config, environments: Object.fromEntries(Object.entries(config.environments).map(([k,v])=>[k,{baseUrl:v.baseUrl}])) },

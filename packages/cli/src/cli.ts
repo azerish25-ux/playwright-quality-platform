@@ -1,10 +1,14 @@
 #!/usr/bin/env node
-import { access, lstat, mkdir, readFile, realpath, rename, writeFile } from 'node:fs/promises';
+import { access, lstat, mkdir, readFile, readdir, realpath, rename, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parse, planCommand, runCommand, doctorCommand, type Parsed } from './runner.js';
-import { ConfigurationError, evaluateGates, toForgeError, type MergedRunResult, type QuarantineRecord } from '@azerish25-ux/forgeqa-core';
-import { mergeShardResults, readFinalizedShard, toHtmlReport, toJsonReport, toJUnit, toMarkdownSummary } from '@azerish25-ux/forgeqa-reporter';
+import { mergeNativeBlobReports } from './native-merge.js';
+import { ConfigurationError, IntegrityError, evaluateGates, sha256, toForgeError, type MergedRunResult, type QuarantineRecord } from '@azerish25-ux/forgeqa-core';
+import {
+  mergeShardResults, mergeShardEvidence, reconcileNativeJson,
+  toHtmlReport, toJsonReport, toJUnit, toMarkdownSummary, validateShardEvidence
+} from '@azerish25-ux/forgeqa-reporter';
 import { calculateReliability, validateQuarantine } from '@azerish25-ux/forgeqa-flake-analysis';
 import {initCommand} from './init.js';
 const VERSION='0.1.0';
@@ -14,19 +18,52 @@ function rootSafe(root:string,path:string):string{const full=resolve(root,path);
 async function atomicWrite(path:string,content:string):Promise<void>{await mkdir(dirname(path),{recursive:true});const temp=`${path}.${process.pid}.tmp`;await writeFile(temp,content,{flag:'wx'});await rename(temp,path);}
 async function loadJson(path:string):Promise<any>{return JSON.parse(await readFile(resolve(path),'utf8'));}
 async function loadQuarantine(path:string):Promise<QuarantineRecord[]>{try{return await loadJson(path) as QuarantineRecord[];}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return[];throw new ConfigurationError('Quarantine file is invalid or unreadable.');}}
+async function directoryChecksums(root:string,path:string,output:Record<string,string>):Promise<void>{for(const entry of await readdir(path,{withFileTypes:true})){const full=resolve(path,entry.name);const rel=relative(root,full).replace(/\\/g,'/');if(entry.isSymbolicLink())throw new IntegrityError(`Generated report contains a symbolic link: ${rel}`);if(entry.isDirectory())await directoryChecksums(root,full,output);else if(entry.isFile())output[rel]=sha256(await readFile(full));}}
 async function reportMerge(parsed:Parsed):Promise<void>{
   const manifestPath=String(parsed.options.get('manifest')||'');
   if(!manifestPath||!parsed.positionals.length)throw new ConfigurationError('report merge requires --manifest and finalized shard report paths.');
   const manifest=await loadJson(manifestPath);
-  const shards=await Promise.all(parsed.positionals.map(path=>readFinalizedShard(resolve(path))));
+  const evidence=await Promise.all(parsed.positionals.map(path=>validateShardEvidence(resolve(path))));
+  const shards=evidence.map(item=>item.shard);
   const merged=mergeShardResults(shards,manifest);
   merged.inventory=manifest.expected;
-  const quarantines=await loadQuarantine(String(parsed.options.get('quarantine')||'.forgeqa/quarantine.json'));
-  merged.gate=evaluateGates(merged,quarantines,{failOnRetryRecovered:true,unexpectedSkipBudget:0,requireCompleteShards:true,maxQuarantineEntries:20});
   const output=resolve(String(parsed.options.get('output')||'forgeqa-results'));
   await mkdir(output,{recursive:true});
-  await Promise.all([atomicWrite(resolve(output,'report.json'),toJsonReport(merged)),atomicWrite(resolve(output,'junit.xml'),toJUnit(merged)),atomicWrite(resolve(output,'summary.md'),toMarkdownSummary(merged)),atomicWrite(resolve(output,'index.html'),toHtmlReport(merged))]);
-  emit(parsed,{runId:merged.runId,output,completion:merged.completion,tests:new Set(merged.attempts.map(a=>a.executionId)).size,attempts:merged.attempts.length,gate:merged.gate},`Merged ${shards.length} shards into ${output}. ${merged.gate.outcome==='pass'?'Quality gates passed.':'Quality gates failed.'}`);
+  const mergedEvidence=await mergeShardEvidence(evidence,output,merged);
+  const native=await mergeNativeBlobReports(resolve(output,'native-blob-reports'),output);
+  const reconciliation=reconcileNativeJson(merged,await loadJson(native.jsonPath));
+  merged.evidence={
+    artifactManifest:'artifact-manifest.json',
+    capturedArtifacts:mergedEvidence.manifest.counts.captured,
+    missingArtifacts:mergedEvidence.manifest.counts.missing,
+    unavailableArtifacts:mergedEvidence.manifest.counts.unavailable,
+    nativeBlobCount:mergedEvidence.nativeBlobPaths.length,
+    nativeReport:'playwright-report/index.html',
+    nativeJson:'playwright-report/results.json',
+    reconciliation
+  };
+  const quarantines=await loadQuarantine(String(parsed.options.get('quarantine')||'.forgeqa/quarantine.json'));
+  merged.gate=evaluateGates(merged,quarantines,{failOnRetryRecovered:true,unexpectedSkipBudget:0,requireCompleteShards:true,maxQuarantineEntries:20});
+  const outputs={
+    'report.json':toJsonReport(merged),
+    'junit.xml':toJUnit(merged),
+    'summary.md':toMarkdownSummary(merged),
+    'index.html':toHtmlReport(merged)
+  };
+  await Promise.all(Object.entries(outputs).map(([name,content])=>atomicWrite(resolve(output,name),content)));
+  const checksumPaths=['report.json','junit.xml','summary.md','index.html','artifact-manifest.json'];
+  const checksums:Record<string,string>={};
+  for(const name of checksumPaths)checksums[name]=sha256(await readFile(resolve(output,name)));
+  await directoryChecksums(output,resolve(output,'playwright-report'),checksums);
+  const complete={
+    schemaVersion:1,runId:merged.runId,completion:merged.completion,selectionHash:merged.selectionHash,configHash:merged.configHash,
+    expectedShards:evidence[0]?.shard.shardTotal??0,receivedShards:evidence.length,
+    expectedExecutions:manifest.expected.length,receivedExecutions:new Set(merged.attempts.map(attempt=>attempt.executionId)).size,
+    attempts:merged.attempts.length,gate:merged.gate.outcome,nativeMergeExitCode:native.runnerExitCode,
+    reconciliation,checksums
+  };
+  await atomicWrite(resolve(output,'complete.json'),`${JSON.stringify(complete,null,2)}\n`);
+  emit(parsed,{runId:merged.runId,output,completion:merged.completion,tests:new Set(merged.attempts.map(a=>a.executionId)).size,attempts:merged.attempts.length,gate:merged.gate,evidence:merged.evidence},`Merged ${shards.length} shards into ${output}. Native and ForgeQA evidence matched. ${merged.gate.outcome==='pass'?'Quality gates passed.':'Quality gates failed.'}`);
   if(merged.completion!=='complete')process.exitCode=3;else if(merged.gate.outcome==='fail')process.exitCode=1;
 }
 async function gate(parsed:Parsed):Promise<void>{const run=await loadJson(String(parsed.options.get('report')||parsed.positionals[0]||'')) as MergedRunResult;let quarantines:QuarantineRecord[]=[];try{quarantines=await loadJson(String(parsed.options.get('quarantine')||'.forgeqa/quarantine.json'));}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw new ConfigurationError('Quarantine file is invalid or unreadable.');}const decision=evaluateGates(run,quarantines,{failOnRetryRecovered:true,unexpectedSkipBudget:0,requireCompleteShards:true,maxQuarantineEntries:20});emit(parsed,decision,decision.violations.length?decision.violations.map((v)=>`${v.severity.toUpperCase()} ${v.id}: ${v.message}`).join('\n'):'All quality gates passed.');if(decision.outcome==='fail')process.exitCode=1;}
