@@ -56,3 +56,7 @@ The detailed milestone matrices are [distributed-evidence-requirements.json](dis
 - npm packages are source candidates, not registry releases; npm ownership and publication authorization are not assumed.
 - The versioned documentation website, maintained 90/85 runtime coverage gates, comparative distributed benchmarks and complete release hardening remain unverified.
 - No Marketplace listing, npm publication or production-ready status is claimed.
+
+## Phase 7 completion follow-up
+
+The follow-up implementation closes the three explicitly recorded Phase 7 boundaries: paginated GitHub Actions artifact history import, exact stable-test-ID diagnostic repetition, and historical reliability in HTML/JUnit/Markdown/JSON output. The requirement ledger remains marked `IMPLEMENTED_AWAITING_EXACT_SHA_CI` until the delivered commit completes the full repository matrix; no green claim is made by this source edit alone.

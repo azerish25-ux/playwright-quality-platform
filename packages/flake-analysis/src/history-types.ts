@@ -4,6 +4,23 @@ import type { ReliabilityMetrics, TestReliability } from './metrics.js';
 
 export type HistoryProvenance = 'trusted-default-branch' | 'untrusted-pr' | 'synthetic' | 'diagnostic';
 
+export interface GitHubHistorySource {
+  provider: 'github-actions';
+  repository: string;
+  workflowId: number;
+  workflowRunId: number;
+  workflowRunAttempt: number;
+  artifactId: number;
+  artifactName: string;
+  event: string;
+  branch: string | null;
+  conclusion: string | null;
+  headSha: string;
+  createdAt: string;
+}
+
+export type HistorySource = GitHubHistorySource;
+
 export interface HistoryRecord {
   schemaVersion: 1;
   importKey: string;
@@ -12,6 +29,7 @@ export interface HistoryRecord {
   observedAt: string;
   result: MergedRunResult;
   checksum: string;
+  source?: HistorySource;
 }
 
 export interface HistoryManifestEntry {
@@ -23,6 +41,7 @@ export interface HistoryManifestEntry {
   provenance: HistoryProvenance;
   observedAt: string;
   checksum: string;
+  source?: HistorySource;
 }
 
 export interface HistoryManifest {
@@ -46,6 +65,34 @@ export interface ImportHistoryResult {
   pruned: number;
   manifestPath: string;
   importedKeys: string[];
+}
+
+export interface GitHubHistoryCoverageGap {
+  runId: number;
+  artifactId?: number;
+  reason: 'missing-artifact' | 'expired-artifact';
+}
+
+export interface GitHubHistoryImportOptions {
+  repository: string;
+  token?: string;
+  workflow?: string;
+  artifactNamePrefix?: string;
+  maxRuns?: number;
+  maxRecords?: number;
+  maxAgeDays?: number;
+  maxArchiveBytes?: number;
+  maxExpandedBytes?: number;
+  apiBaseUrl?: string;
+  fetchImpl?: typeof fetch;
+  now?: Date;
+}
+
+export interface GitHubHistoryImportResult extends ImportHistoryResult {
+  runsScanned: number;
+  artifactsScanned: number;
+  recordsFound: number;
+  coverageGaps: GitHubHistoryCoverageGap[];
 }
 
 export interface HistorySelectionOptions {

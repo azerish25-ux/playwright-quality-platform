@@ -8,16 +8,19 @@ import {
   type MergedRunResult,
   type QuarantineRecord
 } from '@azerish25-ux/forgeqa-core';
+import { toHtmlReport, toJUnit, toMarkdownSummary } from '@azerish25-ux/forgeqa-reporter';
 import {
   addQuarantine,
   analyzeHistory,
   calculateReliability,
   createHistoryRecord,
+  importGitHubHistory,
   importHistory,
   readHistoryRecords,
   readQuarantine,
   removeQuarantine,
   validateQuarantine,
+  type HistoryAnalysis,
   type HistoryProvenance
 } from '@azerish25-ux/forgeqa-flake-analysis';
 
@@ -64,17 +67,36 @@ export async function gateCommand(parsed: Parsed): Promise<void> {
   if (decision.outcome === 'fail') process.exitCode = 1;
 }
 
+async function renderHistory(run: MergedRunResult, history: HistoryAnalysis, directory: string): Promise<Record<string, string>> {
+  const output = resolve(directory);
+  const files: Record<string, string> = {
+    'history-analysis.json': `${JSON.stringify(history, null, 2)}\n`,
+    'junit.xml': toJUnit(run, history),
+    'summary.md': toMarkdownSummary(run, history),
+    'index.html': toHtmlReport(run, history)
+  };
+  await Promise.all(Object.entries(files).map(([name, content]) => atomicWrite(resolve(output, name), content)));
+  return Object.fromEntries(Object.keys(files).map(name => [name, resolve(output, name)]));
+}
+
 export async function flakesCommand(parsed: Parsed): Promise<void> {
   const reportPath = String(parsed.options.get('report') || parsed.positionals[0] || '');
   if (!reportPath) throw new ConfigurationError('flakes requires --report FILE.');
   const run = await loadRun(reportPath);
   const minimumSamples = Number(parsed.options.get('minimum-samples') || 20);
-  if (parsed.options.has('output')) {
-    const records = await readHistoryRecords(String(parsed.options.get('output')));
+  const historyRoot = parsed.options.get('history') ?? parsed.options.get('output');
+  if (historyRoot) {
+    const records = await readHistoryRecords(String(historyRoot));
     const analysis = analyzeHistory(run, records, minimumSamples);
-    emit(parsed, analysis, JSON.stringify(analysis, null, 2));
+    const rendered = parsed.options.has('render') ? await renderHistory(run, analysis, String(parsed.options.get('render'))) : undefined;
+    emit(
+      parsed,
+      rendered ? { ...analysis, rendered } : analysis,
+      `${JSON.stringify(analysis, null, 2)}${rendered ? `\nRendered history-aware reports to ${String(parsed.options.get('render'))}.` : ''}`
+    );
     return;
   }
+  if (parsed.options.has('render')) throw new ConfigurationError('flakes --render requires --history HISTORY_DIR.');
   const metrics = calculateReliability(run.attempts, minimumSamples);
   emit(parsed, metrics, JSON.stringify(metrics, null, 2));
 }
@@ -86,6 +108,28 @@ export async function historyImportCommand(parsed: Parsed): Promise<void> {
   const root = String(parsed.options.get('output') || '.forgeqa/history');
   const result = await importHistory(root, sources, { provenance: historyProvenance() });
   emit(parsed, result, `Imported ${result.imported} history record(s), skipped ${result.skipped} duplicate(s), and pruned ${result.pruned}.\nManifest: ${result.manifestPath}`);
+}
+
+export async function historyImportGitHubCommand(parsed: Parsed): Promise<void> {
+  const repository = String(parsed.options.get('repository') || process.env.GITHUB_REPOSITORY || '');
+  if (!repository) throw new ConfigurationError('history import-github requires --repository OWNER/REPO or GITHUB_REPOSITORY.');
+  const tokenEnvironment = String(parsed.options.get('token-env') || 'FORGEQA_GITHUB_TOKEN');
+  const token = process.env[tokenEnvironment] || process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const root = String(parsed.options.get('output') || '.forgeqa/history');
+  const maxRuns = Number(parsed.options.get('max-runs') || 50);
+  const result = await importGitHubHistory(root, {
+    repository,
+    ...(token ? { token } : {}),
+    ...(parsed.options.has('workflow') ? { workflow: String(parsed.options.get('workflow')) } : {}),
+    ...(parsed.options.has('artifact-name') ? { artifactNamePrefix: String(parsed.options.get('artifact-name')) } : {}),
+    maxRuns,
+    ...(process.env.GITHUB_API_URL ? { apiBaseUrl: process.env.GITHUB_API_URL } : {})
+  });
+  emit(
+    parsed,
+    result,
+    `Scanned ${result.runsScanned} completed workflow run(s) and ${result.artifactsScanned} matching artifact(s). Imported ${result.imported}, skipped ${result.skipped}, recorded ${result.coverageGaps.length} coverage gap(s).\nManifest: ${result.manifestPath}`
+  );
 }
 
 async function knownTests(parsed: Parsed, records?: QuarantineRecord[]): Promise<string[]> {
@@ -157,6 +201,8 @@ async function newestRunDirectory(root: string): Promise<string | undefined> {
 }
 
 export async function repeatCommand(parsed: Parsed): Promise<void> {
+  const testId = String(parsed.options.get('test-id') || '').trim();
+  if (!testId) throw new ConfigurationError('repeat requires --test-id STABLE_ID. Whole-suite diagnostic repetition is refused.');
   const count = Number(parsed.positionals[0] ?? 10);
   const maxFailures = Number(parsed.positionals[1] ?? 1);
   const timeBudgetMs = Number(parsed.positionals[2] ?? 600_000);
@@ -205,6 +251,7 @@ export async function repeatCommand(parsed: Parsed): Promise<void> {
   const summary = {
     schemaVersion: 1,
     provenance: 'diagnostic',
+    testId,
     startedAt,
     finishedAt: new Date().toISOString(),
     requestedIterations: count,
@@ -217,7 +264,7 @@ export async function repeatCommand(parsed: Parsed): Promise<void> {
   };
   const summaryPath = resolve(root, 'repeat-summary.json');
   await atomicWrite(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
-  emit(parsed, { ...summary, summaryPath }, `Completed ${iterations.length}/${count} diagnostic repetition(s) with ${failures} failure(s).\nSummary: ${summaryPath}`);
+  emit(parsed, { ...summary, summaryPath }, `Completed ${iterations.length}/${count} diagnostic repetition(s) for ${testId} with ${failures} failure(s).\nSummary: ${summaryPath}`);
   if (terminalCode === 130) process.exitCode = 130;
   else if (terminalCode === 3) process.exitCode = 3;
   else if (failures) process.exitCode = 1;

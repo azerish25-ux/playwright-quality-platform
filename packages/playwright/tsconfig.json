@@ -18,6 +18,9 @@
     },
     {
       "path": "../reporter"
+    },
+    {
+      "path": "../flake-analysis"
     }
   ]
 }

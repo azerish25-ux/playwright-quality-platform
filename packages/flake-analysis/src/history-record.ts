@@ -7,7 +7,7 @@ import {
   stableStringify,
   type MergedRunResult
 } from '@azerish25-ux/forgeqa-core';
-import type { HistoryManifest, HistoryManifestEntry, HistoryProvenance, HistoryRecord } from './history-types.js';
+import type { HistoryManifest, HistoryManifestEntry, HistoryProvenance, HistoryRecord, HistorySource } from './history-types.js';
 
 export const DEFAULT_HISTORY_MAX_BYTES = 16 * 1024 * 1024;
 
@@ -37,11 +37,34 @@ export function validateHistoryResult(value: unknown): MergedRunResult {
   return value as unknown as MergedRunResult;
 }
 
+function validateHistorySource(value: unknown): HistorySource {
+  if (!isObject(value) || value.provider !== 'github-actions') throw new IntegrityError('History source metadata is invalid.');
+  const integers = ['workflowId', 'workflowRunId', 'workflowRunAttempt', 'artifactId'] as const;
+  for (const key of integers) if (!Number.isSafeInteger(value[key]) || Number(value[key]) < 1) throw new IntegrityError(`History source ${key} is invalid.`);
+  const strings = ['repository', 'artifactName', 'event', 'headSha', 'createdAt'] as const;
+  for (const key of strings) if (typeof value[key] !== 'string' || !value[key]) throw new IntegrityError(`History source ${key} is invalid.`);
+  if (value.branch !== null && typeof value.branch !== 'string') throw new IntegrityError('History source branch is invalid.');
+  if (value.conclusion !== null && typeof value.conclusion !== 'string') throw new IntegrityError('History source conclusion is invalid.');
+  if (!Number.isFinite(Date.parse(String(value.createdAt)))) throw new IntegrityError('History source creation time is invalid.');
+  return value as unknown as HistorySource;
+}
+
 function recordChecksum(result: MergedRunResult): string {
   return sha256(stableStringify(result));
 }
 
-function importIdentity(result: MergedRunResult, provenance: HistoryProvenance): string {
+function importIdentity(result: MergedRunResult, provenance: HistoryProvenance, source?: HistorySource): string {
+  if (source?.provider === 'github-actions') {
+    return stableHash({
+      provider: source.provider,
+      repository: source.repository,
+      workflowRunId: source.workflowRunId,
+      workflowRunAttempt: source.workflowRunAttempt,
+      artifactId: source.artifactId,
+      artifactName: source.artifactName,
+      provenance
+    });
+  }
   return stableHash({
     repository: result.revision.repository,
     runId: result.runId,
@@ -53,18 +76,21 @@ function importIdentity(result: MergedRunResult, provenance: HistoryProvenance):
 export function createHistoryRecord(
   result: MergedRunResult,
   provenance: HistoryProvenance,
-  importedAt = new Date().toISOString()
+  importedAt = new Date().toISOString(),
+  source?: HistorySource
 ): HistoryRecord {
   validateHistoryResult(result);
   if (!Number.isFinite(Date.parse(importedAt))) throw new ConfigurationError('History import time must be a valid ISO timestamp.');
+  if (source) validateHistorySource(source);
   return {
     schemaVersion: 1,
-    importKey: importIdentity(result, provenance),
+    importKey: importIdentity(result, provenance, source),
     provenance,
     importedAt,
-    observedAt: latestAttemptTime(result) ?? importedAt,
+    observedAt: latestAttemptTime(result) ?? source?.createdAt ?? importedAt,
     result,
-    checksum: recordChecksum(result)
+    checksum: recordChecksum(result),
+    ...(source ? { source } : {})
   };
 }
 
@@ -78,8 +104,9 @@ export function validateHistoryRecord(value: unknown): HistoryRecord {
   }
   const result = validateHistoryResult(value.result);
   const record = value as unknown as HistoryRecord;
+  const source = value.source === undefined ? undefined : validateHistorySource(value.source);
   if (recordChecksum(result) !== record.checksum) throw new IntegrityError('History checksum mismatch.');
-  if (importIdentity(result, record.provenance) !== record.importKey) throw new IntegrityError('History import identity mismatch.');
+  if (importIdentity(result, record.provenance, source) !== record.importKey) throw new IntegrityError('History import identity mismatch.');
   if (!Number.isFinite(Date.parse(record.importedAt)) || !Number.isFinite(Date.parse(record.observedAt))) {
     throw new IntegrityError('History timestamps are invalid.');
   }
@@ -105,6 +132,7 @@ export function validateHistoryManifest(value: unknown): HistoryManifest {
     if (!entry.importKey || !entry.file || !entry.runId || !entry.repository || !entry.testedCommit || !entry.observedAt || !entry.checksum) {
       throw new IntegrityError('History manifest entry is incomplete.');
     }
+    if (entry.source) validateHistorySource(entry.source);
     if (keys.has(entry.importKey)) throw new IntegrityError('History manifest contains duplicate import identities.');
     keys.add(entry.importKey);
   }

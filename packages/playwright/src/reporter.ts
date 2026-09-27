@@ -9,6 +9,7 @@ import {
   type SelectionManifest, type ShardResult, type ResolvedForgeConfig, type QuarantineRecord
 } from '@azerish25-ux/forgeqa-core';
 import { ResultJournal, readFinalizedShard, mergeShardResults, toHtmlReport, toJUnit, toJsonReport, toMarkdownSummary } from '@azerish25-ux/forgeqa-reporter';
+import { analyzeHistory, createHistoryRecord, readHistoryRecords, type HistoryProvenance } from '@azerish25-ux/forgeqa-flake-analysis';
 interface Metadata { schemaVersion: 1; runId: string; runDir: string; root: string; config: ResolvedForgeConfig; mode: 'discover'|'run'; manifestPath?: string; }
 const MAX_ATTACHMENT = 32 * 1024 * 1024;
 function atomic(path: string, value: string): void {
@@ -18,6 +19,12 @@ function atomic(path: string, value: string): void {
   renameSync(tmp,path);
 }
 function text(value: string): string { return redactText(value.replace(/\u001b\[[0-9;]*m/g, '')).slice(0,16_384); }
+function reportHistoryProvenance(): HistoryProvenance {
+  const explicit=process.env.FORGEQA_HISTORY_PROVENANCE;
+  if(explicit && ['trusted-default-branch','untrusted-pr','synthetic','diagnostic'].includes(explicit))return explicit as HistoryProvenance;
+  if(process.env.GITHUB_EVENT_NAME==='pull_request' || process.env.GITHUB_EVENT_NAME==='pull_request_target')return 'untrusted-pr';
+  return 'trusted-default-branch';
+}
 function within(root: string, path: string): boolean {
   const rel = relative(root,path);
   return rel !== '..' && !rel.startsWith('../') && !rel.startsWith('..\\') && !isAbsolute(rel);
@@ -53,7 +60,7 @@ export default class ForgeReporter implements Reporter {
       executionId: executionIdentity({consumer:m.config.consumer ?? m.config.project,environment:m.config.environment,project:project?.name ?? '',repetition:test.repeatEachIndex,logicalTestId}),
       logicalTestId, project:project?.name ?? '', ...(project?.use.browserName ? {browser:project.use.browserName} : {}),
       environment:m.config.environment, shardIndex:this.dimensions().index, shardTotal:this.dimensions().total,
-      title:text(test.title), relativePath, repetition:test.repeatEachIndex
+      title:text(test.title), relativePath, line:test.location.line, column:test.location.column, repetition:test.repeatEachIndex
     };
   }
   onBegin(config: FullConfig, suite: Suite): void {
@@ -183,10 +190,12 @@ export default class ForgeReporter implements Reporter {
       try {quarantine=JSON.parse(readFileSync(m.config.quarantineFile,'utf8')) as QuarantineRecord[];}
       catch (error) {if ((error as NodeJS.ErrnoException).code!=='ENOENT') throw new ConfigurationError('Quarantine file is unreadable or invalid JSON.');}
       report.gate=evaluateGates(report,quarantine,gatePolicy(m.config.qualityGates));
-      const outputs={'report.json':toJsonReport(report),'junit.xml':toJUnit(report),'summary.md':toMarkdownSummary(report),'index.html':toHtmlReport(report),'runtime.log':this.globalLog};
+      const history=analyzeHistory(report,await readHistoryRecords(m.config.historyDir),m.config.qualityGates?.minimumHistorySamples ?? 20);
+      const historyRecord=createHistoryRecord(report,reportHistoryProvenance());
+      const outputs={'report.json':toJsonReport(report),'junit.xml':toJUnit(report,history),'summary.md':toMarkdownSummary(report,history),'index.html':toHtmlReport(report,history),'history-analysis.json':JSON.stringify(history,null,2)+'\n','history-record.json':JSON.stringify(historyRecord,null,2)+'\n','runtime.log':this.globalLog};
       for (const [name,content] of Object.entries(outputs)) atomic(resolve(m.runDir,name),content);
       const exitCode=report.completion!=='complete'?3:report.gate.outcome==='fail'?1:0;
-      atomic(resolve(m.runDir,'complete.json'),JSON.stringify({schemaVersion:1,runId:m.runId,configHash:m.config.configHash,selectionHash:this.manifest.selectionHash,exitCode,runnerStatus:result.status,checksums:Object.fromEntries(Object.entries(outputs).map(([name,content])=>[name,sha256(content)]))},null,2)+'\n');
+      atomic(resolve(m.runDir,'complete.json'),JSON.stringify({schemaVersion:1,runId:m.runId,configHash:m.config.configHash,selectionHash:this.manifest.selectionHash,exitCode,runnerStatus:result.status,history:history.status,checksums:Object.fromEntries(Object.entries(outputs).map(([name,content])=>[name,sha256(content)]))},null,2)+'\n');
       return {status:exitCode===0?'passed':'failed'};
     } catch (error) {
       this.panic(error);

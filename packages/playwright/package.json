@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@azerish25-ux/forgeqa-core": "0.1.0",
+    "@azerish25-ux/forgeqa-flake-analysis": "0.1.0",
     "@azerish25-ux/forgeqa-reporter": "0.1.0"
   },
   "peerDependencies": {

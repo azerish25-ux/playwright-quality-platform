@@ -46,6 +46,8 @@ export interface ExpectedExecution {
   shardTotal: number;
   title?: string;
   relativePath?: string;
+  line?: number;
+  column?: number;
   repetition?: number;
 }
 export interface SelectionManifest {

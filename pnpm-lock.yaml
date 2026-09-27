@@ -97,6 +97,9 @@ importers:
       '@azerish25-ux/forgeqa-core':
         specifier: 0.1.0
         version: link:../core
+      '@azerish25-ux/forgeqa-flake-analysis':
+        specifier: 0.1.0
+        version: link:../flake-analysis
       '@azerish25-ux/forgeqa-reporter':
         specifier: 0.1.0
         version: link:../reporter

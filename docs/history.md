@@ -25,3 +25,9 @@ forgeqa flakes --report forgeqa-results/report.json --output .forgeqa/history
 `FORGEQA_HISTORY_PROVENANCE` can explicitly select one of the four provenance values. On GitHub pull-request events, the CLI automatically records `untrusted-pr`; otherwise it defaults to `trusted-default-branch`.
 
 Every successful distributed report merge now emits `history-record.json` and includes its checksum in `complete.json`. Failed but complete application runs remain importable; infrastructure-incomplete runs are retained but excluded from comparable reliability cohorts.
+
+## Immutable GitHub Actions reconstruction
+
+The GitHub adapter treats completed workflow artifacts—not caches or runner filesystems—as the source of historical truth. It paginates runs and artifacts, includes eligible failed runs, separates trusted default-branch records from untrusted pull requests, validates ZIP and output checksums, records coverage gaps, and preserves workflow/run-attempt/artifact provenance. See [GitHub Actions history import](github-history.md).
+
+HTML, JUnit, Markdown, and JSON outputs expose N/F/I/P, observation windows, comparable/rejected run counts, per-test ownership and sample sizes, retry-observed and persistent-failure rates, and explicit `NO_BASELINE`, `INSUFFICIENT_HISTORY`, or `HISTORY_INCOMPLETE` states.
