@@ -42,6 +42,7 @@ export default class ForgeReporter implements Reporter {
   }
   private guard(fn: () => void): void { try { fn(); } catch (error) { this.panic(error); } }
   private enqueue(fn: () => Promise<void>): void { this.queue = this.queue.then(fn).catch(error=>this.panic(error)); }
+  private dimensions(): {index:number;total:number} { return {index:this.native?.shard?.current ?? 1,total:this.native?.shard?.total ?? 1}; }
   private identify(test: TestCase): ExpectedExecution {
     const m = this.metadata!;
     const project = test.parent.project();
@@ -51,7 +52,7 @@ export default class ForgeReporter implements Reporter {
     return {
       executionId: executionIdentity({consumer:m.config.consumer ?? m.config.project,environment:m.config.environment,project:project?.name ?? '',repetition:test.repeatEachIndex,logicalTestId}),
       logicalTestId, project:project?.name ?? '', ...(project?.use.browserName ? {browser:project.use.browserName} : {}),
-      environment:m.config.environment, shardIndex:this.native?.shard?.current ?? 1, shardTotal:this.native?.shard?.total ?? 1,
+      environment:m.config.environment, shardIndex:this.dimensions().index, shardTotal:this.dimensions().total,
       title:text(test.title), relativePath, repetition:test.repeatEachIndex
     };
   }
@@ -60,7 +61,6 @@ export default class ForgeReporter implements Reporter {
       const m = config.metadata['forgeqa'] as Metadata | undefined;
       if (!m || m.schemaVersion!==1) throw new ConfigurationError('Use defineForgePlaywrightConfig to connect native Playwright to ForgeQA.');
       this.metadata=m; this.native=config;
-      if (config.shard && config.shard.total!==1) throw new ConfigurationError('Distributed run reconciliation is not implemented in this milestone; use a complete single-runner inventory.');
       mkdirSync(m.runDir,{recursive:true,mode:0o700});
       const explicit = new Map<string,string>();
       const expected = suite.allTests().map(test=>{
@@ -73,14 +73,20 @@ export default class ForgeReporter implements Reporter {
         this.executions.set(test.id,record);
         return record;
       }).sort((a,b)=>a.executionId.localeCompare(b.executionId));
-      if (!expected.length) throw new ConfigurationError('Empty test selection.');
+      const dimensions=this.dimensions();
+      if (!expected.length && dimensions.total===1) throw new ConfigurationError('Empty test selection.');
       if (new Set(expected.map(e=>e.executionId)).size!==expected.length) throw new ConfigurationError('Duplicate execution identities.');
-      const manifest: SelectionManifest={schemaVersion:1,runId:m.runId,configHash:m.config.configHash,selectionHash:stableHash(expected),expected};
+      const localManifest: SelectionManifest={schemaVersion:1,runId:m.runId,configHash:m.config.configHash,selectionHash:stableHash(expected),expected};
       if (m.mode==='run' && m.manifestPath) {
         const prior=JSON.parse(readFileSync(m.manifestPath,'utf8')) as SelectionManifest;
-        if (stableHash(prior)!==stableHash(manifest)) throw new IntegrityError('Execution discovery changed after the expected manifest was created.');
-      } else atomic(resolve(m.runDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-      this.manifest=manifest;
+        if(prior.schemaVersion!==1 || prior.runId!==m.runId || prior.configHash!==m.config.configHash || prior.selectionHash!==stableHash(prior.expected))throw new IntegrityError('Execution manifest is incompatible with this run.');
+        const planned=prior.expected.filter(entry=>entry.shardIndex===dimensions.index && entry.shardTotal===dimensions.total).sort((a,b)=>a.executionId.localeCompare(b.executionId));
+        if(stableHash(planned)!==stableHash(expected))throw new IntegrityError('Execution discovery changed after the expected shard manifest was created.');
+        this.manifest=prior;
+      } else {
+        atomic(resolve(m.runDir,'manifest.json'),JSON.stringify(localManifest,null,2)+'\n');
+        this.manifest=localManifest;
+      }
       if (m.mode==='run') {
         this.journal=new ResultJournal(resolve(m.runDir,'attempts.ndjson'));
         const {attempts: _a, completion: _c, ...header}=this.shard();
@@ -90,7 +96,8 @@ export default class ForgeReporter implements Reporter {
   }
   private shard(): ShardResult {
     const m=this.metadata!;
-    return {schemaVersion:RESULT_SCHEMA_VERSION,runId:m.runId,shardId:shardIdentity({runId:m.runId,project:'all',index:1,total:1}),shardIndex:1,shardTotal:1,
+    const dimensions=this.dimensions();
+    return {schemaVersion:RESULT_SCHEMA_VERSION,runId:m.runId,shardId:shardIdentity({runId:m.runId,project:'all',index:dimensions.index,total:dimensions.total}),shardIndex:dimensions.index,shardTotal:dimensions.total,
       selectionHash:this.manifest!.selectionHash,configHash:m.config.configHash,completion:this.failedReporter?'infrastructure-failure':'complete',
       revision:{repository:process.env.GITHUB_REPOSITORY ?? m.config.consumer ?? m.config.project,sourceCommit:process.env.FORGEQA_SOURCE_SHA ?? 'local-unversioned',testedCommit:process.env.GITHUB_SHA ?? process.env.FORGEQA_TESTED_SHA ?? 'local-unversioned',...(process.env.GITHUB_REF_NAME ? {branch:process.env.GITHUB_REF_NAME} : {})},attempts:this.attempts};
   }
@@ -162,6 +169,12 @@ export default class ForgeReporter implements Reporter {
       if (this.errors.length) shard.completion='infrastructure-failure';
       await this.journal!.finalize(shard);
       const finalized=await readFinalizedShard(this.journal!.finalPath);
+      const dimensions=this.dimensions();
+      if(dimensions.total>1) {
+        if(this.globalLog)atomic(resolve(m.runDir,'runtime.log'),this.globalLog);
+        atomic(resolve(m.runDir,'shard-complete.json'),JSON.stringify({schemaVersion:1,runId:m.runId,shardId:finalized.shardId,shardIndex:dimensions.index,shardTotal:dimensions.total,selectionHash:this.manifest.selectionHash,configHash:m.config.configHash,completion:finalized.completion,report:'attempts.ndjson.final.json',reportSha256:sha256(readFileSync(this.journal!.finalPath))},null,2)+'\n');
+        return {status:result.status==='passed' && finalized.completion==='complete'?'passed':'failed'};
+      }
       const report: MergedRunResult=mergeShardResults([finalized],this.manifest);
       report.inventory=this.manifest.expected;
       report.runnerStatus=result.status;

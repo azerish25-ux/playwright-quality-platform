@@ -5,26 +5,112 @@ on:
       suite: { type: string, default: regression }
       browsers: { type: string, default: chromium }
       shard-count: { type: number, default: 1 }
+      workers: { type: number, default: 1 }
 permissions: { contents: read }
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - id: matrix
+        env:
+          SHARD_COUNT: ${{ inputs.shard-count }}
+        run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\\n')"
+      - name: Materialize immutable execution manifest
+        env:
+          SUITE: ${{ inputs.suite }}
+          BROWSERS: ${{ inputs.browsers }}
+          SHARD_COUNT: ${{ inputs.shard-count }}
+          WORKERS: ${{ inputs.workers }}
+        run: |
+          node packages/cli/dist/cli.js plan --suite "$SUITE" --browsers "$BROWSERS" --workers "$WORKERS" --shard "1/$SHARD_COUNT" --json > forgeqa-plan.json
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('forgeqa-plan.json','utf8'));fs.mkdirSync('.forgeqa-plan',{recursive:true});fs.copyFileSync(p.manifestPath,'.forgeqa-plan/manifest.json')"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .forgeqa-plan/manifest.json
+          if-no-files-found: error
+          retention-days: 7
   shard:
+    needs: plan
     strategy:
       fail-fast: false
-      matrix:
-        shard: [1]
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: 24
-          package-manager-cache: false
+        with: { node-version: 24, package-manager-cache: false }
       - run: npm ci --ignore-scripts
-      - run: npm run verify
-      - uses: ./
+      - run: npm run build
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          suite: ${{ inputs.suite }}
-          browsers: ${{ inputs.browsers }}
-          shard-count: ${{ inputs.shard-count }}
-          shard-index: ${{ matrix.shard }}
+          name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .forgeqa-plan
+      - id: execute
+        continue-on-error: true
+        env:
+          SUITE: ${{ inputs.suite }}
+          BROWSERS: ${{ inputs.browsers }}
+          SHARD_COUNT: ${{ inputs.shard-count }}
+          SHARD_INDEX: ${{ matrix.shard }}
+          WORKERS: ${{ inputs.workers }}
+        run: |
+          node packages/cli/dist/cli.js run --suite "$SUITE" --browsers "$BROWSERS" --workers "$WORKERS" --shard "$SHARD_INDEX/$SHARD_COUNT" --manifest .forgeqa-plan/manifest.json --json > forgeqa-shard.json
+      - name: Upload shard evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}-of-${{ inputs.shard-count }}
+          path: |
+            forgeqa-results/**/attempts.ndjson
+            forgeqa-results/**/attempts.ndjson.final.json
+            forgeqa-results/**/shard-complete.json
+            forgeqa-shard.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Propagate shard outcome
+        if: always() && steps.execute.outcome != 'success'
+        run: exit 1
+  forgeqa-quality:
+    name: forgeqa-quality
+    needs: [plan, shard]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .forgeqa-plan
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: .forgeqa-shards
+          merge-multiple: true
+      - name: Merge all required shards and enforce gates
+        run: |
+          mapfile -d '' shards < <(find .forgeqa-shards -type f -name 'attempts.ndjson.final.json' -print0 | sort -z)
+          if [ "${#shards[@]}" -eq 0 ]; then echo 'No finalized shard evidence was downloaded.' >&2; exit 3; fi
+          node packages/cli/dist/cli.js report merge --manifest .forgeqa-plan/manifest.json --output forgeqa-merged "${shards[@]}" --json
+      - name: Upload canonical merged report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: forgeqa-merged-${{ github.run_id }}-${{ github.run_attempt }}
+          path: forgeqa-merged
+          if-no-files-found: warn
+          retention-days: 7
