@@ -194,9 +194,11 @@ try {
     }
     const imported = run(process.execPath, ['index.mjs'], { cwd: consumer });
     run(process.execPath, [resolve(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'], { cwd: consumer });
-    const cli = run(process.execPath, [resolve(consumer, 'node_modules/@azerish25-ux/forgeqa-cli/dist/cli.js'), '--help'], { cwd: consumer });
-    assert(/ForgeQA|forgeqa/i.test(cli.stdout), `${manager}: packaged CLI help is unavailable.`);
-    consumers.push({ manager, imports: JSON.parse(imported.stdout), cliHelp: cli.stdout.split(/\r?\n/)[0] });
+    const cliExecutable = resolve(consumer, 'node_modules', '.bin', process.platform === 'win32' ? 'forgeqa.cmd' : 'forgeqa');
+    const cli = run(cliExecutable, ['--help'], { cwd: consumer });
+    const cliOutput = `${cli.stdout}\n${cli.stderr}`.trim();
+    assert(/ForgeQA|forgeqa/i.test(cliOutput), `${manager}: packaged CLI help is unavailable.`);
+    consumers.push({ manager, imports: JSON.parse(imported.stdout), cliHelp: cliOutput.split(/\r?\n/)[0] });
   }
 
   const evidence = {
