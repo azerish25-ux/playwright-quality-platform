@@ -1,17 +1,106 @@
 name: ForgeQA Quality Platform
-description: Run a ForgeQA suite, preserve evidence, and propagate strict quality outcomes.
+description: Plan, execute, merge, and report strict ForgeQA quality evidence.
 author: ForgeQA contributors
 inputs:
-  suite: { description: Suite name, default: smoke }
-  browsers: { description: Comma-separated browser projects, default: chromium }
-  working-directory: { description: Consumer working directory, default: . }
-  workers: { description: Worker count, default: '1' }
-  shard-count: { description: Total shards, default: '1' }
-  shard-index: { description: One-based shard index, default: '1' }
+  mode:
+    description: run, plan, or merge
+    default: run
+  suite:
+    description: Validated ForgeQA suite name
+    default: smoke
+  browsers:
+    description: Comma-separated Playwright browser or project names
+    default: chromium
+  environment:
+    description: ForgeQA environment profile
+    default: local
+  working-directory:
+    description: Consumer directory inside GITHUB_WORKSPACE
+    default: .
+  config:
+    description: ForgeQA configuration path relative to working-directory
+    default: forgeqa.config.ts
+  playwright-config:
+    description: Playwright configuration path relative to working-directory
+    default: playwright.config.ts
+  package-manager:
+    description: auto, npm, pnpm, or none
+    default: auto
+  install-dependencies:
+    description: Install from the frozen npm or pnpm lockfile before execution
+    default: 'true'
+  browser-install:
+    description: none, install, or with-deps
+    default: install
+  build-command:
+    description: Optional trusted workflow shell command executed after dependency installation
+    required: false
+  application-command:
+    description: Optional trusted workflow shell command used to start the application
+    required: false
+  readiness-url:
+    description: HTTP(S) endpoint that must become ready before tests run
+    required: false
+  readiness-timeout-seconds:
+    description: Bounded application readiness deadline
+    default: '60'
+  workers:
+    description: Total local worker budget, or per-shard workers in matrix mode
+    default: '1'
+  shard-count:
+    description: Total shards
+    default: '1'
+  shard-index:
+    description: Optional one-based matrix shard index; omit to run bounded local shards
+    required: false
+  max-local-shards:
+    description: Maximum concurrent local shard processes
+    default: '4'
+  manifest:
+    description: Immutable manifest path produced by plan mode
+    required: false
+  evidence-directory:
+    description: Downloaded shard evidence root used by merge mode
+    required: false
+  output-directory:
+    description: Owned output path relative to working-directory
+    default: .forgeqa/action
+  cli-path:
+    description: Optional workspace-relative ForgeQA CLI path for source-repository verification
+    required: false
+  artifact-retention-days:
+    description: Requested retention exposed to caller workflows
+    default: '7'
+  reporting-mode:
+    description: summary or none
+    default: summary
 outputs:
-  outcome: { description: success, quality-failure, or infrastructure-failure }
-  shard-index: { description: Executed shard index }
-  shard-count: { description: Total shard count }
+  outcome:
+    description: success, quality-failure, infrastructure-failure, or interrupted
+  run-id:
+    description: ForgeQA run identity
+  test-count:
+    description: Logical test executions in the final result
+  attempt-count:
+    description: Native attempts in the final result
+  flaky-count:
+    description: Retry-recovered logical executions
+  shard-index:
+    description: Executed matrix shard index when applicable
+  shard-count:
+    description: Total shard count
+  manifest-path:
+    description: Immutable execution manifest path
+  evidence-path:
+    description: Directory to upload as ForgeQA evidence
+  report-path:
+    description: Self-contained HTML report path when a merged report exists
+  artifact-name:
+    description: Collision-resistant suggested artifact name
+  artifact-retention-days:
+    description: Validated requested retention
+  run-url:
+    description: GitHub Actions run URL when available
 runs:
   using: node24
   main: packages/github-action/dist/main.js
