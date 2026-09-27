@@ -65,17 +65,15 @@ jobs:
           WORKERS: ${{ inputs.workers }}
         run: |
           node packages/cli/dist/cli.js run --suite "$SUITE" --browsers "$BROWSERS" --workers "$WORKERS" --shard "$SHARD_INDEX/$SHARD_COUNT" --manifest .forgeqa-plan/manifest.json --json > forgeqa-shard.json
-      - name: Upload shard evidence
+      - name: Upload complete shard evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}-of-${{ inputs.shard-count }}
           path: |
-            forgeqa-results/**/attempts.ndjson
-            forgeqa-results/**/attempts.ndjson.final.json
-            forgeqa-results/**/shard-complete.json
+            forgeqa-results/**
             forgeqa-shard.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
       - name: Propagate shard outcome
         if: always() && steps.execute.outcome != 'success'
@@ -100,8 +98,7 @@ jobs:
         with:
           pattern: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: .forgeqa-shards
-          merge-multiple: true
-      - name: Merge all required shards and enforce gates
+      - name: Merge native blobs, artifacts, and canonical ForgeQA evidence
         run: |
           mapfile -d '' shards < <(find .forgeqa-shards -type f -name 'attempts.ndjson.final.json' -print0 | sort -z)
           if [ "${#shards[@]}" -eq 0 ]; then echo 'No finalized shard evidence was downloaded.' >&2; exit 3; fi
@@ -112,5 +109,5 @@ jobs:
         with:
           name: forgeqa-merged-${{ github.run_id }}-${{ github.run_attempt }}
           path: forgeqa-merged
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7

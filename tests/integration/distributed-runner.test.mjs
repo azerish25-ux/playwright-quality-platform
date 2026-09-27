@@ -9,7 +9,7 @@ const cli=resolve(root,'packages/cli/dist/cli.js');
 async function invoke(args,cwd){return new Promise((res,rej)=>{const p=spawn(process.execPath,[cli,...args],{cwd,env:{...process.env,CI:'1'},shell:false});let out='',err='';p.stdout.on('data',d=>out+=d);p.stderr.on('data',d=>err+=d);p.on('error',rej);p.on('close',code=>res({code,out,err}));});}
 async function json(args,cwd){const result=await invoke([...args,'--json'],cwd);let value;try{value=JSON.parse(result.out);}catch{assert.fail(`Non-JSON output: ${result.out}\n${result.err}`);}return {...result,value};}
 
-test('two native Playwright shards reconcile to one complete inventory',async t=>{
+test('two native Playwright shards reconcile canonical reports and complete evidence',async t=>{
   await mkdir(resolve(root,'.tmp'),{recursive:true});
   const dir=await mkdtemp(resolve(root,'.tmp','distributed Ω '));
   t.after(()=>rm(dir,{recursive:true,force:true}));
@@ -21,6 +21,10 @@ test('two native Playwright shards reconcile to one complete inventory',async t=
   const first=await json(['run','--shard','1/2','--manifest',plan.value.manifestPath],dir);assert.equal(first.code,0,first.out+first.err);assert.ok(first.value.shardReport);
   const second=await json(['run','--shard','2/2','--manifest',plan.value.manifestPath],dir);assert.equal(second.code,0,second.out+second.err);assert.ok(second.value.shardReport);
   const output=join(dir,'merged');
-  const merged=await json(['report','merge','--manifest',plan.value.manifestPath,'--output',output,first.value.shardReport,second.value.shardReport],dir);assert.equal(merged.code,0,merged.out+merged.err);assert.equal(merged.value.completion,'complete');assert.equal(merged.value.tests,4);assert.equal(merged.value.gate.outcome,'pass');
-  const report=JSON.parse(await readFile(join(output,'report.json'),'utf8'));assert.equal(report.attempts.length,4);assert.equal(report.missingExecutions.length,0);assert.equal(report.duplicateExecutions.length,0);
+  const merged=await json(['report','merge','--manifest',plan.value.manifestPath,'--output',output,first.value.shardReport,second.value.shardReport],dir);assert.equal(merged.code,0,merged.out+merged.err);assert.equal(merged.value.completion,'complete');assert.equal(merged.value.tests,4);assert.equal(merged.value.gate.outcome,'pass');assert.equal(merged.value.evidence.reconciliation.status,'MATCHED');assert.equal(merged.value.evidence.nativeBlobCount,2);
+  const report=JSON.parse(await readFile(join(output,'report.json'),'utf8'));assert.equal(report.attempts.length,4);assert.equal(report.missingExecutions.length,0);assert.equal(report.duplicateExecutions.length,0);assert.equal(report.evidence.reconciliation.nativeAttempts,4);
+  const artifactManifest=JSON.parse(await readFile(join(output,'artifact-manifest.json'),'utf8'));assert.equal(artifactManifest.nativeBlobs.length,2);
+  const complete=JSON.parse(await readFile(join(output,'complete.json'),'utf8'));assert.equal(complete.receivedShards,2);assert.equal(complete.reconciliation.status,'MATCHED');
+  assert.match(await readFile(join(output,'playwright-report','index.html'),'utf8'),/Playwright Test Report|playwright/i);
+  const native=JSON.parse(await readFile(join(output,'playwright-report','results.json'),'utf8'));assert.ok(Array.isArray(native.suites));
 });

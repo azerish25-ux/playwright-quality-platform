@@ -69,6 +69,51 @@ export interface ShardResult {
   finalizedAt?: string;
   journalSha256?: string;
 }
+export interface EvidenceFileRecord {
+  path: string;
+  size: number;
+  sha256: string;
+}
+export interface ArtifactManifestEntry {
+  shardId: string;
+  shardIndex: number;
+  attemptId: string;
+  executionId: string;
+  logicalTestId: string;
+  type: ArtifactRecord['type'];
+  state: ArtifactRecord['state'];
+  path: string;
+  sourcePath: string;
+  size?: number;
+  sha256?: string;
+}
+export interface ArtifactManifest {
+  schemaVersion: typeof RESULT_SCHEMA_VERSION;
+  runId: string;
+  generatedAt: string;
+  entries: ArtifactManifestEntry[];
+  nativeBlobs: Array<EvidenceFileRecord & { shardId: string; shardIndex: number }>;
+  counts: Record<ArtifactRecord['state'], number>;
+}
+export interface NativeReportReconciliation {
+  status: 'MATCHED';
+  forgeqaTests: number;
+  nativeTests: number;
+  forgeqaAttempts: number;
+  nativeAttempts: number;
+  outcomes: Record<AttemptOutcome, number>;
+  projects: Record<string, number>;
+}
+export interface EvidenceSummary {
+  artifactManifest: string;
+  capturedArtifacts: number;
+  missingArtifacts: number;
+  unavailableArtifacts: number;
+  nativeBlobCount: number;
+  nativeReport: string;
+  nativeJson: string;
+  reconciliation: NativeReportReconciliation;
+}
 export interface MergedRunResult {
   schemaVersion: typeof RESULT_SCHEMA_VERSION;
   runId: string;
@@ -85,6 +130,7 @@ export interface MergedRunResult {
   runnerStatus?: string;
   infrastructureErrors?: string[];
   gate?: GateDecision;
+  evidence?: EvidenceSummary;
 }
 export interface QuarantineRecord {
   schemaVersion: typeof RESULT_SCHEMA_VERSION;
