@@ -63,7 +63,7 @@ try{
     await import('node:fs/promises').then(({cp})=>cp(source,destination,{recursive:true}));
     bundles.push(destination);
   }
-  const merge=await invoke(['merge',...bundles,'--expected',manifest,'--output',join(evidence,'merged'),'--mode','merge','--json'],temporary);
+  const merge=await invoke(['report','merge','--manifest',manifest,'--output',join(evidence,'merged'),...bundles,'--json'],temporary);
   assert.equal(merge.status,0,merge.stderr);
   const summary=JSON.parse(merge.stdout);
   assert.equal(summary.tests,4);
