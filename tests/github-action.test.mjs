@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -99,7 +99,7 @@ test('input validation matches GitHub runner naming and distinguishes local from
 
 test('workspace and readiness validation reject escape and credential-bearing URLs', async (t) => {
   const { root } = await workspace(t);
-  assert.equal(await resolveWorkingDirectory(root, '.'), root);
+  assert.equal(await resolveWorkingDirectory(root, '.'), await realpath(root));
   await assert.rejects(resolveWorkingDirectory(root, '..'), /escapes GITHUB_WORKSPACE/);
   assert.throws(() => validateReadinessUrl('file:///tmp/ready'), /HTTP or HTTPS/);
   assert.throws(() => validateReadinessUrl('https://user:password@example.test/ready'), /must not contain credentials/);
