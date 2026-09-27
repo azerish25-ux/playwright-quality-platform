@@ -1,8 +1,8 @@
-# Delivery checkpoint — Phase 8 GitHub platform hardening
+# Delivery checkpoint — Phase 10A hardening candidate
 
-**The source-distributed GitHub Action, reusable workflow, and fork-safe PR reporting milestone are implemented and verified. The complete ForgeQA product is not released.**
+**The source-distributed GitHub Action, reusable workflow, fork-safe PR reporting, two real consumers, and the Phase 10A hardening implementation are present. The hardening candidate still requires its own exact-source hosted green run, and the complete ForgeQA product is not released.**
 
-The foundational Phase 8 checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. [CI run 36319982582](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36319982582) is the exact-source pull-request verification for that revision. It completed successfully on September 27, 2026. The trusted publisher permission repair is merged at `9f607d13bfe7fcb314c66ea87220ea2e0448d8e9`; hosted creation and update-in-place acceptance was exercised by PR #7 through head `24a5894628da0f5d21323202ca0628de0517523a`.
+The foundational Phase 8 checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. CI run `36319982582` is the exact-source pull-request verification for that revision. It completed successfully on September 27, 2026. The trusted publisher permission repair is merged at `9f607d13bfe7fcb314c66ea87220ea2e0448d8e9`; hosted creation and update-in-place acceptance was exercised by PR #7 through head `24a5894628da0f5d21323202ca0628de0517523a`.
 
 ## Verified platform behavior
 
@@ -31,31 +31,41 @@ The detailed M4 requirement ledger is [github-platform-requirements.json](github
 
 ## PR reporting hosted acceptance passed
 
-The M4-08 implementation and hosted evidence now prove:
+The M4-08 implementation and hosted evidence prove:
 
 - pull-request CI emits a run/attempt-bound, data-only report artifact even when the aggregate quality step fails;
 - a separate `workflow_run` publisher executes only default-branch source with narrowly scoped read/comment permissions and never checks out pull-request code;
-- GitHub API metadata resolves PR association when `workflow_run.pull_requests` is empty, which occurs in this repository's real PR runs;
+- GitHub API metadata resolves PR association when `workflow_run.pull_requests` is empty;
 - artifact names, metadata, extracted paths, size/file bounds, schema fields, revisions, timestamps, job inventory and conclusions fail closed;
-- current-head and newer-run checks execute both before processing and immediately before mutation;
+- current-head and newer-run checks execute before processing and immediately before mutation;
 - one bot-owned marker comment is created or updated idempotently, paginated lookup is supported, attacker marker comments are ignored and duplicate bot comments are removed;
 - missing evidence or comment permission does not become a clean result and does not alter the originating CI conclusion;
 - a pre-download authorization pass rejects changed CI workflows and oversized, missing, duplicate or expired artifacts before extraction;
-- report claims are cross-checked against GitHub's exact-attempt job inventory and conclusions rather than trusted from PR-produced JSON;
-- focused tests cover fork metadata, stale/superseded runs, malformed or oversized artifacts, traversal/symlinks, pagination, API retry, duplicate comments, permission denial and workflow trust invariants.
+- report claims are cross-checked against GitHub's exact-attempt job inventory and conclusions rather than trusted from PR-produced JSON.
 
-Hosted PR #7 acceptance first created comment `5856548977` after CI run `36324283050` and publisher run `36324606250`. A later documentation-only revision at `24a5894628da0f5d21323202ca0628de0517523a` passed CI run `36327735451`; publisher run `36328071048` updated the same comment in place. The comment retained its original ID and creation time, changed its update time, contained the new run/head metadata, and remained the only ForgeQA marker comment. The retained report artifact is `10934428253`, `forgeqa-pr-report-36327735451-1`, with GitHub digest `sha256:a6fcb0aba7fb8ab958f7e1c9cea901b43c0462d84d0128dbeb52070c8634d89e`.
+Hosted PR #7 acceptance first created comment `5856548977` after CI run `36324283050` and publisher run `36324606250`. A later documentation-only revision at `24a5894628da0f5d21323202ca0628de0517523a` passed CI run `36327735451`; publisher run `36328071048` updated the same comment in place. Detailed acceptance evidence is recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md).
 
-Detailed acceptance evidence is recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md).
+## Phase 9 LedgerGuard hosted acceptance passed
 
+ForgeQA contains a genuine API-first second-consumer harness under `consumers/ledgerguard`. It pins `azerish25-ux/transaction-reliability-lab` to verified P07A source `9478663f97f9dc65d0c85117f244e1b8b80c37cb`, whose application verification run is `36319414655`.
 
-## Phase 9 LedgerGuard consumer candidate implemented
+At ForgeQA source `4ed8584ec0a04e14283109ad5e7f1fa7a4053077`, CI run `36346441131` completed successfully. Its `ledgerguard` job `108696406407` started LedgerGuard's real PostgreSQL, RabbitMQ, API, outbox, two payment-worker and two scheduler topology; installed all eight packed ForgeQA packages into isolated npm and pnpm consumers; executed twelve authentication, authorization, ownership, transfer, payment, adjustment and scheduling tests; compared both consumer identity inventories; reconciled financial state; and proved container, volume, and network cleanup. Retained artifact `10941370883` has digest `sha256:75edc52defcc70910e03698ec519481bc57f4fe5c73f57380651ff908f8528c0`.
 
-ForgeQA now contains a genuine API-first second-consumer harness under `consumers/ledgerguard`. It pins `azerish25-ux/transaction-reliability-lab` to verified P07A source `9478663f97f9dc65d0c85117f244e1b8b80c37cb`, whose application verification run is `36319414655`.
+M5-08 is therefore `PASS`. LedgerGuard still has no genuine React product interface, so M5-09 remains `BLOCKED`; no fabricated UI is substituted. See [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) and [../ledgerguard-consumer.md](../ledgerguard-consumer.md).
 
-The candidate starts LedgerGuard's real PostgreSQL, RabbitMQ, API, outbox, two payment-worker and two scheduler topology; installs all eight packed ForgeQA packages into isolated npm and pnpm consumers; executes twelve authentication, authorization, ownership, transfer, payment, adjustment and scheduling tests; compares both consumer identity inventories; reconciles financial state; and fails on leaked containers or volumes. PR-report schema version 2 adds the required `ledgerguard` lane to the trusted aggregate.
+## Phase 10A hardening candidate implemented
 
-This section records implementation, not hosted acceptance. M5-08 remains `NOT_RUN` until the new lane passes at the exact ForgeQA source revision. LedgerGuard still has no genuine React product interface, so M5-09 remains `BLOCKED`; no fabricated UI is substituted. See [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) and [../ledgerguard-consumer.md](../ledgerguard-consumer.md).
+The next source revision adds a required, release-blocking `hardening` job and expands trusted PR-report schema compatibility from versions 1 and 2 to a hardening-aware version 3. The candidate includes:
+
+- a built-in Node coverage runner enforcing 90% line and 85% branch coverage over release-critical policy, identity, redaction, data-ownership, merge-integrity and quarantine modules;
+- invariant-oriented tests for merge order independence, deterministic gates, reproducible factories, collision-resistant namespaces, ownership-limited cleanup and redaction idempotence;
+- focused seeded-defect oracles proving that always-pass gates, incomplete merge acceptance, empty changed-area selection, quarantine bypass and identity redaction are detected;
+- frozen pre-release contracts for all eight package boundaries, action inputs/outputs, CLI entrypoint, result schema and PR-report schemas 1/2/3;
+- deep inspection of all eight `npm pack` tarballs, including file allowlists, export/bin target existence, local-protocol rejection, private-source import rejection and credential-canary scans;
+- installation and compilation of those exact tarballs in clean npm and pnpm consumer directories;
+- a 50-scenario adversarial evidence ledger at [hardening-requirements.json](hardening-requirements.json).
+
+This section records implementation, not hosted acceptance. P10-06 remains `NOT_RUN` until the new `hardening` lane and the expanded aggregate gate pass at the exact source revision. The ledger distinguishes prior hosted `PASS` evidence from new `IMPLEMENTED` checks awaiting that run.
 
 ## Explicit remaining boundaries
 
@@ -63,8 +73,8 @@ No immutable public action release tag, controlled major alias, standalone actio
 
 No GitHub Marketplace listing or Marketplace account-owner terms acceptance is claimed.
 
-LedgerGuard's genuine API-first second-consumer harness is implemented but has not yet produced a hosted exact-head acceptance record. LedgerGuard still has no React product interface, and no mock or copied application is substituted for browser coverage.
+LedgerGuard has genuine API-first hosted acceptance but still has no browser product interface, and no mock or copied application is substituted for browser coverage.
 
-The 90/85 runtime coverage thresholds, comparable distributed benchmarks, complete generic fixture lifecycle/property coverage, versioned documentation deployment and npm publication remain unverified or unreleased. Source-candidate tarballs are not registry publications.
+Comparable distributed benchmarks, versioned documentation deployment, npm publication, immutable action-tag consumption, partial-publication recovery, and final release audit remain unverified or unreleased. The new 90/85 coverage and package-hardening gates remain an implementation candidate until exact-source hosted acceptance is recorded. Source-candidate tarballs are not registry publications.
 
-See [requirements.json](requirements.json) for the broader product matrix, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, and [defects.md](defects.md) for repaired defects and regression evidence.
+See [requirements.json](requirements.json) for the broader product matrix, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, [hardening-requirements.json](hardening-requirements.json) for Phase 10, and [defects.md](defects.md) for repaired defects and regression evidence.
