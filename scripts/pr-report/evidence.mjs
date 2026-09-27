@@ -3,6 +3,7 @@ import { lstat, readFile, readdir, realpath } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import {
   ALLOWED_RESULTS,
+  LEGACY_REPORT_SCHEMA_VERSION,
   MAX_ARCHIVE_BYTES,
   MAX_DEPTH,
   MAX_ENTRIES,
@@ -27,7 +28,10 @@ export function validateReportDocument(value, context) {
     'pullRequestNumber', 'pullRequestHeadSha', 'pullRequestBaseSha', 'sourceHeadSha', 'testedSha',
     'aggregate', 'generatedAt',
   ], 'report');
-  assert(value.schemaVersion === REPORT_SCHEMA_VERSION, 'Unsupported report schema version.');
+  assert(
+    value.schemaVersion === REPORT_SCHEMA_VERSION || value.schemaVersion === LEGACY_REPORT_SCHEMA_VERSION,
+    'Unsupported report schema version.',
+  );
   assert(value.kind === REPORT_KIND, 'Unexpected report kind.');
   assert(value.repository === context.repository, 'Report repository does not match the originating run.');
   assert(value.workflow === context.workflowName, 'Report workflow does not match the originating run.');
@@ -39,12 +43,15 @@ export function validateReportDocument(value, context) {
   assert(value.pullRequestBaseSha === context.baseSha, 'Report base SHA does not match the originating run.');
   assert(value.sourceHeadSha === context.sourceSha, 'Report source head SHA does not match the originating run.');
   assert(value.testedSha === context.testedSha, 'Report tested merge SHA does not match the current pull request merge ref.');
-  exactKeys(value.aggregate, ['verify', 'consumer', 'teamboard', 'action', 'gateStep'], 'report.aggregate');
-  for (const name of ['verify', 'consumer', 'teamboard', 'action']) {
+  const lanes = value.schemaVersion === REPORT_SCHEMA_VERSION
+    ? ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action']
+    : ['verify', 'consumer', 'teamboard', 'action'];
+  exactKeys(value.aggregate, [...lanes, 'gateStep'], 'report.aggregate');
+  for (const name of lanes) {
     assert(ALLOWED_RESULTS.has(value.aggregate[name]), `report.aggregate.${name} is invalid.`);
   }
   assert(['success', 'failure'].includes(value.aggregate.gateStep), 'report.aggregate.gateStep is invalid.');
-  const expectedGate = ['verify', 'consumer', 'teamboard', 'action'].every((name) => value.aggregate[name] === 'success') ? 'success' : 'failure';
+  const expectedGate = lanes.every((name) => value.aggregate[name] === 'success') ? 'success' : 'failure';
   assert(value.aggregate.gateStep === expectedGate, 'Report aggregate gate is inconsistent with required lanes.');
   const generated = isoDate(value.generatedAt, 'report.generatedAt');
   assert(generated >= Date.parse(context.runCreatedAt) - 60_000 && generated <= Date.parse(context.runUpdatedAt) + 10 * 60_000, 'Report timestamp is outside the originating run window.');

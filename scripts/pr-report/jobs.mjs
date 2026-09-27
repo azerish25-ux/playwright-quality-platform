@@ -1,7 +1,7 @@
 import {
   ALLOWED_CONCLUSIONS,
+  LEGACY_REQUIRED_LANES,
   REQUIRED_LANES,
-  ReportingError,
   SkipPublication,
   assert,
   isObject,
@@ -10,7 +10,7 @@ import {
 } from './shared.mjs';
 
 function laneKey(name) {
-  if (name === 'teamboard' || name === 'action' || name === 'forgeqa-quality') return name;
+  if (name === 'teamboard' || name === 'ledgerguard' || name === 'action' || name === 'forgeqa-quality') return name;
   if (name === 'verify' || name.startsWith('verify (')) return 'verify';
   if (name === 'consumer' || name.startsWith('consumer (')) return 'consumer';
   return undefined;
@@ -18,14 +18,15 @@ function laneKey(name) {
 
 export function summarizeRequiredJobs(jobs) {
   assert(Array.isArray(jobs), 'Workflow jobs must be an array.');
-  const grouped = new Map(Object.keys(REQUIRED_LANES).map((name) => [name, []]));
+  const requirements = jobs.some((job) => job?.name === 'ledgerguard') ? REQUIRED_LANES : LEGACY_REQUIRED_LANES;
+  const grouped = new Map(Object.keys(requirements).map((name) => [name, []]));
   for (const job of jobs) {
     if (!isObject(job) || typeof job.name !== 'string') continue;
     const key = laneKey(job.name);
-    if (key) grouped.get(key).push(job);
+    if (key && grouped.has(key)) grouped.get(key).push(job);
   }
   const summary = {};
-  for (const [name, expectedCount] of Object.entries(REQUIRED_LANES)) {
+  for (const [name, expectedCount] of Object.entries(requirements)) {
     const laneJobs = grouped.get(name);
     assert(laneJobs.length === expectedCount, `Required lane ${name} expected ${expectedCount} job(s), observed ${laneJobs.length}.`);
     const conclusions = laneJobs.map((job) => {
@@ -47,7 +48,10 @@ function needsResult(value) {
 export function validateReportAgainstJobs(report, jobs) {
   assert(isObject(report) && isObject(report.aggregate), 'Validated report is missing aggregate results.');
   assert(isObject(jobs), 'Required-job summary is missing.');
-  for (const name of ['verify', 'consumer', 'teamboard', 'action']) {
+  const names = report.schemaVersion === 2
+    ? ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action']
+    : ['verify', 'consumer', 'teamboard', 'action'];
+  for (const name of names) {
     assert(report.aggregate[name] === needsResult(jobs[name]), `Report ${name} result contradicts GitHub job conclusions.`);
   }
   assert(report.aggregate.gateStep === (jobs['forgeqa-quality'] === 'success' ? 'success' : 'failure'), 'Report aggregate gate contradicts the forgeqa-quality job conclusion.');
