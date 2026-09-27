@@ -1,7 +1,8 @@
 export type ActionEnvironment = Readonly<Record<string, string | undefined>>;
 
 function key(name: string): string {
-  return `INPUT_${name.replace(/ /g, '_').replace(/-/g, '_').toUpperCase()}`;
+  // GitHub preserves hyphens in action input IDs; @actions/core only normalizes spaces.
+  return `INPUT_${name.replace(/ /g, '_').toUpperCase()}`;
 }
 
 export function input(name: string, required = false, env: ActionEnvironment = process.env): string {
