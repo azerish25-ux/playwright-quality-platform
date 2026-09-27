@@ -2,10 +2,6 @@ name: Materialize action distribution
 on:
   push:
     branches: [feature/github-platform-hardening]
-    paths:
-      - packages/github-action/src/**
-      - packages/github-action/tsconfig.json
-      - tsconfig.base.json
 permissions:
   contents: write
 jobs:
