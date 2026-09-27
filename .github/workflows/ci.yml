@@ -109,6 +109,84 @@ jobs:
             examples/demo-saas/forgeqa-results/
           if-no-files-found: error
           retention-days: 7
+  ledgerguard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      LEDGERGUARD_SOURCE_SHA: 9478663f97f9dc65d0c85117f244e1b8b80c37cb
+      LEDGERGUARD_ORIGIN: http://127.0.0.1:8080
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - name: Check out the verified LedgerGuard source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: azerish25-ux/transaction-reliability-lab
+          ref: 9478663f97f9dc65d0c85117f244e1b8b80c37cb
+          path: .tmp/ledgerguard
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - name: Verify exact LedgerGuard revision
+        working-directory: .tmp/ledgerguard
+        run: |
+          test "$(git rev-parse HEAD)" = "$LEDGERGUARD_SOURCE_SHA"
+          mkdir -p ../../evidence/ledgerguard-host
+          git rev-parse HEAD > ../../evidence/ledgerguard-host/ledgerguard-source-sha.txt
+      - name: Start real LedgerGuard P06 topology
+        working-directory: .tmp/ledgerguard
+        run: ./scripts/lab up
+      - name: Enable verified P07A schedules and two workers
+        working-directory: .tmp/ledgerguard
+        run: >-
+          docker compose --env-file .ledgerguard/runtime.env
+          -f compose.yaml -f compose.p07.yaml
+          up -d --build --wait api scheduler-a scheduler-b
+      - name: Export masked sandbox credentials
+        working-directory: .tmp/ledgerguard
+        run: |
+          demo_password="$(sed -n 's/^LEDGER_DEMO_PASSWORD=//p' .ledgerguard/runtime.env)"
+          test -n "$demo_password"
+          echo "::add-mask::$demo_password"
+          echo "LEDGER_DEMO_PASSWORD=$demo_password" >> "$GITHUB_ENV"
+      - name: Run workspace LedgerGuard consumer
+        run: npm run test:ledgerguard
+      - name: Run isolated npm and pnpm LedgerGuard consumers
+        run: npm run test:consumers -- ledgerguard
+      - name: Reconcile financial state
+        working-directory: .tmp/ledgerguard
+        run: ./scripts/lab reconcile
+      - name: Capture application and revision evidence
+        if: always()
+        working-directory: .tmp/ledgerguard
+        run: |
+          mkdir -p ../../evidence/ledgerguard-host
+          git rev-parse HEAD > ../../evidence/ledgerguard-host/ledgerguard-source-sha.txt
+          if test -f .ledgerguard/runtime.env; then
+            docker compose --env-file .ledgerguard/runtime.env -f compose.yaml -f compose.p07.yaml ps --format json > ../../evidence/ledgerguard-host/compose-ps.json
+            docker compose --env-file .ledgerguard/runtime.env -f compose.yaml -f compose.p07.yaml logs --no-color > ../../evidence/ledgerguard-host/services.log
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: ledgerguard-evidence-${{ github.sha }}
+          path: |
+            evidence/ledgerguard-host/
+            evidence/ledgerguard-workspace/
+            evidence/ledgerguard-workspace.json
+            evidence/packed-ledgerguard/
+            .tmp/ledgerguard/.evidence/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Destroy test-owned LedgerGuard topology and volumes
+        if: always()
+        working-directory: .tmp/ledgerguard
+        run: |
+          if test -f .ledgerguard/runtime.env; then
+            docker compose --env-file .ledgerguard/runtime.env -f compose.yaml -f compose.p07.yaml down --volumes --remove-orphans
+          fi
   action:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -151,7 +229,7 @@ jobs:
           retention-days: 7
   forgeqa-quality:
     if: always()
-    needs: [verify, consumer, teamboard, action]
+    needs: [verify, consumer, teamboard, ledgerguard, action]
     runs-on: ubuntu-latest
     steps:
       - id: enforce
@@ -160,11 +238,13 @@ jobs:
           VERIFY_RESULT: '${{ needs.verify.result }}'
           CONSUMER_RESULT: '${{ needs.consumer.result }}'
           TEAMBOARD_RESULT: '${{ needs.teamboard.result }}'
+          LEDGERGUARD_RESULT: '${{ needs.ledgerguard.result }}'
           ACTION_RESULT: '${{ needs.action.result }}'
         run: |
           test "$VERIFY_RESULT" = success
           test "$CONSUMER_RESULT" = success
           test "$TEAMBOARD_RESULT" = success
+          test "$LEDGERGUARD_RESULT" = success
           test "$ACTION_RESULT" = success
       - name: Materialize data-only PR report
         if: always() && github.event_name == 'pull_request'
@@ -180,6 +260,7 @@ jobs:
           REPORT_VERIFY_RESULT: ${{ needs.verify.result }}
           REPORT_CONSUMER_RESULT: ${{ needs.consumer.result }}
           REPORT_TEAMBOARD_RESULT: ${{ needs.teamboard.result }}
+          REPORT_LEDGERGUARD_RESULT: ${{ needs.ledgerguard.result }}
           REPORT_ACTION_RESULT: ${{ needs.action.result }}
           REPORT_GATE_OUTCOME: ${{ steps.enforce.outcome }}
         run: |
@@ -197,7 +278,7 @@ jobs:
             return value;
           };
           const report = {
-            schemaVersion: 1,
+            schemaVersion: 2,
             kind: 'forgeqa-pr-report',
             repository: required('REPORT_REPOSITORY'),
             workflow: required('REPORT_WORKFLOW'),
@@ -213,6 +294,7 @@ jobs:
               verify: required('REPORT_VERIFY_RESULT'),
               consumer: required('REPORT_CONSUMER_RESULT'),
               teamboard: required('REPORT_TEAMBOARD_RESULT'),
+              ledgerguard: required('REPORT_LEDGERGUARD_RESULT'),
               action: required('REPORT_ACTION_RESULT'),
               gateStep: required('REPORT_GATE_OUTCOME'),
             },
