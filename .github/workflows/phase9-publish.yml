@@ -97,7 +97,6 @@ jobs:
                   raise SystemExit(f'payload inventory mismatch; missing={missing}, extra={extra}')
               bundle.extractall(destination, filter='data')
           PY
-          rm "$DESTINATION/.github/workflows/ci.yml"
           cp -a "$DESTINATION/." .
           rm -rf .phase9
 
@@ -111,6 +110,7 @@ jobs:
           node --check scripts/pr-report/jobs.mjs
           node --check scripts/pr-report/shared.mjs
           node --test tests/ledgerguard-integration.test.mjs tests/github-pr-reporting-v2.test.mjs
+          git checkout -- .github/workflows/ci.yml
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
