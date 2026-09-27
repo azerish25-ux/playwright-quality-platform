@@ -25,5 +25,5 @@ export function mergeShardResults(shards:ShardResult[], manifest:SelectionManife
   const counts=new Map<string,number>(); for(const attempt of attempts.filter((entry)=>entry.retry===0))counts.set(attempt.executionId,(counts.get(attempt.executionId)??0)+1);
   for(const [id,count] of counts)if(count>1)duplicateExecutions.push(id);
   const complete=shards.every((shard)=>shard.completion==='complete')&&!missingExecutions.length&&!unexpectedExecutions.length&&!duplicateExecutions.length;
-  return {schemaVersion:RESULT_SCHEMA_VERSION,runId:first.runId,completion:complete?'complete':'incomplete',selectionHash:first.selectionHash,configHash:first.configHash,revision:first.revision,attempts:attempts.sort((a,b)=>a.startedAt.localeCompare(b.startedAt)||a.retry-b.retry),missingExecutions,unexpectedExecutions,duplicateExecutions,shardIds:[...shardIds].sort()};
+  return {schemaVersion:RESULT_SCHEMA_VERSION,runId:first.runId,completion:complete?'complete':'incomplete',selectionHash:first.selectionHash,configHash:first.configHash,revision:first.revision,attempts:attempts.sort((a,b)=>a.startedAt.localeCompare(b.startedAt)||a.retry-b.retry||a.executionId.localeCompare(b.executionId)||a.attemptId.localeCompare(b.attemptId)),missingExecutions,unexpectedExecutions,duplicateExecutions,shardIds:[...shardIds].sort()};
 }
