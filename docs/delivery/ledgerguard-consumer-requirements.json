@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "status": "IMPLEMENTED_PENDING_HOSTED_VERIFICATION",
+  "forgeqaSourceSha": null,
+  "ledgerguardSourceSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+  "requirements": [
+    {"id":"M5-01","status":"IMPLEMENTED","requirement":"Exact-SHA independent LedgerGuard checkout and real Docker topology"},
+    {"id":"M5-02","status":"IMPLEMENTED","requirement":"Public HTTP API consumer with real sessions and CSRF"},
+    {"id":"M5-03","status":"IMPLEMENTED","requirement":"Transfers, idempotency, rejection, async settlement, refunds and reversal"},
+    {"id":"M5-04","status":"IMPLEMENTED","requirement":"Two-scheduler occurrence and lifecycle acceptance"},
+    {"id":"M5-05","status":"IMPLEMENTED","requirement":"Isolated npm and pnpm packed-package adoption"},
+    {"id":"M5-06","status":"IMPLEMENTED","requirement":"Financial reconciliation, retained evidence and owned teardown"},
+    {"id":"M5-07","status":"IMPLEMENTED","requirement":"LedgerGuard result included in aggregate and trusted PR-report schema v2"},
+    {"id":"M5-08","status":"NOT_APPLICABLE","requirement":"Real product UI journeys","reason":"The pinned application revision explicitly has no React product interface."}
+  ]
+}

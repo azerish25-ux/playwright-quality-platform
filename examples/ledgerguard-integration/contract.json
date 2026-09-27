@@ -1,1 +1,25 @@
-{"schemaVersion":1,"consumer":"ledgerguard","status":"BLOCKED","reason":"No implemented LedgerGuard application was available at the inspected revision; no endpoints or credentials were invented.","requiredCapabilities":["authentication","customer-admin-separation","account-ownership","transfers","idempotency","async-terminal-status","reversal-refund"]}
+{
+  "schemaVersion": 2,
+  "consumer": "ledgerguard",
+  "status": "IMPLEMENTED_PENDING_HOSTED_VERIFICATION",
+  "repository": "azerish25-ux/transaction-reliability-lab",
+  "sourceSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+  "sourceMilestone": "P07A",
+  "interface": "public-http-api",
+  "applicationHasProductUi": false,
+  "requiredCapabilities": [
+    "authentication",
+    "customer-admin-separation",
+    "account-ownership",
+    "transfers",
+    "idempotency",
+    "insufficient-funds",
+    "async-terminal-status",
+    "refund",
+    "reversal",
+    "scheduled-transfer-occurrences",
+    "schedule-lifecycle",
+    "financial-reconciliation"
+  ],
+  "explicitBoundary": "The pinned LedgerGuard revision has no React product interface, so the consumer is API-first and does not substitute a fabricated UI. Deterministic payment cancellation remains covered by LedgerGuard's own verified P06 acceptance but is not relabelled as a ForgeQA second-consumer assertion in this first slice."
+}

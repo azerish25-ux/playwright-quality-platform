@@ -1,0 +1,19 @@
+{
+  "name": "@forgeqa-example/ledgerguard-consumer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@azerish25-ux/forgeqa-api": "0.1.0",
+    "@azerish25-ux/forgeqa-core": "0.1.0",
+    "@azerish25-ux/forgeqa-playwright": "0.1.0",
+    "@azerish25-ux/forgeqa-test-data": "0.1.0"
+  },
+  "devDependencies": {
+    "@azerish25-ux/forgeqa-cli": "0.1.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "forgeqa run --suite release"
+  }
+}

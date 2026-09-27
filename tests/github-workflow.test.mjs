@@ -31,20 +31,26 @@ test('the reusable workflow pins every ForgeQA action invocation and never masks
   assert.match(workflow, /persist-credentials:\s*false/g);
 });
 
-test('the source workflow keeps action acceptance in the required aggregate gate', async () => {
+test('the source workflow keeps action and real LedgerGuard acceptance in the required aggregate gate', async () => {
   const workflow = await read('.github/workflows/ci.yml');
   assert.match(workflow, /\n  action:\n/);
+  assert.match(workflow, /\n  ledgerguard:\n/);
   assert.match(workflow, /uses:\s*\.\//);
-  assert.match(workflow, /needs:\s*\[verify, consumer, teamboard, action\]/);
+  assert.match(workflow, /needs:\s*\[verify, consumer, teamboard, ledgerguard, action\]/);
+  assert.match(workflow, /LEDGERGUARD_RESULT/);
   assert.match(workflow, /ACTION_RESULT/);
+  assert.match(workflow, /ref:\s*9478663f97f9dc65d0c85117f244e1b8b80c37cb/);
+  assert.match(workflow, /npm run test:consumers -- ledgerguard/);
 });
 
 test('pull-request CI always emits one run-bound data-only reporting artifact', async () => {
   const workflow = await read('.github/workflows/ci.yml');
   assert.match(workflow, /id:\s*enforce/);
+  assert.match(workflow, /schemaVersion:\s*2/);
   assert.match(workflow, /kind:\s*'forgeqa-pr-report'/);
   assert.match(workflow, /workflowPath:\s*'\.github\/workflows\/ci\.yml'/);
   assert.match(workflow, /sourceHeadSha:\s*required\('REPORT_HEAD_SHA'\)/);
+  assert.match(workflow, /ledgerguard:\s*required\('REPORT_LEDGERGUARD_RESULT'\)/);
   assert.match(workflow, /if:\s*always\(\) && github\.event_name == 'pull_request'/g);
   assert.match(workflow, /name:\s*forgeqa-pr-report-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
   assert.match(workflow, /if-no-files-found:\s*error/);

@@ -60,7 +60,10 @@ export function renderComment({ context, jobs, evidence, evidenceError }) {
     headSha: context.headSha,
     baseSha: context.baseSha,
   });
-  const rows = ['verify', 'consumer', 'teamboard', 'action', 'forgeqa-quality'].map((name) => {
+  const lanes = jobs && Object.hasOwn(jobs, 'ledgerguard')
+    ? ['verify', 'consumer', 'teamboard', 'ledgerguard', 'action', 'forgeqa-quality']
+    : ['verify', 'consumer', 'teamboard', 'action', 'forgeqa-quality'];
+  const rows = lanes.map((name) => {
     const result = jobs?.[name] ?? 'unavailable';
     return `| ${markdownEscape(name)} | ${markdownEscape(displayConclusion(result))} |`;
   });
