@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgeqa.dev/schemas/benchmark-record.v1.json",
+  "title": "ForgeQA TeamBoard benchmark record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "sourceSha",
+    "condition",
+    "topology",
+    "repetition",
+    "suite",
+    "browsers",
+    "retries",
+    "artifactPolicy",
+    "benchmarkSeed",
+    "warmupRuns",
+    "shardCount",
+    "workersPerShard",
+    "totalConcurrency",
+    "status",
+    "startedAt",
+    "completedAt",
+    "inventory",
+    "durations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "forgeqa-teamboard-benchmark-record"
+    },
+    "sourceSha": {
+      "type": "string",
+      "minLength": 1
+    },
+    "condition": {
+      "enum": [
+        "serial-1x1",
+        "local-1x2",
+        "local-1x4",
+        "distributed-2x1",
+        "distributed-4x1"
+      ]
+    },
+    "topology": {
+      "enum": [
+        "single-runner",
+        "multi-runner"
+      ]
+    },
+    "repetition": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "suite": {
+      "const": "release"
+    },
+    "browsers": {
+      "const": [
+        "chromium"
+      ]
+    },
+    "retries": {
+      "const": 0
+    },
+    "benchmarkSeed": {
+      "const": "teamboard-phase11-v1"
+    },
+    "artifactPolicy": {
+      "const": {
+        "trace": "retain-on-failure",
+        "screenshot": "only-on-failure",
+        "video": "retain-on-failure"
+      }
+    },
+    "shardCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "workersPerShard": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "totalConcurrency": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inventory": {
+      "type": "object",
+      "required": [
+        "executionCount",
+        "logicalCount",
+        "coverageCount",
+        "executionDigest",
+        "logicalDigest",
+        "coverageDigest",
+        "projects"
+      ],
+      "properties": {
+        "executionCount": {
+          "const": 12
+        },
+        "logicalCount": {
+          "const": 12
+        },
+        "coverageCount": {
+          "const": 12
+        },
+        "executionDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "logicalDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "coverageDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "projects": {
+          "const": {
+            "api": 8,
+            "chromium": 4
+          }
+        }
+      }
+    },
+    "durations": {
+      "type": "object"
+    },
+    "warmupRuns": {
+      "const": 0
+    }
+  }
+}
