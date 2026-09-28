@@ -1,16 +1,25 @@
-# ADR 0001: Why Playwright remains the runner
+# ADR 0001: Native Playwright remains the runner
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Teams already rely on Playwright projects, locators, assertions, retries and traces. Reimplementing those contracts would create a second scheduler and make existing suites harder to adopt.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Compose native Playwright configuration and fixtures, and consume supported reporter/blob interfaces. ForgeQA owns policy, identity and evidence validation; Playwright owns browser execution.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+A custom automation engine would duplicate upstream behavior. A page-object-only toolkit would not address evidence integrity or data ownership.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Native compatibility must be tested at public package boundaries. Changes to Playwright report semantics require reconciliation tests rather than private runner imports.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/integration/native-runner.test.mjs](../tests/integration/native-runner.test.mjs)
+- [tests/consumers/packed.mjs](../tests/consumers/packed.mjs)
+- [tests/compatibility](../tests/compatibility)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

@@ -1,16 +1,25 @@
-# ADR 0004: Owned data provisioning and cleanup
+# ADR 0004: Provision and clean up only owned data
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Concurrent tests and real applications may share infrastructure. Broad deletion during teardown can destroy another run or legitimate application state.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Allocate namespaces, register owned resources, and execute guarded cleanup in reverse allocation order. Inspect cleanup failures and independently check remaining resources in consumer acceptance.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Database-wide truncation is unsafe for shared environments. Cleanup based only on a mutable display-name prefix is weaker than explicit ownership.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Adapters must enforce ownership at the write boundary. A passing test cannot excuse cleanup failure; generic reclamation and restart edge cases remain bounded by the delivery ledger.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/data.test.mjs](../tests/data.test.mjs)
+- [tests/hardening/property-invariants.test.mjs](../tests/hardening/property-invariants.test.mjs)
+- [scripts/teamboard-acceptance.mjs](../scripts/teamboard-acceptance.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

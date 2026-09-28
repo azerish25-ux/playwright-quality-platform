@@ -1,16 +1,25 @@
-# ADR 0011: Historical storage and incomplete data
+# ADR 0011: Store immutable history and expose incomplete evidence
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+History affects reliability decisions, but repeated imports, missing artifacts and incompatible cohorts can bias results.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Retain immutable normalized records, make duplicate import idempotent, reject conflicting records and compare only compatible cohorts. Bounded GitHub artifact import includes eligible failed runs, not just successes.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Treating caches as authoritative history loses failed or evicted samples. Merging incompatible environments into one trend is misleading.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Insufficient history is explicit, not a zero flake rate. Retention and import bounds may reduce available evidence; diagnostics must identify those limitations.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/history.test.mjs](../tests/history.test.mjs)
+- [tests/github-history.test.mjs](../tests/github-history.test.mjs)
+- [tests/history-reporting.test.mjs](../tests/history-reporting.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

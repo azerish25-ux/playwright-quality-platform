@@ -2,7 +2,7 @@
   "name": "playwright-quality-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "ForgeQA — reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
+  "description": "ForgeQA \u2014 reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -33,7 +33,10 @@
     "test:ledgerguard": "node scripts/ledgerguard-acceptance.mjs",
     "benchmark:synthetic": "node benchmarks/synthetic/factory-throughput.mjs",
     "benchmark:summarize": "node benchmarks/summarize.mjs",
-    "test:benchmarks": "node --test tests/benchmark-*.test.mjs"
+    "test:benchmarks": "node --test tests/benchmark-*.test.mjs",
+    "docs:prepare": "node scripts/docs/prepare.mjs",
+    "docs:onboarding": "node tests/consumers/packed.mjs docs",
+    "test:docs": "node --test tests/docs-*.test.mjs"
   },
   "license": "MIT",
   "devDependencies": {

@@ -1,16 +1,25 @@
-# ADR 0002: Why fixed sleeps are prohibited
+# ADR 0002: Wait for conditions, not fixed delays
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Application readiness and asynchronous projections do not complete on a predictable wall-clock interval. A fixed delay can be both slow and insufficient.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Use native locator assertions, bounded readiness probes and API polling with cancellation/deadlines. Preserve the actual failure when the condition never becomes true.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Increasing sleeps obscures races; unlimited polling can strand workers. Broader timeouts are not a substitute for identifying the state transition.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Each wait needs a condition and budget. LedgerGuard settlement and scheduling checks must observe durable application state, not infer completion from elapsed time.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [scripts/static-check.mjs](../scripts/static-check.mjs)
+- [tests/api.test.mjs](../tests/api.test.mjs)
+- [tests/integration/native-runner.test.mjs](../tests/integration/native-runner.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

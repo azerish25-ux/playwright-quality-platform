@@ -1,0 +1,20 @@
+/* Local assets only. Preserve the theme's keyboard navigation and search. */
+:root { --fq-ink: #172b36; --fq-accent: #126b68; }
+body { color: var(--fq-ink); font-size: 16px; line-height: 1.65; }
+.navbar { background: #123b44 !important; border-bottom: 3px solid #59c0ac; }
+h1, h2, h3 { letter-spacing: -.025em; font-weight: 650; }
+h1 { margin-top: 1.3rem; margin-bottom: 1.4rem; }
+h2 { margin-top: 2.4rem; border-bottom: 1px solid #d9e5e7; padding-bottom: .4rem; }
+a { color: var(--fq-accent); }
+blockquote { padding: .85rem 1rem; border-left: 4px solid #36a18e; background: #edf6f4; }
+pre { padding: 1rem; border: 1px solid #dbe5e8; border-radius: .4rem; overflow-x: auto; }
+.table, table { width: 100%; }
+:focus-visible { outline: 3px solid #bd7027; outline-offset: 3px; }
+@media (prefers-color-scheme: dark) {
+  body { background: #17232b; color: #dfebef; }
+  .bs-sidebar .nav > li > a.active { background: #29424e; }
+  a { color: #80d2c0; }
+  pre, code { background: #1e323c; color: #e1edf0; }
+  blockquote { background: #203d40; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

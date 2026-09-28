@@ -1,4 +1,4 @@
-# Delivery checkpoint — Phase 11A hosted execution accepted
+# Delivery checkpoint — Phase 11B documentation candidate
 
 **ForgeQA has hosted acceptance for the Phase 11A benchmark execution/evidence system at `9361d9fa9515ae9c173f644b993472133032e85e`, including five repetitions per condition. Hardware comparability and finer lifecycle profiling remain limited; the complete public product is not released.**
 
@@ -45,6 +45,14 @@ Five native-versus-ForgeQA reporter-overhead repetitions per mode and five synth
 Hardware fingerprints are not identical: `performanceStatus` is `NOT_COMPARABLE` and controlled-hardware `releaseEvidenceEligible` is `false`. The system withholds speedup and efficiency claims, rather than rounding away hardware differences. Readiness, in-process reporting and shutdown within each shard remain combined; finer lifecycle instrumentation is unfinished. The monthly one-repetition run remains a smoke test, not release-quality performance evidence.
 
 See [benchmark-live-acceptance.md](benchmark-live-acceptance.md), [benchmark-requirements.json](benchmark-requirements.json), [benchmark-evidence.json](benchmark-evidence.json) and [benchmark-observations.csv](benchmark-observations.csv).
+
+## Phase 11B documentation candidate
+
+A version-aware MkDocs build now assembles maintained guides, 15 substantive ADRs and generated declarations for all eight public package APIs. `next` is explicitly unreleased. Future frozen versions require an exact source SHA, manifest hash and complete checked file inventory; no fictitious release snapshot is created.
+
+Documentation acceptance bootstraps through installed package tarballs in separate npm and pnpm consumers, compiles the exact embedded snippets, exercises doctor/plan/ForgeQA/native execution and compares identities. The separate read-only `Documentation` workflow also builds strictly, checks local links/anchors/assets, and exercises desktop/mobile navigation and local search in Chromium. It preserves evidence on failure and does not deploy Pages or publish packages.
+
+This records implementation, not hosted acceptance. The exact new source must pass both the full CI and `docs-quality` before these checks are promoted. External-link HTTP availability, live deployment, real release snapshots and comprehensive adapter lifecycle acceptance are not claimed. See [documentation-requirements.json](documentation-requirements.json).
 
 ## GitHub platform and trusted PR reporting
 

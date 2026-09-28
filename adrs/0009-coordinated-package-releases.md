@@ -1,16 +1,25 @@
-# ADR 0009: Coordinated package releases
+# ADR 0009: Coordinate package publication and public compatibility
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Eight public packages depend on a coherent contract. Partial publication can leave an installable-looking but unusable version set.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Keep package versions and internal dependencies coordinated, freeze pre-release contracts, audit packed contents and install exact artifacts in clean consumers before release. Require actual registry acceptance and a tested partial-publication recovery path before claiming stable distribution.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Publishing packages independently without a plan risks mixed contracts. A dry-run tarball is not evidence that npm contains a release.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Registry authorization, release tagging and recovery are still release gates, not completed by this decision. Breaking changes need a declared semantic-version policy and migration notes.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/compatibility](../tests/compatibility)
+- [scripts/package-hardening.mjs](../scripts/package-hardening.mjs)
+- [.github/workflows/release.yml](../.github/workflows/release.yml)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

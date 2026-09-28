@@ -1,16 +1,25 @@
-# ADR 0005: Parallel collision prevention
+# ADR 0005: Separate reproducible values from physical namespaces
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Fixtures must be repeatable across workers, but simultaneous runs cannot reuse physical keys or durable idempotency records accidentally.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Seed logical factory values with stable test identity and sequence. Allocate physical namespaces from run, project, shard, worker and attempt dimensions as appropriate; compose real resource keys from both.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+One global seed used as every physical key collides. Unseeded random values prevent deterministic reproduction.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Benchmark inventories and logical values remain comparable while resources are isolated. Durable command replay must include the consumer run identity.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/data.test.mjs](../tests/data.test.mjs)
+- [tests/ledgerguard-run-identity.test.mjs](../tests/ledgerguard-run-identity.test.mjs)
+- [tests/hardening/property-invariants.test.mjs](../tests/hardening/property-invariants.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

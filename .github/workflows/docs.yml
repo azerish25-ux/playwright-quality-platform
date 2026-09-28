@@ -1,0 +1,58 @@
+name: Documentation
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  FORGEQA_SOURCE_SHA: ${{ github.sha }}
+  FORGEQA_DOCS_BASE: /playwright-quality-platform/
+jobs:
+  docs-quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - name: Record exact-source documentation attempt
+        run: |
+          mkdir -p evidence/docs
+          git rev-parse HEAD > evidence/docs/source-sha.txt
+          python3 -c 'import sys; assert sys.version_info[:2] == (3, 12); print(sys.version)' > evidence/docs/python.txt
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run test:docs
+      - run: python3 -m unittest discover -s scripts/docs -p 'test_*.py' -v
+      - name: Install isolated pinned documentation toolchain
+        run: |
+          python3 -m venv .tmp/docs-venv
+          .tmp/docs-venv/bin/pip download --no-deps -r docs/site/requirements.txt --dest evidence/docs/wheels
+          .tmp/docs-venv/bin/pip install --no-index --find-links evidence/docs/wheels --no-deps -r docs/site/requirements.txt
+          .tmp/docs-venv/bin/pip check
+          .tmp/docs-venv/bin/pip freeze > evidence/docs/toolchain.txt
+          sha256sum evidence/docs/wheels/* > evidence/docs/wheels.sha256
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Execute documented npm and pnpm adoption
+        run: npm run docs:onboarding
+      - run: npm run docs:prepare
+      - name: Build strict version-aware website
+        run: .tmp/docs-venv/bin/mkdocs build --strict --config-file docs/site/generated/mkdocs.yml
+      - name: Validate built links, anchors and local assets
+        run: python3 scripts/docs/check_site.py --site evidence/docs/site --base "$FORGEQA_DOCS_BASE"
+      - name: Verify desktop, mobile and local search in Chromium
+        run: node scripts/docs/browser-check.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: documentation-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            evidence/docs/
+            evidence/packed-docs/
+          if-no-files-found: error
+          retention-days: 14

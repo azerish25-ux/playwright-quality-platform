@@ -1,16 +1,25 @@
-# ADR 0013: Public package boundaries and ESM
+# ADR 0013: Publish ESM packages with explicit boundaries
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Workspace imports can succeed even when an external consumer lacks private files, declarations or internal dependencies.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Expose the declared ESM entrypoints with TypeScript declarations, supported Node runtime and public dependencies. Compile and execute independent npm and pnpm consumers from the exact tarballs, rejecting private imports and workspace resolution.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Shipping the entire source tree blurs contracts. Advertising untested CommonJS behavior would exceed the supported module format.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Documentation examples must use public exports. Compatibility tests and clean installs, not a local workspace build alone, decide adoption readiness.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/consumers/public-exports.mjs](../tests/consumers/public-exports.mjs)
+- [tests/consumer-resolution.test.mjs](../tests/consumer-resolution.test.mjs)
+- [scripts/package-hardening.mjs](../scripts/package-hardening.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

@@ -1,16 +1,25 @@
-# ADR 0014: Conservative changed-area selection
+# ADR 0014: Broaden changed-area selection when uncertain
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Selecting fewer tests can lower feedback latency, but unknown paths, absent baselines and new tests can make a narrow selection unsafe.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Use explicit mappings and conservatively choose full coverage when baseline or mapping evidence is insufficient. Preserve new tests and reject unjustified empty whole-suite selections.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Guessing a narrow suite from filenames alone can miss shared-code regressions. Requiring history before a test is selected excludes new coverage.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+The manifest records what was selected before execution. Optimization may cost a full run when information is missing; that is preferable to false confidence.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/core.test.mjs](../tests/core.test.mjs)
+- [tests/hardening/property-invariants.test.mjs](../tests/hardening/property-invariants.test.mjs)
+- [tests/repeat-selection.test.mjs](../tests/repeat-selection.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

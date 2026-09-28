@@ -1,16 +1,25 @@
-# ADR 0008: Artifact privacy and retention
+# ADR 0008: Treat binary evidence as sensitive
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+Textual diagnostics and browser binaries have different privacy properties. A trace or screenshot can contain data not understood by a string redactor.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Redact supported textual records, test seeded secrets, and separately limit binary capture, access and retention. Keep complete run artifacts out of Git history.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Claiming all captures are sanitized is false. Removing all evidence prevents useful failure investigation.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Documentation uses actual synthetic acceptance evidence and identifies its source. Public release examples require a privacy review; retention metadata must match the upload workflow.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/reporter.test.mjs](../tests/reporter.test.mjs)
+- [tests/hardening/property-invariants.test.mjs](../tests/hardening/property-invariants.test.mjs)
+- [docs/security.md](../docs/security.md)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

@@ -1,16 +1,25 @@
-# ADR 0007: CI secret handling
+# ADR 0007: Keep write credentials out of untrusted execution
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+PR-controlled tests and reports cannot be trusted with permissions to publish authoritative status or extract release credentials.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Execute tests with read-only permissions. Publish only through default-branch code after bounded data validation, exact GitHub job checks and current-head freshness checks; scrub child credentials.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Executing PR code in a privileged completion workflow crosses the trust boundary. Trusting a report-produced success field alone permits false clean status.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Publication can refuse missing, stale or changed-workflow evidence. That refusal must remain distinguishable from test failure and must not manufacture green status.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/github-pr-reporting.test.mjs](../tests/github-pr-reporting.test.mjs)
+- [tests/github-workflow.test.mjs](../tests/github-workflow.test.mjs)
+- [packages/github-action/src/main.ts](../packages/github-action/src/main.ts)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

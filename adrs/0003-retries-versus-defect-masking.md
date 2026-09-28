@@ -1,16 +1,25 @@
-# ADR 0003: Retries versus defect masking
+# ADR 0003: Retries preserve defects instead of masking them
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+A test that fails and later passes has different reliability from one that passes on its first attempt. Counting only the last result hides that distinction.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Retain every attempt, classify retry recovery explicitly and fail the default strict retry-recovered gate. Diagnostic repetition has separate budgets and must retain the first failure.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Best-of-N success masks defects. Globally disabling all retry diagnostics loses useful evidence of intermittent behavior.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+A green native final attempt does not guarantee a green ForgeQA policy result. Teams must investigate flaky behavior or document a deliberate policy change.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [tests/reporter.test.mjs](../tests/reporter.test.mjs)
+- [tests/repeat-selection.test.mjs](../tests/repeat-selection.test.mjs)
+- [tests/integration/native-runner.test.mjs](../tests/integration/native-runner.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

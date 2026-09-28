@@ -1,16 +1,25 @@
-# ADR 0006: API coverage versus UI coverage
+# ADR 0006: Use API and UI coverage for different evidence
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+API tests can establish authorization and durable state quickly, while a browser is needed to establish rendered interaction, navigation and client behavior.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Use API-first provisioning and domain checks, then retain genuine UI journeys for browser-dependent confidence. Describe coverage differences explicitly rather than substituting synthetic UI for a missing product.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Everything-through-UI is slower and less diagnostic. API-only acceptance cannot certify a real browser interface.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+TeamBoard includes API and three-browser journeys. LedgerGuard remains honestly API-first until its real interface exists. Timing comparisons must not imply identical coverage where it differs.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [examples/demo-saas/tests](../examples/demo-saas/tests)
+- [consumers/ledgerguard/tests](../consumers/ledgerguard/tests)
+- [docs/delivery/ledgerguard-consumer-requirements.json](../docs/delivery/ledgerguard-consumer-requirements.json)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.

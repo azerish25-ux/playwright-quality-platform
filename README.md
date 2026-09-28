@@ -12,6 +12,12 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **Release status:** npm publication, an immutable public action tag and major alias, deployed versioned documentation, comparable hosted benchmark results, Marketplace distribution, and the final delivery audit remain later phases.
 
+## Documentation candidate
+
+The Phase 11B documentation implementation provides a version-aware static site, generated public API references, tested source snippets and isolated npm/pnpm onboarding through installed candidate tarballs. `next` is unreleased; no live website or registry publication is claimed. The independent read-only `Documentation` workflow must pass at the delivered source revision alongside the full platform CI.
+
+Start with [the source-candidate quickstart](docs/guide/quickstart.md), [documentation build/version maintenance](docs/guide/releases.md), and [the acceptance ledger](docs/delivery/documentation-requirements.json).
+
 ## Why it exists
 
 SaaS teams frequently have Playwright suites but lack safe test-data ownership, deterministic execution identity, complete distributed-shard reconciliation, stable result contracts, honest retry metrics, and one policy engine shared by local and CI workflows. ForgeQA makes those concerns explicit while preserving native Playwright locators, assertions, projects, traces, reporters, and scheduling.

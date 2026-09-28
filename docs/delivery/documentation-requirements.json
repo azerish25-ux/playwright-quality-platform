@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P11B",
+  "status": "IMPLEMENTED_PENDING_HOSTED_ACCEPTANCE",
+  "sourceSha": null,
+  "hostedAcceptance": {
+    "status": "NOT_RUN",
+    "workflowRun": null
+  },
+  "publicationClaimed": false,
+  "requirements": [
+    {
+      "id": "P11B-01",
+      "requirement": "Version-aware static site with next and validated frozen snapshots",
+      "status": "IMPLEMENTED",
+      "paths": [
+        "docs/versions.json",
+        "scripts/docs/prepare.mjs",
+        "scripts/docs/contracts.mjs"
+      ]
+    },
+    {
+      "id": "P11B-02",
+      "requirement": "Public API declaration reference, guides and substantive decisions",
+      "status": "IMPLEMENTED",
+      "paths": [
+        "docs/guide",
+        "adrs",
+        "scripts/docs/prepare.mjs"
+      ]
+    },
+    {
+      "id": "P11B-03",
+      "requirement": "Installed CLI bootstrap, exact snippets and clean npm/pnpm onboarding",
+      "status": "IMPLEMENTED",
+      "paths": [
+        "tests/consumers/packed.mjs",
+        "docs/snippets"
+      ]
+    },
+    {
+      "id": "P11B-04",
+      "requirement": "Strict build, internal links, anchors and assets",
+      "status": "IMPLEMENTED",
+      "paths": [
+        "scripts/docs/check_site.py",
+        ".github/workflows/docs.yml"
+      ]
+    },
+    {
+      "id": "P11B-05",
+      "requirement": "Browser navigation, local search and responsive layout",
+      "status": "IMPLEMENTED",
+      "paths": [
+        "scripts/docs/browser-check.mjs"
+      ]
+    },
+    {
+      "id": "P11B-06",
+      "requirement": "Exact-source hosted documentation and full-platform acceptance",
+      "status": "NOT_RUN",
+      "paths": [
+        ".github/workflows/docs.yml",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "P11B-07",
+      "requirement": "Live public documentation and released version HTTP acceptance",
+      "status": "NOT_RUN",
+      "paths": [
+        "docs/guide/releases.md"
+      ]
+    }
+  ],
+  "limitations": [
+    "No public documentation deployment or registry publication.",
+    "No released snapshots exist; synthetic frozen fixtures test validation only.",
+    "External links are inventoried, not HTTP-certified by the local link checker.",
+    "Full adapter/restart/override lifecycle gaps and benchmark comparability limits remain in their own ledgers."
+  ]
+}

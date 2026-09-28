@@ -1,16 +1,25 @@
-# ADR 0010: Action steps versus reusable workflows
+# ADR 0010: An action step is not a distributed job matrix
 
 ## Context
-ForgeQA must make this concern explicit and testable rather than relying on convention.
+
+An action executes inside its caller job; it cannot turn local child processes into independent hosted runners.
 
 ## Decision
-Adopt the behavior documented in the platform contracts and fail closed when required evidence is unavailable.
+
+Use the action for bounded local orchestration and explicit plan/shard/merge operations. Use a reusable workflow to expand independent jobs from one immutable manifest and require every shard in the aggregate.
 
 ## Alternatives
-Implicit conventions, best-effort warnings, or a proprietary abstraction were rejected because they hide failure modes or weaken native Playwright behavior.
+
+Labeling local workers as distributed runners misstates cost and isolation. A matrix without strict inventory merge can silently drop failed shards.
 
 ## Consequences
-The implementation carries more metadata and validation, but consumers receive deterministic diagnostics and auditable policy decisions.
+
+Worker budget, shard count and runner cost are distinct. Immutable action references must be validated separately from local source-action acceptance.
 
 ## Validation
-The behavior is represented by package tests and the delivery requirements matrix.
+
+- [.github/workflows/forgeqa-reusable.yml](../.github/workflows/forgeqa-reusable.yml)
+- [tests/github-action.test.mjs](../tests/github-action.test.mjs)
+- [tests/github-workflow.test.mjs](../tests/github-workflow.test.mjs)
+
+These paths identify executable checks or maintained evidence. Consult the exact-source delivery receipts rather than treating this decision text as a test result.
