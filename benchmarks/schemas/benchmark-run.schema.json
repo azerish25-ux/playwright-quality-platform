@@ -148,7 +148,7 @@
       "minimum": 0
     },
     "measurementVersion": {
-      "const": 2
+      "const": 3
     },
     "protocolDigest": {
       "type": "string",

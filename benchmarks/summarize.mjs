@@ -80,6 +80,8 @@ function renderMarkdown(value) {
   ];
   if (value.failure) return `${lines.join('\n')}\n\n## Failure\n\n${value.failure}\n`;
   lines.push(`- Equivalent execution inventory: ${value.inventoryCount} executions, \`${value.inventoryDigest}\``);
+  lines.push(`- Performance comparability: **${value.performanceStatus}**`);
+  lines.push(`- Eligible controlled-hardware release evidence: ${value.releaseEvidenceEligible ? 'yes' : 'no'}`);
   if (value.limitations?.length) {
     lines.push('', '## Limitations', '', ...value.limitations.map(item => `- ${item}`));
   }

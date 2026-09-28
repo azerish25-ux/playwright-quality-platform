@@ -1,6 +1,6 @@
 import { BENCHMARK_CONDITIONS, parseRepetitions } from './conditions.mjs';
 import { summarizeSeries, ratio } from './statistics.mjs';
-import { MEASUREMENT_VERSION, SPEEDUP_BASIS, TIMING_LIMITATIONS } from './measurement.mjs';
+import { MEASUREMENT_VERSION, SPEEDUP_BASIS, TIMING_LIMITATIONS, assessHardware } from './measurement.mjs';
 
 const durationFields = ['planMs', 'setupWallMs', 'setupAggregateMs', 'testWallMs', 'testAggregateMs', 'mergeMs', 'criticalPathMs', 'schedulingSkewMs', 'coordinationWaitMs', 'wallMs', 'aggregateRunnerMs'];
 
@@ -66,8 +66,9 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
   const warmupCounts = [...new Set(validated.map(record => record.warmups))];
   if (warmupCounts.length !== 1) throw new Error('Benchmark records do not share one warm-up policy.');
   const failed = validated.filter(record => record.status !== 'PASS');
-  const cpuModels = [...new Set(validated.flatMap(record => (record.runners ?? []).map(runner => runner.cpuModel)).filter(Boolean))].sort();
-  const hardwareComparable = cpuModels.length === 1 && validated.every(record => record.runners?.length === record.shards);
+  const hardware = assessHardware(validated);
+  const hardwareComparable = hardware.comparable;
+  const cpuModels = hardware.cpuModels;
   const byCondition = {};
   for (const condition of BENCHMARK_CONDITIONS) {
     const conditionRecords = validated.filter(record => record.condition === condition.id).sort((left, right) => left.repetition - right.repetition);
@@ -102,12 +103,15 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
     protocolDigest: validated[0].protocolDigest,
     hardwareComparable,
     cpuModels,
+    hardwareFingerprints: hardware.fingerprints,
+    performanceStatus: failed.length ? 'INVALID_DATA' : !hardwareComparable ? 'NOT_COMPARABLE' : repetitions < 5 || warmupCounts[0] < 1 ? 'INSUFFICIENT_SAMPLES' : 'COMPARABLE_OBSERVATIONS',
+    releaseEvidenceEligible: !failed.length && hardwareComparable && repetitions === 5 && warmupCounts[0] >= 1,
     inventoryCount: validated[0].inventory.count,
     warmups: warmupCounts[0],
     limitations: [
       ...(repetitions < 5 ? [`Only ${repetitions} measured repetition${repetitions === 1 ? '' : 's'} per condition; run five repetitions for release evidence.`] : []),
       ...(warmupCounts[0] === 0 ? ['No unmeasured warm-up execution is currently performed; cache state remains disabled and this limitation must accompany any result.'] : []),
-      ...(!hardwareComparable ? ['CPU models vary or hardware records are incomplete; cross-condition speedup and efficiency are withheld.'] : []),
+      ...(!hardwareComparable ? ['CPU models or exact memory capacities vary, or hardware records are incomplete; cross-condition speedup and efficiency are withheld.'] : []),
       ...TIMING_LIMITATIONS
     ],
     failed: failed.map(record => ({ condition: record.condition, repetition: record.repetition, failures: record.failures ?? [] })),

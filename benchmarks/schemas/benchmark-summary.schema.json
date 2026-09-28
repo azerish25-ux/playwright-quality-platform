@@ -44,6 +44,23 @@
     "warmups": {
       "type": "integer",
       "minimum": 0
+    },
+    "performanceStatus": {
+      "enum": [
+        "INVALID_DATA",
+        "NOT_COMPARABLE",
+        "INSUFFICIENT_SAMPLES",
+        "COMPARABLE_OBSERVATIONS"
+      ]
+    },
+    "releaseEvidenceEligible": {
+      "type": "boolean"
+    },
+    "hardwareComparable": {
+      "type": "boolean"
+    },
+    "measurementVersion": {
+      "const": 3
     }
   }
 }

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
-export const MEASUREMENT_VERSION = 2;
+export const MEASUREMENT_VERSION = 3;
 export const SPEEDUP_BASIS = 'criticalPathMs';
 export const TIMING_LIMITATIONS = [
   'Speedup compares max measured shard execution duration plus merge/report duration; it is not workflow wall-time speedup.',
@@ -53,10 +53,21 @@ export function measuredDurations(shards, planMs, mergeJobStartMs, mergeStartMs,
 export async function protocolDigest(runner) {
   const paths = ['package-lock.json', 'examples/demo-saas/forgeqa.benchmark.config.ts', 'examples/demo-saas/playwright.benchmark.config.ts'];
   const contents = await Promise.all(paths.map(async path => [path, (await readFile(path, 'utf8')).replaceAll('\r\n', '\n')]));
-  // CPU allocation, binary versions and policy inputs must match; VM IDs must not.
+  // Enforce software/policy identity and allocated cores independently of hardware comparability.
   const environment = Object.fromEntries(['platform', 'arch', 'node', 'playwright', 'image', 'imageVersion', 'cpuCount'].map(key => [key, runner[key]]));
-  // Linux reserves a few pages differently across otherwise equal VM allocations.
-  // Keep exact bytes in raw data; compare capacity at 1 MiB granularity.
-  environment.memoryMiB = Math.round(runner.totalMemoryBytes / (1024 * 1024));
   return createHash('sha256').update(JSON.stringify({ measurementVersion: MEASUREMENT_VERSION, contents, environment, cache: 'disabled', retries: 0, warmups: 1 })).digest('hex');
+}
+
+/** Hardware differences never disappear through rounding or a software-protocol hash.
+ * They retain valid observations but prohibit cross-condition performance claims.
+ */
+export function assessHardware(records) {
+  const runners = records.flatMap(record => record.runners ?? []);
+  const complete = records.length > 0 && records.every(record => Array.isArray(record.runners) && record.runners.length === record.shards)
+    && runners.every(runner => typeof runner.cpuModel === 'string' && runner.cpuModel.trim() && runner.cpuModel !== 'unknown'
+      && Number.isSafeInteger(runner.cpuCount) && runner.cpuCount > 0
+      && Number.isSafeInteger(runner.totalMemoryBytes) && runner.totalMemoryBytes > 0);
+  const fingerprints = [...new Set(runners.map(runner => JSON.stringify({ cpuModel: runner.cpuModel, cpuCount: runner.cpuCount, totalMemoryBytes: runner.totalMemoryBytes })))].sort();
+  const cpuModels = [...new Set(runners.map(runner => runner.cpuModel).filter(Boolean))].sort();
+  return { comparable: Boolean(complete && fingerprints.length === 1), cpuModels, fingerprints };
 }

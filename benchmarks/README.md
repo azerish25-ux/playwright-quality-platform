@@ -59,7 +59,7 @@ The harness, workflow, schemas, statistics, and regression tests are implemented
 
 ## Measurement boundaries
 
-Measurement version 2 compares `max(shard.runMs) + mergeMs`, not queue-inclusive workflow wall time. The observed `wallMs` and scheduling skew remain in raw records; shared job barriers can inflate them. Aggregate runner time covers instrumented intervals only, excluding checkout, service provisioning, final uploads and service shutdown. Application readiness, execution, in-process reporting and shutdown remain combined inside each shard run. Exact source and lock/config/runner-protocol digests must match. Source-mode benchmarks are not registry or packed-package performance evidence.
+Measurement version 3 compares `max(shard.runMs) + mergeMs`, not queue-inclusive workflow wall time. The observed `wallMs` and scheduling skew remain in raw records; shared job barriers can inflate them. Aggregate runner time covers instrumented intervals only, excluding checkout, service provisioning, final uploads and service shutdown. Application readiness, execution, in-process reporting and shutdown remain combined inside each shard run. Exact source and lock/config/runner-protocol digests must match. Source-mode benchmarks are not registry or packed-package performance evidence.
 
 ## Supplementary measurements and execution requests
 
@@ -67,4 +67,4 @@ The same workflow runs `reporter-overhead.mjs` against all 20 real TeamBoard exe
 
 Manual execution supports five repetitions. A trusted main-branch benchmark commit explicitly containing `[benchmark:5]` requests the same five-repetition acceptance run; other relevant pushes and scheduled runs use one. The parser bounds repetitions to 1–5. Condition submission order rotates between repetitions; hosted runner scheduling is outside the harness's control.
 
-Exact memory bytes remain in raw data, but protocol equivalence compares capacity rounded to 1 MiB to avoid treating different Linux reserved page counts as different VM capacities. CPU model variability is retained and cross-condition speedup/efficiency are withheld when models differ. Passing execution/identity checks is not evidence of controlled-hardware performance.
+Measurement version 3 separates software/policy identity from hardware comparability. Exact memory bytes are never rounded or ignored: any difference in CPU model, core allocation or memory capacity blocks cross-condition speedup and efficiency. Complete successful execution evidence can be retained with `status: PASS`, but such a cohort explicitly has `performanceStatus: NOT_COMPARABLE` and `releaseEvidenceEligible: false`. Missing or mismatched tests, policy, software versions, timings or shards still fail the data-integrity gate. A green workflow is not a controlled-hardware performance claim.
