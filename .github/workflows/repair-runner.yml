@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: true
-      - name: Repair transported identifier and remove one-shot workflow
+      - name: Repair transported identifier
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -25,12 +25,10 @@ jobs:
           if text.count(old) != 1:
               raise SystemExit(f'expected exactly one transported typo, found {text.count(old)}')
           source.write_text(text.replace(old, new), encoding='utf-8')
-          Path('.github/workflows/repair-runner.yml').unlink()
           PY
           git diff --check
-          git diff --exit-code -- packages/cli/src/runner.ts || true
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add packages/cli/src/runner.ts .github/workflows/repair-runner.yml
+          git add packages/cli/src/runner.ts
           git commit -m 'fix: repair benchmark runner report path'
           git push origin HEAD:main
