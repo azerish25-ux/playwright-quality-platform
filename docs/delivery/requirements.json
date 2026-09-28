@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
-  "updatedAt": "2026-09-28T15:43:20.047Z",
+  "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+  "updatedAt": "2026-09-28T22:55:59.072763Z",
   "requirements": [
     {
       "id": "R-001",
@@ -46,14 +46,15 @@
       "id": "R-004",
       "requirement": "Safe idempotent CLI initialization",
       "status": "PARTIAL",
-      "actualResult": "Runnable initialization, conflict preflight, dry-run, Unicode/spaces and POSIX symlink boundaries are exercised. Complete interruption/race and arbitrary existing-suite migration coverage remains later work.",
+      "actualResult": "Runnable initialization, conflict preflight, Unicode/spaces and path boundaries are exercised. Concurrent identical initialization, late conflict refusal and process interruption/resumption now pass required cross-platform CI. Arbitrary existing-suite migration coverage remains incomplete.",
       "implementationPaths": [
         "packages/cli/src/init.ts",
-        "tests/cli.test.mjs"
+        "tests/cli.test.mjs",
+        "tests/cli-initialization-lifecycle.test.mjs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI 36494379888; tests/cli-initialization-lifecycle.test.mjs",
       "expectedBehavior": "Safe idempotent CLI initialization",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "release-readiness-source"
     },
     {
       "id": "R-005",
@@ -85,14 +86,16 @@
       "id": "R-007",
       "requirement": "Guarded cleanup and PostgreSQL reference adapter",
       "status": "PARTIAL",
-      "actualResult": "Real PostgreSQL TeamBoard cleanup and ownership denial are verified, including a zero-resource scan. The complete generic adapter/reclamation contract remains unverified.",
+      "actualResult": "Real PostgreSQL target verification, malformed namespace/tenant refusal, foreign provisioning collision detection, ownership-limited cleanup and literal-prefix stale reclamation pass the required TeamBoard lane. Complete generic adapter/lifecycle coverage remains separately incomplete.",
       "implementationPaths": [
         "packages/test-data/src",
-        "examples/demo-saas/tests/fixtures.ts"
+        "examples/demo-saas/tests/fixtures.ts",
+        "scripts/postgres-adapter-acceptance.mjs",
+        "tests/postgres-adapter-guards.test.mjs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI 36494379888; required TeamBoard acceptance",
       "expectedBehavior": "Guarded cleanup and PostgreSQL reference adapter",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "release-readiness-source"
     },
     {
       "id": "R-008",
@@ -190,25 +193,28 @@
       "id": "R-015",
       "requirement": "npm publication",
       "status": "BLOCKED",
-      "actualResult": "Registry scope/publishing authorization is not verified and full release acceptance is incomplete. Tarballs are source candidates, not registry publications.",
+      "actualResult": "Eight complete source-version tarballs passed hardening, installed npm/pnpm consumers and exact-source CI/Documentation acceptance with independently verified downloaded hashes. Registry authorization, semantic version coordination and actual publication remain unaccepted; no npm release is claimed.",
       "implementationPaths": [
-        ".github/workflows/release.yml"
+        ".github/workflows/release.yml",
+        "scripts/release-manifest.mjs",
+        "scripts/release-state.mjs",
+        "scripts/release-evidence.mjs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "Release candidates 36494379998; release-readiness-live-acceptance.md",
       "expectedBehavior": "npm publication",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "release-readiness-source"
     },
     {
       "id": "R-016",
       "requirement": "Versioned documentation deployment",
       "status": "NOT_RUN",
-      "actualResult": "Documentation source exists; no versioned website deployment verified.",
+      "actualResult": "Version-aware documentation build, installed-package onboarding, links and browser checks pass hosted Documentation acceptance. No public versioned website deployment is verified.",
       "implementationPaths": [
         "docs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "Documentation 36494380027; deployment remains NOT_RUN",
       "expectedBehavior": "Versioned documentation deployment",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "release-readiness-source"
     },
     {
       "id": "R-017",
@@ -226,16 +232,19 @@
       "id": "R-018",
       "requirement": "Benchmarks",
       "status": "PARTIAL",
-      "actualResult": "Five conditions and five measured repetitions passed the exact-source TeamBoard benchmark, with 500 equivalent clean executions, verified warmups, retained raw JSONL/CSV, reporter overhead, synthetic scaling and cleanup. Heterogeneous hardware prevents controlled speedup claims; finer lifecycle profiling remains incomplete.",
+      "actualResult": "The earlier distributed benchmark retained 500 clean equivalent executions but could not compare heterogeneous hardware. A separate controlled same-runner benchmark now passed 15 measured records and 300 identical first-pass executions across one/two/four workers, with independently recomputed summaries and 30 cleanups. Distributed comparability and finer lifecycle profiling remain incomplete.",
       "implementationPaths": [
         "benchmarks",
         ".github/workflows/benchmark.yml",
         "tests/benchmark-contract.test.mjs",
-        "docs/delivery/benchmark-requirements.json"
+        "docs/delivery/benchmark-requirements.json",
+        ".github/workflows/benchmark-controlled.yml",
+        "benchmarks/controlled.mjs",
+        "tests/benchmark-controlled.test.mjs"
       ],
-      "verification": "CI 36444479253; benchmark 36444479660; docs/delivery/benchmark-live-acceptance.md",
+      "verification": "Benchmark 36485081291; controlled-local-acceptance.json; earlier distributed evidence retained in benchmark-live-acceptance.md",
       "expectedBehavior": "Benchmarks",
-      "evidenceRecord": "phase-11a-hosted-v3"
+      "evidenceRecord": "controlled-local-benchmark"
     },
     {
       "id": "M1-01",
@@ -351,14 +360,17 @@
       "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "Current source checkpoint through Phase 11A hosted benchmark execution acceptance; controlled-hardware performance and public release remain incomplete",
+  "scope": "Release-readiness source acceptance with independently verified staged tarballs; local worker comparisons accepted separately; full lifecycle and public distribution remain incomplete",
   "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where controlled-hardware performance, publication, documentation deployment, or other later-phase acceptance is absent.",
   "evidenceLocations": [
     "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
     "docs/delivery/hardening-live-acceptance.md",
     "docs/delivery/benchmark-requirements.json",
     "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36444479660",
-    "docs/delivery/benchmark-evidence.json"
+    "docs/delivery/benchmark-evidence.json",
+    "docs/delivery/release-readiness-live-acceptance.md",
+    "docs/delivery/release-source-acceptance.json",
+    "docs/delivery/controlled-local-acceptance.json"
   ],
   "workflowConclusion": "success",
   "evidenceRecords": {
@@ -386,6 +398,20 @@
       "result": "success",
       "scope": "Benchmark execution acceptance with hardware/profiling limitations",
       "reportManifest": "docs/delivery/benchmark-evidence.json"
+    },
+    "release-readiness-source": {
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36494379888",
+      "result": "success",
+      "scope": "Source CI, documentation and staged candidates only; not a public release",
+      "reportManifest": "docs/delivery/release-readiness-live-acceptance.md"
+    },
+    "controlled-local-benchmark": {
+      "sourceSha": "c2687f515e2075bafff3fcfc20896d53734dec07",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36485081291",
+      "result": "success",
+      "scope": "Same-runner local workers only; the separate full CI at this earlier source was canceled",
+      "reportManifest": "docs/delivery/controlled-local-acceptance.json"
     }
   }
 }

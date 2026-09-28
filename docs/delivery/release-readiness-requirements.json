@@ -9,49 +9,73 @@
       "id": "RR-01",
       "requirement": "Comparable local worker measurements with retained limitations",
       "status": "PARTIAL",
-      "implementationPaths": ["benchmarks/controlled.mjs", "benchmarks/lib/controlled.mjs", ".github/workflows/benchmark-controlled.yml"],
-      "verification": "Controlled benchmark workflow; tests/benchmark-controlled.test.mjs",
-      "actualResult": "Implementation retained from c2687f5. Same-runner comparison does not establish distributed comparability or complete granular lifecycle timing. Full benchmark acceptance remains false."
+      "implementationPaths": [
+        "benchmarks/controlled.mjs",
+        "benchmarks/lib/controlled.mjs",
+        ".github/workflows/benchmark-controlled.yml"
+      ],
+      "verification": "Controlled local benchmark 36485081291 at c2687f515e2075bafff3fcfc20896d53734dec07; controlled-local-acceptance.json",
+      "actualResult": "Hosted same-runner comparison passed: 15 interleaved measured records, 300 identical first-pass executions and 30 zero-resource cleanup receipts. Archive digest and raw-summary recomputation were independently verified. Distributed comparability and granular lifecycle timing remain incomplete."
     },
     {
       "id": "RR-02",
       "requirement": "Concurrent initialization and interruption recovery",
       "status": "PASS",
-      "sourceSha": "a21432dbf42995322f8bd20d2961361368a10029",
-      "implementationPaths": ["packages/cli/src/init.ts", "tests/cli-initialization-lifecycle.test.mjs"],
-      "verification": "CI 36487423852",
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+      "implementationPaths": [
+        "packages/cli/src/init.ts",
+        "tests/cli-initialization-lifecycle.test.mjs"
+      ],
+      "verification": "CI 36494379888; see release-source-acceptance.json",
       "actualResult": "Required CI passed with deterministic concurrency, conflict and interruption regressions. This scoped acceptance does not imply arbitrary existing-suite migration is complete."
     },
     {
       "id": "RR-03",
       "requirement": "PostgreSQL ownership and stale reclamation guard acceptance",
       "status": "PASS",
-      "sourceSha": "a21432dbf42995322f8bd20d2961361368a10029",
-      "implementationPaths": ["packages/test-data/src/postgres.ts", "scripts/postgres-adapter-acceptance.mjs", "tests/postgres-adapter-guards.test.mjs"],
-      "verification": "CI 36487423852; required TeamBoard lane",
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+      "implementationPaths": [
+        "packages/test-data/src/postgres.ts",
+        "scripts/postgres-adapter-acceptance.mjs",
+        "tests/postgres-adapter-guards.test.mjs"
+      ],
+      "verification": "CI 36494379888; see release-source-acceptance.json",
       "actualResult": "Required CI passed with real database ownership/reclamation acceptance. The broader generic adapter contract remains separately tracked."
     },
     {
       "id": "RR-04",
       "requirement": "Complete-tarball candidate staging and simulated interruption recovery",
       "status": "PARTIAL",
-      "implementationPaths": ["scripts/release-manifest.mjs", "scripts/release-state.mjs", "tests/release-state.test.mjs", "tests/release-state-boundaries.test.mjs"],
-      "verification": "Release candidates workflow; node --test tests/release-*.test.mjs",
-      "actualResult": "Complete-byte integrity and synthetic recovery are implemented. Live registry transport and actual partial-publication recovery are not claimed. New strict boundary checks passed locally; hosted verification must be associated with their delivery SHA."
+      "implementationPaths": [
+        "scripts/release-manifest.mjs",
+        "scripts/release-state.mjs",
+        "tests/release-state.test.mjs",
+        "tests/release-state-boundaries.test.mjs"
+      ],
+      "verification": "Release candidates 36494379998; release-readiness-live-acceptance.md",
+      "actualResult": "All eight complete tarballs passed hosted hardening and npm/pnpm consumer checks, then independent downloaded SHA-256/SHA-512 verification. Synthetic recovery and strict state-boundary tests passed. Live registry transport and actual partial-publication recovery remain unaccepted.",
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1"
     },
     {
       "id": "RR-05",
       "requirement": "Bind staged candidates to full exact-source CI and Documentation acceptance",
-      "status": "NOT_RUN",
-      "implementationPaths": ["scripts/release-evidence.mjs", "tests/release-evidence.test.mjs", ".github/workflows/release.yml"],
-      "verification": "Release candidates workflow source-acceptance.json at the delivered SHA",
-      "actualResult": "Local regression tests passed. Live hosted execution of the new gate has not yet been recorded in this checkpoint. No publication is authorized by this gate."
+      "status": "PASS",
+      "implementationPaths": [
+        "scripts/release-evidence.mjs",
+        "tests/release-evidence.test.mjs",
+        ".github/workflows/release.yml"
+      ],
+      "verification": "Release candidates 36494379998; release-source-acceptance.json",
+      "actualResult": "The hosted read-only gate accepted all 14 CI jobs and independent Documentation at the exact candidate SHA and attempt, with a retained manifest digest. The downloaded receipt and all eight tarballs were independently verified. This is source acceptance, not publication authorization.",
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1"
     },
     {
       "id": "RR-06",
       "requirement": "Complete reusable authentication and fixture lifecycle acceptance",
       "status": "PARTIAL",
-      "implementationPaths": ["packages/playwright/src/index.ts"],
+      "implementationPaths": [
+        "packages/playwright/src/index.ts"
+      ],
       "verification": "Broader R-008 and M1-03 acceptance",
       "actualResult": "Typed fixture composition and diagnostics exist; complete reusable auth-state/override/lifecycle acceptance remains incomplete."
     },
@@ -59,9 +83,15 @@
       "id": "RR-07",
       "requirement": "Semantic-release lockstep coordinator and live external distributions",
       "status": "NOT_RUN",
-      "implementationPaths": [".github/workflows/release.yml"],
+      "implementationPaths": [
+        ".github/workflows/release.yml"
+      ],
       "verification": "Future coordinated release and external registry/action/docs acceptance",
       "actualResult": "The current workflow stages source-version candidates, not semantically prepared releases. Version calculation, live publication and public distribution verification remain unimplemented or unaccepted."
     }
-  ]
+  ],
+  "acceptedSourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+  "acceptedCI": 36494379888,
+  "acceptedDocumentation": 36494380027,
+  "candidateRun": 36494379998
 }

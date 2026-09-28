@@ -11,6 +11,10 @@ The interrupted implementation is retained on `main`, not replaced with a new sc
 
 Full [CI run 36487423852](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36487423852) passed at `a21432dbf42995322f8bd20d2961361368a10029`. That source is the baseline for the additional candidate gate described below, not proof that later changes have passed hosted acceptance.
 
+## Hosted acceptance
+
+The additional source gate passed at `c8304873cfce584f352eca69d7ccae068fd3e3b1` in CI `36494379888`, Documentation `36494380027` and Release candidates `36494379998`. All eight downloaded tarballs and the source receipt were independently verified. See [exact acceptance](release-readiness-live-acceptance.md); this does not authorize publication or close the remaining boundaries below.
+
 ## Exact-source candidate gate
 
 The read-only `Release candidates` workflow builds and verifies source, runs hardening, stages all eight packages and checks their complete tarballs. `scripts/release-evidence.mjs` then queries GitHub for successful `main` push runs of both `CI` and `Documentation` at the candidate SHA.

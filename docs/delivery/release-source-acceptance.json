@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-candidate-source-acceptance",
+  "status": "PASS",
+  "publicationAuthorized": false,
+  "observedAt": "2026-09-28T22:52:55.477Z",
+  "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+  "version": "0.1.0",
+  "manifestSha256": "008b8e3d4cd8c7787dd9d812b38d3126bccb1999752abecd02bfe11383a1adec",
+  "packageCount": 8,
+  "workflows": [
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "runId": 36494379888,
+      "runAttempt": 1,
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+      "status": "PASS",
+      "url": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36494379888",
+      "jobs": [
+        {
+          "id": 109170382405,
+          "name": "action",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382208,
+          "name": "consumer (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382322,
+          "name": "consumer (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382858,
+          "name": "consumer (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109172164268,
+          "name": "forgeqa-quality",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382216,
+          "name": "hardening",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382064,
+          "name": "ledgerguard",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170381930,
+          "name": "teamboard",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382123,
+          "name": "verify (macos-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170383361,
+          "name": "verify (macos-latest, 24)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170383095,
+          "name": "verify (ubuntu-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382162,
+          "name": "verify (ubuntu-latest, 24)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382333,
+          "name": "verify (windows-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109170382425,
+          "name": "verify (windows-latest, 24)",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "workflow": ".github/workflows/docs.yml",
+      "runId": 36494380027,
+      "runAttempt": 1,
+      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
+      "status": "PASS",
+      "url": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36494380027",
+      "jobs": [
+        {
+          "id": 109170382256,
+          "name": "docs-quality",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

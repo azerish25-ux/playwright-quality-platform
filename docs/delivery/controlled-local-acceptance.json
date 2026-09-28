@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-controlled-local-acceptance",
+  "status": "PASS",
+  "scope": "same-runner-local-worker-comparison",
+  "sourceSha": "c2687f515e2075bafff3fcfc20896d53734dec07",
+  "workflowRun": 36485081291,
+  "workflowConclusion": "success",
+  "sourceCIRun": 36485081493,
+  "sourceCIConclusion": "cancelled",
+  "sourceCINote": "The contemporaneous full CI was superseded. This record accepts the benchmark workflow only, not a complete release candidate at that revision.",
+  "artifact": {
+    "id": 10999616718,
+    "name": "controlled-benchmark-c2687f515e2075bafff3fcfc20896d53734dec07-1",
+    "digest": "sha256:33132178a8060caaa6609c47a0b87463dc77922ee8592dcf013c5c8d72b11a06"
+  },
+  "independentVerification": {
+    "archiveDigest": "PASS",
+    "summaryRecomputedFromRawRecords": "PASS",
+    "interleavedOrder": "PASS",
+    "rawMeasuredRecords": 15,
+    "cleanupReceipts": 30,
+    "remainingOwnedResources": 0
+  },
+  "summary": {
+    "schemaVersion": 1,
+    "kind": "forgeqa-controlled-local-benchmark",
+    "status": "PASS",
+    "sourceSha": "c2687f515e2075bafff3fcfc20896d53734dec07",
+    "runnerSession": "65b6843b-cec8-427c-bfd8-b38bcda5b15e",
+    "protocolDigest": "f7062a6ee86b17e73d054b45df7decd95aa74c57195b07030be03631768571be",
+    "hardware": {
+      "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+      "cpuCount": 4,
+      "totalMemoryBytes": 16766414848
+    },
+    "scope": "same-runner-local-worker-comparison",
+    "repetitions": 5,
+    "inventoryCount": 20,
+    "measuredExecutions": 300,
+    "performanceStatus": "COMPARABLE_LOCAL",
+    "localComparisonAccepted": true,
+    "fullBenchmarkAcceptance": false,
+    "conditions": [
+      {
+        "id": "serial-1x1",
+        "workers": 1,
+        "samples": 5,
+        "median": 20906.692668999982,
+        "min": 20167.23071299994,
+        "max": 21784.08866000001,
+        "mad": 263.4529100000218,
+        "speedup": 1
+      },
+      {
+        "id": "local-2x1",
+        "workers": 2,
+        "samples": 5,
+        "median": 17840.567425000016,
+        "min": 17466.801752000058,
+        "max": 18201.73764800001,
+        "mad": 296.1702219999861,
+        "speedup": 1.1718625406332872
+      },
+      {
+        "id": "local-4x1",
+        "workers": 4,
+        "samples": 5,
+        "median": 20647.67048900004,
+        "min": 20296.656981000007,
+        "max": 21452.483895000012,
+        "mad": 120.56893900001887,
+        "speedup": 1.0125448621498456
+      }
+    ],
+    "limitations": [
+      "Only serial versus local workers is compared; these measurements cannot establish distributed speedup.",
+      "Shared hosted hardware may still have noisy neighbours. Five samples are not a statistical guarantee.",
+      "Critical path includes the CLI run and explicit report merge, not installation, queueing or billed runner time.",
+      "Readiness, in-process reporting and shutdown remain inside runMs; granular lifecycle acceptance remains incomplete.",
+      "Source workspace packages are used, not a published npm release."
+    ]
+  }
+}

@@ -1,6 +1,14 @@
-# Delivery checkpoint — Phase 11B documentation accepted
+# Delivery checkpoint — release-readiness source accepted
 
 **Phase 11B documentation and installed-package onboarding passed hosted acceptance at `54f25b2a865b8b90c7fe00b34142cbb282d99a57` in Documentation run `36468235212` and full CI `36468235190`. Phase 11A benchmark execution remains accepted with its hardware-comparability limitations. The complete public product is not released.**
+
+## Release-readiness source acceptance
+
+The continuation at `c8304873cfce584f352eca69d7ccae068fd3e3b1` passed full CI `36494379888`, Documentation `36494380027` and Release candidates `36494379998`. Complete tarballs are now bound to all fourteen required CI jobs and the independent documentation job. The downloaded candidate archive, full manifest digest and all eight SHA-256/SHA-512 tarballs were independently verified. See [the exact acceptance receipt](release-readiness-live-acceptance.md) and [scoped matrix](release-readiness-requirements.json).
+
+Concurrent initialization/interruption recovery and real PostgreSQL ownership/reclamation regressions are included in this accepted source. The earlier [controlled local benchmark](controlled-local-acceptance.json) also has hosted acceptance and independently recomputed measurements; it does not establish distributed comparability or granular lifecycle timing. The history below retains its original source-specific boundaries.
+
+No public publication is authorized or claimed. Generic auth/fixture lifecycle acceptance and semantic-release version coordination remain incomplete, alongside actual registry/action distribution, website deployment and the final audit.
 
 ## Phase 10 accepted source baseline
 
