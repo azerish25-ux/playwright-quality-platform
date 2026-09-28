@@ -8,7 +8,7 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **Phase 10A hardening:** exact-source CI run `36355636084` passed at revision `b679c996d9f33afb6a7d89fee294bd6fdfe3afc6`. The required hardening lane measured 98.63% line, 96.46% branch, and 98.77% function coverage, audited all eight package tarballs, verified clean npm/pnpm consumers, and passed the final `forgeqa-quality` aggregate.
 
-> **Phase 11A benchmark candidate:** the repository now contains a fail-closed TeamBoard benchmark workflow comparing serial, local-parallel, and genuine independent-runner shard conditions with exact inventory equivalence, raw JSONL/CSV evidence, phase timing, and statistical summaries. Hosted five-repetition benchmark acceptance has not yet run.
+> **Phase 11A hosted execution:** source `9361d9fa9515ae9c173f644b993472133032e85e` passed CI `36444479253` and benchmark workflow `36444479660`: five conditions × five repetitions × 20 identical executions, plus verified warm-ups, real reporter-overhead measurements, synthetic scaling and cleanup. [Exact evidence](docs/delivery/benchmark-live-acceptance.md) is retained. Heterogeneous runner hardware blocks speedup claims; this is not controlled-hardware release performance evidence.
 
 > **Release status:** npm publication, an immutable public action tag and major alias, deployed versioned documentation, comparable hosted benchmark results, Marketplace distribution, and the final delivery audit remain later phases.
 
@@ -40,7 +40,7 @@ npm run benchmark
 node packages/cli/dist/cli.js --help
 ```
 
-`npm run hardening` builds the exact source, runs invariant and seeded-defect suites, enforces 90% line and 85% branch coverage over the release-critical policy kernel, freezes pre-release package/action/report contracts, packs all eight packages, inspects their tarballs, and installs those exact tarballs into clean npm and pnpm consumers. `npm run benchmark` previews the hosted condition matrix without consuming runners; the authoritative measurements execute through `.github/workflows/benchmark.yml`.
+`npm run hardening` builds the exact source, runs invariant and seeded-defect suites, enforces 90% line and 85% branch coverage over the release-critical policy kernel, freezes pre-release package/action/report contracts, packs all eight packages, inspects their tarballs, and installs those exact tarballs in clean npm and pnpm consumers. `npm run benchmark` previews the hosted condition matrix without consuming runners; the authoritative measurements execute through `.github/workflows/benchmark.yml`.
 
 No package registry credentials or paid infrastructure are required for source verification. See [first-consumer verification](docs/first-consumer.md) for actual execution and packed npm/pnpm adoption. The CLI exits with `0` for policy-compliant success, `1` for test/quality failure, `2` for invalid usage/configuration, `3` for infrastructure/report-integrity failure, and `130` for interruption.
 
@@ -90,4 +90,4 @@ export default defineForgeConfig({
 
 ## Current limitations
 
-ForgeQA is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark workflow is implemented but has not produced accepted five-repetition results. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, publication-recovery acceptance, or a completed final delivery audit.
+ForgeQA is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; controlled-hardware comparison and finer lifecycle profiling remain incomplete. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, publication-recovery acceptance, or a completed final delivery audit.

@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "measurementVersion": 3,
+  "status": "PASS",
+  "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
+  "repetitions": 5,
+  "warmups": 1,
+  "inventoryCount": 20,
+  "inventoryDigest": "6a98e55fa4320176262c4e387a75bfb5cf856bc7ee1574fdf01c5259785d0f22",
+  "protocolDigest": "f7062a6ee86b17e73d054b45df7decd95aa74c57195b07030be03631768571be",
+  "performanceStatus": "NOT_COMPARABLE",
+  "hardwareComparable": false,
+  "cpuModels": [
+    "AMD EPYC 7763 64-Core Processor",
+    "AMD EPYC 9V45 96-Core Processor",
+    "AMD EPYC 9V74 80-Core Processor",
+    "INTEL(R) XEON(R) PLATINUM 8573C",
+    "Intel(R) Xeon(R) 6973P-C",
+    "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+  ],
+  "hardwareFingerprints": [
+    "{\"cpuModel\":\"AMD EPYC 7763 64-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16766410752}",
+    "{\"cpuModel\":\"AMD EPYC 7763 64-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16766414848}",
+    "{\"cpuModel\":\"AMD EPYC 7763 64-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16770744320}",
+    "{\"cpuModel\":\"AMD EPYC 7763 64-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16770748416}",
+    "{\"cpuModel\":\"AMD EPYC 9V45 96-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16766414848}",
+    "{\"cpuModel\":\"AMD EPYC 9V74 80-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16766410752}",
+    "{\"cpuModel\":\"AMD EPYC 9V74 80-Core Processor\",\"cpuCount\":4,\"totalMemoryBytes\":16766414848}",
+    "{\"cpuModel\":\"INTEL(R) XEON(R) PLATINUM 8573C\",\"cpuCount\":4,\"totalMemoryBytes\":16765374464}",
+    "{\"cpuModel\":\"INTEL(R) XEON(R) PLATINUM 8573C\",\"cpuCount\":4,\"totalMemoryBytes\":16765378560}",
+    "{\"cpuModel\":\"Intel(R) Xeon(R) 6973P-C\",\"cpuCount\":4,\"totalMemoryBytes\":16765374464}",
+    "{\"cpuModel\":\"Intel(R) Xeon(R) 6973P-C\",\"cpuCount\":4,\"totalMemoryBytes\":16765378560}",
+    "{\"cpuModel\":\"Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz\",\"cpuCount\":4,\"totalMemoryBytes\":16765374464}"
+  ],
+  "releaseEvidenceEligible": false,
+  "limitations": [
+    "CPU models or exact memory capacities vary, or hardware records are incomplete; cross-condition speedup and efficiency are withheld.",
+    "Speedup compares max measured shard execution duration plus merge/report duration; it is not workflow wall-time speedup.",
+    "Observed wallMs includes GitHub scheduling and the shared matrix barrier. It must not be used to rank conditions.",
+    "Runner time covers instrumented intervals, not billed runner time; checkout, service startup, final uploads and service shutdown are excluded.",
+    "Application startup/readiness, test execution, in-process reporting and application shutdown are combined inside each shard run; finer lifecycle timings are not separately measured.",
+    "Benchmarks use a locked source checkout, not installed registry packages. Packed-package adoption is verified by the separate consumer lanes."
+  ],
+  "benchmarkRun": 36444479660,
+  "ciRun": 36444479253,
+  "artifacts": {
+    "primary": {
+      "id": 10979738095,
+      "digest": "392b5e1d204844630de5579a75cdbb6bae304ae78e1bfc40609a94060ac0b59d"
+    },
+    "supplementary": {
+      "id": 10979927237,
+      "digest": "794eed9bde211c966d6f4f14bdfe5267de51de9df5b959961607066f2f28158c"
+    }
+  },
+  "reporterOverhead": {
+    "schemaVersion": 1,
+    "kind": "forgeqa-reporter-overhead",
+    "status": "PASS",
+    "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
+    "repetitions": 5,
+    "warmups": 1,
+    "node": "v22.23.2",
+    "limitations": [
+      "Same TeamBoard fixtures, browser matrix and JSON/blob reporters in both modes; only ForgeQA reporter inclusion differs.",
+      "This measures whole native process latency, not a pure isolated callback CPU cost."
+    ],
+    "inventoryDigest": "950be7cc5d8d1034ce749dddc5df0cf69d65a60b3892935bdda8b87150b04df2",
+    "native": {
+      "samples": 5,
+      "min": 22921.254076000012,
+      "max": 23378.658104999995,
+      "median": 22971.640721000032,
+      "q1": 22924.504782999982,
+      "q3": 23121.888768999997,
+      "iqr": 197.38398600001528,
+      "mad": 50.38664500002051
+    },
+    "forgeqa": {
+      "samples": 5,
+      "min": 22648.107983000024,
+      "max": 23238.127399999998,
+      "median": 23066.133774,
+      "q1": 22810.855545,
+      "q3": 23075.266427000002,
+      "iqr": 264.41088200000377,
+      "mad": 171.99362599999586
+    },
+    "medianOverheadMs": 94.49305299996922,
+    "medianOverheadPercent": 0.41134655616299237
+  },
+  "syntheticScaling": {
+    "schemaVersion": 1,
+    "kind": "forgeqa-synthetic-result-scaling",
+    "synthetic": true,
+    "status": "PASS",
+    "repetitions": 5,
+    "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
+    "node": "v22.23.2",
+    "limitations": [
+      "Synthetic in-memory canonical results; not application or journal filesystem throughput.",
+      "Peak RSS is the high-water mark of a fresh Linux child process, including input construction and all renderers."
+    ],
+    "sizes": {
+      "1000": {
+        "mergeMs": {
+          "samples": 5,
+          "min": 9.540585999999998,
+          "max": 9.755760000000002,
+          "median": 9.579343999999999,
+          "q1": 9.575378,
+          "q3": 9.732275000000001,
+          "iqr": 0.15689700000000073,
+          "mad": 0.0387580000000014
+        },
+        "peakRssBytes": {
+          "samples": 5,
+          "min": 69500928,
+          "max": 69799936,
+          "median": 69697536,
+          "q1": 69644288,
+          "q3": 69746688,
+          "iqr": 102400,
+          "mad": 53248
+        },
+        "formats": {
+          "json": {
+            "samples": 5,
+            "min": 1.8690110000000004,
+            "max": 1.9725760000000037,
+            "median": 1.9346189999999979,
+            "q1": 1.8869869999999977,
+            "q3": 1.9636229999999983,
+            "iqr": 0.07663600000000059,
+            "mad": 0.03795700000000579
+          },
+          "junit": {
+            "samples": 5,
+            "min": 4.669120000000007,
+            "max": 5.252678000000003,
+            "median": 4.821219999999997,
+            "q1": 4.766015999999993,
+            "q3": 4.841239000000002,
+            "iqr": 0.07522300000000826,
+            "mad": 0.05520400000000336
+          },
+          "html": {
+            "samples": 5,
+            "min": 5.749115000000003,
+            "max": 6.528456999999996,
+            "median": 6.140302999999996,
+            "q1": 5.831968999999994,
+            "q3": 6.159873000000005,
+            "iqr": 0.32790400000001085,
+            "mad": 0.3083340000000021
+          }
+        }
+      },
+      "10000": {
+        "mergeMs": {
+          "samples": 5,
+          "min": 22.645840999999997,
+          "max": 24.790136000000004,
+          "median": 23.904263000000007,
+          "q1": 23.723160999999998,
+          "q3": 24.218255999999997,
+          "iqr": 0.4950949999999992,
+          "mad": 0.3139929999999893
+        },
+        "peakRssBytes": {
+          "samples": 5,
+          "min": 152911872,
+          "max": 154972160,
+          "median": 153116672,
+          "q1": 153059328,
+          "q3": 153772032,
+          "iqr": 712704,
+          "mad": 204800
+        },
+        "formats": {
+          "json": {
+            "samples": 5,
+            "min": 14.096867000000003,
+            "max": 16.095474999999993,
+            "median": 15.225303999999994,
+            "q1": 14.77597800000001,
+            "q3": 15.245665000000002,
+            "iqr": 0.4696869999999933,
+            "mad": 0.449325999999985
+          },
+          "junit": {
+            "samples": 5,
+            "min": 49.84541100000001,
+            "max": 55.090768,
+            "median": 51.253949000000006,
+            "q1": 50.17492299999999,
+            "q3": 51.967901999999995,
+            "iqr": 1.7929790000000025,
+            "mad": 1.0790260000000131
+          },
+          "html": {
+            "samples": 5,
+            "min": 64.90142,
+            "max": 74.67716899999999,
+            "median": 71.67612600000001,
+            "q1": 70.58732900000001,
+            "q3": 73.47196299999999,
+            "iqr": 2.884633999999977,
+            "mad": 1.7958369999999775
+          }
+        }
+      },
+      "100000": {
+        "mergeMs": {
+          "samples": 5,
+          "min": 157.159022,
+          "max": 170.83432599999998,
+          "median": 161.408313,
+          "q1": 159.825494,
+          "q3": 161.46776300000002,
+          "iqr": 1.6422690000000273,
+          "mad": 1.5828190000000006
+        },
+        "peakRssBytes": {
+          "samples": 5,
+          "min": 655470592,
+          "max": 661782528,
+          "median": 660996096,
+          "q1": 660893696,
+          "q3": 661102592,
+          "iqr": 208896,
+          "mad": 106496
+        },
+        "formats": {
+          "json": {
+            "samples": 5,
+            "min": 130.93100600000002,
+            "max": 134.80349900000004,
+            "median": 131.65997200000004,
+            "q1": 131.08554900000001,
+            "q3": 132.042217,
+            "iqr": 0.9566679999999792,
+            "mad": 0.5744230000000243
+          },
+          "junit": {
+            "samples": 5,
+            "min": 315.27505299999996,
+            "max": 323.49100999999996,
+            "median": 315.85602,
+            "q1": 315.693225,
+            "q3": 321.204623,
+            "iqr": 5.511398000000042,
+            "mad": 0.5809670000000438
+          },
+          "html": {
+            "samples": 5,
+            "min": 535.1240000000001,
+            "max": 559.7276889999999,
+            "median": 544.277709,
+            "q1": 543.2414409999999,
+            "q3": 547.585402,
+            "iqr": 4.343961000000149,
+            "mad": 3.3076930000000857
+          }
+        }
+      }
+    }
+  },
+  "cleanup": {
+    "status": "PASS",
+    "remaining": {
+      "namespaces": 0,
+      "tenants": 0,
+      "accounts": 0
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceSha": "b679c996d9f33afb6a7d89fee294bd6fdfe3afc6",
-  "updatedAt": "2026-09-28T12:55:31Z",
+  "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
+  "updatedAt": "2026-09-28T15:43:20.047Z",
   "requirements": [
     {
       "id": "R-001",
@@ -226,16 +226,16 @@
       "id": "R-018",
       "requirement": "Benchmarks",
       "status": "PARTIAL",
-      "actualResult": "The Phase 11A benchmark harness, independent-runner workflow, inventory-equivalence checks, timing records, schemas, statistics, raw JSONL/CSV output, and regression tests are implemented. No hosted five-repetition benchmark result is claimed yet.",
+      "actualResult": "Five conditions and five measured repetitions passed the exact-source TeamBoard benchmark, with 500 equivalent clean executions, verified warmups, retained raw JSONL/CSV, reporter overhead, synthetic scaling and cleanup. Heterogeneous hardware prevents controlled speedup claims; finer lifecycle profiling remains incomplete.",
       "implementationPaths": [
         "benchmarks",
         ".github/workflows/benchmark.yml",
         "tests/benchmark-contract.test.mjs",
         "docs/delivery/benchmark-requirements.json"
       ],
-      "verification": "node --test tests/benchmark-*.test.mjs; hosted benchmark workflow still required",
+      "verification": "CI 36444479253; benchmark 36444479660; docs/delivery/benchmark-live-acceptance.md",
       "expectedBehavior": "Benchmarks",
-      "evidenceRecord": "phase-11a-candidate"
+      "evidenceRecord": "phase-11a-hosted-v3"
     },
     {
       "id": "M1-01",
@@ -351,12 +351,14 @@
       "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "Current source checkpoint through the Phase 11A benchmark candidate; public release remains incomplete",
-  "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where publication, hosted benchmark, documentation deployment, or other later-phase acceptance is absent.",
+  "scope": "Current source checkpoint through Phase 11A hosted benchmark execution acceptance; controlled-hardware performance and public release remain incomplete",
+  "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where controlled-hardware performance, publication, documentation deployment, or other later-phase acceptance is absent.",
   "evidenceLocations": [
     "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
     "docs/delivery/hardening-live-acceptance.md",
-    "docs/delivery/benchmark-requirements.json"
+    "docs/delivery/benchmark-requirements.json",
+    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36444479660",
+    "docs/delivery/benchmark-evidence.json"
   ],
   "workflowConclusion": "success",
   "evidenceRecords": {
@@ -377,6 +379,13 @@
       "workflowRun": null,
       "result": "implemented-pending-hosted-acceptance",
       "reportManifest": "docs/delivery/benchmark-requirements.json"
+    },
+    "phase-11a-hosted-v3": {
+      "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36444479660",
+      "result": "success",
+      "scope": "Benchmark execution acceptance with hardware/profiling limitations",
+      "reportManifest": "docs/delivery/benchmark-evidence.json"
     }
   }
 }

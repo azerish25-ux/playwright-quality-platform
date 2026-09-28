@@ -2,13 +2,19 @@
   "schemaVersion": 1,
   "milestone": "P11A",
   "title": "Reproducible TeamBoard benchmarks",
-  "status": "IMPLEMENTED_PENDING_HOSTED_ACCEPTANCE",
-  "sourceSha": null,
+  "status": "HOSTED_EXECUTION_ACCEPTED_WITH_LIMITATIONS",
+  "sourceSha": "9361d9fa9515ae9c173f644b993472133032e85e",
   "hostedAcceptance": {
-    "status": "NOT_RUN",
-    "workflowRun": null,
-    "artifactId": null,
-    "summaryDigest": null
+    "status": "PASS",
+    "workflowRun": 36444479660,
+    "ciRun": 36444479253,
+    "artifactId": 10979738095,
+    "summaryDigest": "5fce45e65e487a16949039d91fccda2f6b771a86ce2db96889796e99bc77fe7e",
+    "repetitions": 5,
+    "records": 25,
+    "measuredExecutions": 500,
+    "performanceStatus": "NOT_COMPARABLE",
+    "releaseEvidenceEligible": false
   },
   "conditions": [
     {
@@ -46,97 +52,115 @@
     {
       "id": "P11-01",
       "requirement": "Serial, two local-parallel, and two genuine independent-runner shard conditions",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         "benchmarks/lib/conditions.mjs",
         ".github/workflows/benchmark.yml"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-02",
       "requirement": "One exact execution inventory across every compared condition",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         "benchmarks/lib/inventory.mjs",
         "benchmarks/materialize-manifests.mjs",
         "benchmarks/record-run.mjs"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-03",
       "requirement": "Independent PostgreSQL and browser runners for each distributed shard",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         ".github/workflows/benchmark.yml"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-04",
       "requirement": "Retained raw JSONL, CSV, machine summary, and Markdown summary evidence",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         "benchmarks/summarize.mjs",
         "benchmarks/schemas"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-05",
       "requirement": "Median, range, IQR, MAD, speedup, and parallel-efficiency calculations",
-      "status": "IMPLEMENTED",
+      "status": "PARTIAL",
       "implementationPaths": [
         "benchmarks/lib/statistics.mjs",
         "benchmarks/lib/records.mjs"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md",
+      "actualResult": "Statistics and ratio guards are verified; actual cross-condition speedups are withheld because runner hardware differs."
     },
     {
       "id": "P11-06",
       "requirement": "Separate setup, execution, merge, elapsed wall, and aggregate runner timing",
-      "status": "IMPLEMENTED",
+      "status": "PARTIAL",
       "implementationPaths": [
         "benchmarks/write-shard-metadata.mjs",
         "benchmarks/record-run.mjs"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md",
+      "actualResult": "Setup, shard execution, merge, queue-inclusive wall and instrumented runner totals are retained. Readiness, in-process reporting and shutdown inside a shard are not separately profiled."
     },
     {
       "id": "P11-07",
       "requirement": "One-to-five bounded measured repetitions with five required for release evidence",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         "benchmarks/workflow-matrix.mjs",
         ".github/workflows/benchmark.yml"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-08",
       "requirement": "Focused regression coverage for statistics, inventories, manifests, and workflow trust boundaries",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "implementationPaths": [
         "tests/benchmark-statistics.test.mjs",
         "tests/benchmark-inventory.test.mjs",
         "tests/benchmark-contract.test.mjs"
       ],
-      "verification": "node --test tests/benchmark-*.test.mjs"
+      "verification": "node --test tests/benchmark-*.test.mjs",
+      "evidence": "docs/delivery/benchmark-live-acceptance.md",
+      "actualResult": "22 benchmark regression tests passed locally and in the exact-source hosted verification matrix."
     },
     {
       "id": "P11-09",
       "requirement": "Reporter-overhead and large-result scaling measurements",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "implementationPaths": [
-        "benchmarks/synthetic/factory-throughput.mjs"
-      ]
+        "benchmarks/reporter-overhead.mjs",
+        "benchmarks/synthetic/result-scaling.mjs",
+        "benchmarks/verify-cleanup.mjs",
+        ".github/workflows/benchmark-secondary.yml"
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md"
     },
     {
       "id": "P11-10",
       "requirement": "Hosted exact-source five-repetition benchmark acceptance",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "implementationPaths": [
         ".github/workflows/benchmark.yml"
-      ]
+      ],
+      "evidence": "docs/delivery/benchmark-live-acceptance.md",
+      "actualResult": "Five repetitions in each of five conditions passed execution, inventory, evidence and supplementary gates. This is not controlled-hardware performance acceptance."
     }
   ],
   "statusSemantics": {
     "PASS": "Verified by exact-source automated evidence already recorded in the repository.",
     "IMPLEMENTED": "Executable implementation and regression coverage exist but the hosted benchmark has not yet established a measured result.",
-    "NOT_RUN": "The named measurement or hosted acceptance has not been executed and is not represented as complete."
+    "NOT_RUN": "The named measurement or hosted acceptance has not been executed and is not represented as complete.",
+    "PARTIAL": "The recorded execution evidence is valid but the named profiling or performance requirement has an explicit remaining limitation."
   }
 }

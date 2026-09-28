@@ -1,6 +1,6 @@
-# Delivery checkpoint — Phase 11A benchmark candidate
+# Delivery checkpoint — Phase 11A hosted execution accepted
 
-**ForgeQA has exact-source hosted acceptance for its source-distributed GitHub platform, both real consumer integrations, and the Phase 10A release-blocking hardening baseline. This revision implements the Phase 11A reproducible TeamBoard benchmark system, but no hosted five-repetition benchmark result or public release is claimed yet.**
+**ForgeQA has hosted acceptance for the Phase 11A benchmark execution/evidence system at `9361d9fa9515ae9c173f644b993472133032e85e`, including five repetitions per condition. Hardware comparability and finer lifecycle profiling remain limited; the complete public product is not released.**
 
 ## Current accepted source baseline
 
@@ -34,32 +34,17 @@ The exact accepted run measured:
 
 The hardening lane audits all eight package tarballs, rejects private-source or local-protocol leakage, verifies exported and executable targets, scans for credential canaries, and installs the exact tarballs in clean npm and pnpm consumers. P10-01 through P10-06 are `PASS` in [hardening-requirements.json](hardening-requirements.json).
 
-## Phase 11A benchmark candidate implemented
+## Phase 11A hosted execution accepted
 
-This revision adds a reproducible benchmark system around the real TeamBoard inventory. It compares:
+[CI run 36444479253](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36444479253) and [benchmark run 36444479660](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36444479660) passed at source `9361d9fa9515ae9c173f644b993472133032e85e`. The benchmark produced 25 condition/repetition records and verified the same 20 execution identities in each, with 500 clean first attempts total.
 
-- one shard with one worker;
-- one shard with two workers;
-- one shard with four workers;
-- two independent GitHub runners with one worker each;
-- four independent GitHub runners with one worker each.
+The system compares serial execution, two local worker counts and two true independent-runner shard counts. It verifies one separately retained warm-up per shard/repetition, immutable inventory, exact software/policy contracts, native/canonical report integrity and complete evidence. Raw JSONL/CSV, summaries, checksums, CPU/memory/version metadata and separate execution, merge, queue-inclusive wall and aggregate runner durations are retained.
 
-The benchmark implementation provides:
+Five native-versus-ForgeQA reporter-overhead repetitions per mode and five synthetic scaling repetitions at each of 1,000/10,000/100,000 attempts passed. Independent database cleanup found zero remaining owned namespaces, tenants or accounts. Twenty-two focused benchmark regressions pass.
 
-- one immutable discovery inventory per condition;
-- unique run identities per measured repetition;
-- independent PostgreSQL and browser setup for every distributed shard;
-- finalized ForgeQA journals and native Playwright blob evidence from every shard;
-- fail-closed canonical merge and exact expected-versus-observed execution identity comparison;
-- setup, execution, merge, elapsed wall, and aggregate runner timing;
-- runner OS, CPU, memory, image, Node, Playwright, and package-manager metadata;
-- retained raw JSONL and CSV records plus JSON and Markdown summaries;
-- median, range, interquartile range, median absolute deviation, speedup, and parallel-efficiency calculations;
-- bounded one-, three-, or five-repetition execution, with five required for release evidence;
-- an explicit zero-warm-up policy recorded as a limitation rather than hidden from the results;
-- focused regression tests for matrices, inventories, statistics, records, manifest materialization, and workflow structure.
+Hardware fingerprints are not identical: `performanceStatus` is `NOT_COMPARABLE` and controlled-hardware `releaseEvidenceEligible` is `false`. The system withholds speedup and efficiency claims, rather than rounding away hardware differences. Readiness, in-process reporting and shutdown within each shard remain combined; finer lifecycle instrumentation is unfinished. The monthly one-repetition run remains a smoke test, not release-quality performance evidence.
 
-The workflow is present at `.github/workflows/benchmark.yml`. The monthly scheduled run is a one-repetition contract smoke and is not release-quality performance evidence. A manually dispatched five-repetition exact-source run is still required before any benchmark result is accepted. See [benchmark-requirements.json](benchmark-requirements.json) and [../../benchmarks/README.md](../../benchmarks/README.md).
+See [benchmark-live-acceptance.md](benchmark-live-acceptance.md), [benchmark-requirements.json](benchmark-requirements.json), [benchmark-evidence.json](benchmark-evidence.json) and [benchmark-observations.csv](benchmark-observations.csv).
 
 ## GitHub platform and trusted PR reporting
 
@@ -84,7 +69,7 @@ No GitHub Marketplace listing or account-owner terms acceptance is claimed.
 
 LedgerGuard has genuine hosted API-first acceptance but still has no browser product interface. No copied or fabricated UI is substituted.
 
-No accepted comparable benchmark result is claimed until the five-repetition hosted workflow passes at the exact delivered revision and its retained records are reviewed.
+The five-repetition execution/evidence pipeline is accepted. Controlled-hardware comparative performance and complete granular lifecycle timing are not claimed.
 
 No versioned documentation website deployment is claimed. Markdown documentation and ADR source are not substituted for a visited, versioned deployment with link and snippet verification.
 
