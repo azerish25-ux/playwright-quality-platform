@@ -3,11 +3,14 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { benchmarkCondition } from './lib/conditions.mjs';
 
+import { MEASUREMENT_VERSION, protocolDigest } from './lib/measurement.mjs';
+
 const args = parseArgs(process.argv.slice(2));
 const condition = benchmarkCondition(required(args, 'condition'));
 const repetition = positiveInteger(required(args, 'repetition'), 'repetition');
 const shard = positiveInteger(required(args, 'shard'), 'shard');
 const status = Number(required(args, 'status'));
+if (!Number.isInteger(status) || status < 0 || status > 255) throw new Error('Invalid shard exit status.');
 const jobStartMs = timestamp(required(args, 'job-start-ms'), 'job-start-ms');
 const setupEndMs = timestamp(required(args, 'setup-end-ms'), 'setup-end-ms');
 const runStartMs = timestamp(required(args, 'run-start-ms'), 'run-start-ms');
@@ -19,6 +22,9 @@ const rootPackage = JSON.parse(await readFile(resolve('package.json'), 'utf8'));
 const playwrightPackage = JSON.parse(await readFile(resolve('node_modules/@playwright/test/package.json'), 'utf8'));
 const metadata = {
   schemaVersion: 1,
+  measurementVersion: MEASUREMENT_VERSION,
+  warmups: 1,
+  warmupStatus: Number(required(args, 'warmup-status')),
   kind: 'forgeqa-benchmark-shard',
   sourceSha: process.env.FORGEQA_SOURCE_SHA ?? 'local',
   condition: condition.id,
@@ -48,9 +54,14 @@ const metadata = {
     cpuCount: cpus().length,
     cpuModel: cpus()[0]?.model ?? 'unknown',
     totalMemoryBytes: totalmem(),
+    imageVersion: process.env.ImageVersion ?? 'local',
     image: process.env.ImageOS ?? process.env.RUNNER_OS ?? 'local'
   }
 };
+const warmup = JSON.parse(await readFile(resolve('evidence/benchmarks/warmups', condition.id, `r${repetition}`, `s${shard}`, 'warmup.json'), 'utf8'));
+if (warmup.status !== 'PASS' || warmup.condition !== condition.id || warmup.repetition !== repetition || warmup.shard !== shard) throw new Error('Missing or incompatible verified warm-up receipt.');
+metadata.warmup = warmup;
+metadata.protocolDigest = await protocolDigest(metadata.runner);
 await mkdir(dirname(output), { recursive: true });
 await writeFile(output, `${JSON.stringify(metadata, null, 2)}\n`);
 

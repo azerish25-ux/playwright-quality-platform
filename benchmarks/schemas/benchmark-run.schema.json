@@ -15,7 +15,9 @@
     "workers",
     "shards",
     "inventory",
-    "durations"
+    "durations",
+    "measurementVersion",
+    "protocolDigest"
   ],
   "properties": {
     "schemaVersion": {
@@ -32,7 +34,7 @@
     },
     "sourceSha": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[a-f0-9]{40}$"
     },
     "condition": {
       "enum": [
@@ -88,7 +90,10 @@
         "testAggregateMs",
         "mergeMs",
         "wallMs",
-        "aggregateRunnerMs"
+        "aggregateRunnerMs",
+        "criticalPathMs",
+        "schedulingSkewMs",
+        "coordinationWaitMs"
       ],
       "additionalProperties": false,
       "properties": {
@@ -123,12 +128,31 @@
         "aggregateRunnerMs": {
           "type": "number",
           "minimum": 0
+        },
+        "criticalPathMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "schedulingSkewMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "coordinationWaitMs": {
+          "type": "number",
+          "minimum": 0
         }
       }
     },
     "warmups": {
       "type": "integer",
       "minimum": 0
+    },
+    "measurementVersion": {
+      "const": 2
+    },
+    "protocolDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
     }
   }
 }

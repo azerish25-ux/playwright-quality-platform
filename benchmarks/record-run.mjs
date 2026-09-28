@@ -3,6 +3,8 @@ import { dirname, resolve } from 'node:path';
 import { benchmarkCondition } from './lib/conditions.mjs';
 import { assertEquivalentExecutionInventory, expectedInventoryDigest, observedInventoryDigest, projectInventory } from './lib/inventory.mjs';
 
+import { MEASUREMENT_VERSION, measuredDurations } from './lib/measurement.mjs';
+
 const args = parseArgs(process.argv.slice(2));
 const condition = benchmarkCondition(required(args, 'condition'));
 const repetition = positiveInteger(required(args, 'repetition'), 'repetition');
@@ -26,6 +28,7 @@ if (planMetadata.condition !== condition.id || planMetadata.workers !== conditio
 const shardMetadataPaths = (await findFiles(shardRoot, 'shard-metadata.json')).sort();
 const shardMetadata = await Promise.all(shardMetadataPaths.map(async path => JSON.parse(await readFile(path, 'utf8'))));
 const failures = [];
+if (planMetadata.sourceSha !== process.env.FORGEQA_SOURCE_SHA) failures.push('Plan source does not match the requested source revision.');
 if (shardMetadata.length !== condition.shards) failures.push(`Expected ${condition.shards} shard metadata files; found ${shardMetadata.length}.`);
 const shardIndexes = shardMetadata.map(entry => entry.shard).sort((left, right) => left - right);
 if (new Set(shardIndexes).size !== shardIndexes.length) failures.push('Duplicate shard metadata was downloaded.');
@@ -33,8 +36,10 @@ for (let shard = 1; shard <= condition.shards; shard += 1) if (!shardIndexes.inc
 for (const metadata of shardMetadata) {
   if (metadata.condition !== condition.id || metadata.repetition !== repetition || metadata.shards !== condition.shards || metadata.workers !== condition.workers) failures.push(`Shard ${metadata.shard ?? '?'} metadata does not match the benchmark condition.`);
   if (metadata.sourceSha !== (process.env.FORGEQA_SOURCE_SHA ?? metadata.sourceSha)) failures.push(`Shard ${metadata.shard ?? '?'} used a different source SHA.`);
+  if (metadata.measurementVersion !== MEASUREMENT_VERSION || metadata.warmups !== 1 || metadata.warmupStatus !== 0) failures.push('Shard lacks a verified unmeasured warm-up.');
   if (metadata.status !== 0) failures.push(`Shard ${metadata.shard ?? '?'} exited with status ${metadata.status}.`);
 }
+if (new Set(shardMetadata.map(entry => entry.protocolDigest)).size !== 1) failures.push('Shard protocols disagree.');
 if (mergeStatus !== 0) failures.push(`Merge exited with status ${mergeStatus}.`);
 
 let report;
@@ -50,6 +55,8 @@ let inventory = {
   projects: projectInventory(manifest.expected)
 };
 if (report) {
+  for (const key of ['runId', 'configHash', 'selectionHash']) if (report[key] !== manifest[key]) failures.push(`Merged report ${key} disagrees with manifest.`);
+  if (report.attempts?.some(entry => entry.retry !== 0 || entry.outcome !== 'passed') || report.attempts?.length !== manifest.expected.length) failures.push('Benchmark requires one clean first attempt per expected execution.');
   try {
     inventory = { ...assertEquivalentExecutionInventory(manifest.expected, report.attempts ?? []), projects: projectInventory(manifest.expected) };
   } catch (error) {
@@ -62,23 +69,11 @@ if (report) {
   if (report.gate?.outcome !== 'pass') failures.push(`Merged quality gate outcome is ${String(report.gate?.outcome)}.`);
 }
 
-const starts = shardMetadata.map(entry => entry.timings?.jobStartMs).filter(Number.isFinite);
-const setupEnds = shardMetadata.map(entry => entry.timings?.setupEndMs).filter(Number.isFinite);
-const runStarts = shardMetadata.map(entry => entry.timings?.runStartMs).filter(Number.isFinite);
-const runEnds = shardMetadata.map(entry => entry.timings?.runEndMs).filter(Number.isFinite);
-const sum = values => values.reduce((total, value) => total + value, 0);
-const planMs = Number(planMetadata.planMs ?? 0);
-const mergeSetupMs = mergeStartMs - mergeJobStartMs;
-const setupAggregateMs = sum(shardMetadata.map(entry => Number(entry.timings?.setupMs ?? 0))) + mergeSetupMs;
-const testAggregateMs = sum(shardMetadata.map(entry => Number(entry.timings?.runMs ?? 0)));
-const shardAggregateMs = sum(shardMetadata.map(entry => Number(entry.timings?.totalMs ?? 0)));
-const setupWallMs = starts.length && setupEnds.length ? Math.max(...setupEnds) - Math.min(...starts) : 0;
-const testWallMs = runStarts.length && runEnds.length ? Math.max(...runEnds) - Math.min(...runStarts) : 0;
-const mergeMs = mergeEndMs - mergeStartMs;
-const wallStart = starts.length ? Math.min(...starts) : mergeStartMs;
-const wallMs = planMs + Math.max(0, mergeEndMs - wallStart);
+const durations = measuredDurations(shardMetadata, planMetadata.planMs, mergeJobStartMs, mergeStartMs, mergeEndMs);
 const record = {
   schemaVersion: 1,
+  measurementVersion: MEASUREMENT_VERSION,
+  protocolDigest: shardMetadata[0]?.protocolDigest,
   kind: 'forgeqa-benchmark-run',
   status: failures.length ? 'FAIL' : 'PASS',
   sourceSha: process.env.FORGEQA_SOURCE_SHA ?? planMetadata.sourceSha ?? 'local',
@@ -99,22 +94,13 @@ const record = {
   repetition,
   workers: condition.workers,
   shards: condition.shards,
-  warmups: 0,
+  warmups: 1,
   cacheState: 'dependency-cache-disabled',
   artifactPolicy: { trace: 'off', screenshot: 'off', video: 'off' },
   generatedAt: new Date().toISOString(),
   inventory,
   attempts: Array.isArray(report?.attempts) ? report.attempts.length : 0,
-  durations: {
-    planMs,
-    setupWallMs,
-    setupAggregateMs,
-    testWallMs,
-    testAggregateMs,
-    mergeMs,
-    wallMs,
-    aggregateRunnerMs: planMs + shardAggregateMs + (mergeEndMs - mergeJobStartMs)
-  },
+  durations,
   runners: shardMetadata.map(entry => ({ shard: entry.shard, ...entry.runner })),
   runId: manifest.runId,
   failures

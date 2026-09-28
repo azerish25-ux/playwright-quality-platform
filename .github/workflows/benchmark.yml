@@ -1,5 +1,8 @@
 name: ForgeQA benchmarks
 on:
+  push:
+    branches: [main]
+    paths: ['benchmarks/**', '.github/workflows/benchmark.yml', 'examples/demo-saas/*benchmark.config.ts']
   workflow_dispatch:
     inputs:
       repetitions:
@@ -33,7 +36,7 @@ jobs:
         with: { node-version: 22, package-manager-cache: false }
       - id: matrix
         env:
-          BENCHMARK_REPETITIONS: ${{ github.event_name == 'schedule' && '1' || inputs.repetitions }}
+          BENCHMARK_REPETITIONS: ${{ inputs.repetitions || '1' }}
         run: node benchmarks/workflow-matrix.mjs --repetitions "$BENCHMARK_REPETITIONS"
 
   plan:
@@ -126,6 +129,15 @@ jobs:
           path: evidence/benchmarks/plans/${{ matrix.condition }}
       - name: Mark setup completion
         run: date +%s%3N > .benchmark-setup-end-ms
+      - name: Verify one unmeasured warm-up per shard
+        env:
+          CONDITION: ${{ matrix.condition }}
+          REPETITION: ${{ matrix.repetition }}
+          SHARD: ${{ matrix.shard }}
+        run: >-
+          node benchmarks/warmup.mjs
+          --condition "$CONDITION" --repetition "$REPETITION" --shard "$SHARD"
+          --manifest "evidence/benchmarks/plans/$CONDITION/manifest-r$REPETITION.json"
       - name: Execute shard ${{ matrix.shard }}/${{ matrix.shards }} for ${{ matrix.condition }} repetition ${{ matrix.repetition }}
         env:
           CONDITION: ${{ matrix.condition }}
@@ -160,6 +172,7 @@ jobs:
             --repetition "$REPETITION" \
             --shard "$SHARD" \
             --status "$status" \
+            --warmup-status "0" \
             --job-start-ms "$(cat .benchmark-job-start-ms)" \
             --setup-end-ms "$(cat .benchmark-setup-end-ms)" \
             --run-start-ms "$run_started" \
@@ -173,6 +186,13 @@ jobs:
           path: |
             evidence/benchmarks/shards/${{ matrix.condition }}/r${{ matrix.repetition }}/s${{ matrix.shard }}/
             examples/demo-saas/forgeqa-benchmark-results/${{ matrix.condition }}/
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-warmup-${{ matrix.condition }}-r${{ matrix.repetition }}-s${{ matrix.shard }}-${{ github.sha }}
+          path: evidence/benchmarks/warmups/${{ matrix.condition }}/r${{ matrix.repetition }}/s${{ matrix.shard }}/
           if-no-files-found: error
           retention-days: 14
 

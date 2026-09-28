@@ -1,4 +1,5 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { benchmarkCsvHeader, benchmarkCsvRow, summarizeBenchmarkRecords } from './lib/records.mjs';
 
@@ -47,6 +48,8 @@ for (const record of records) {
 await writeFile(resolve(output, 'raw.csv'), `${csvRows.map(row => row.map(csvCell).join(',')).join('\n')}\n`);
 await writeFile(resolve(output, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
 await writeFile(resolve(output, 'summary.md'), renderMarkdown(summary));
+const sums = await Promise.all(['raw.jsonl', 'raw.csv', 'summary.json', 'summary.md'].map(async name => `${createHash('sha256').update(await readFile(resolve(output, name))).digest('hex')}  ${name}`));
+await writeFile(resolve(output, 'SHA256SUMS'), `${sums.join('\n')}\n`);
 process.stdout.write(`${JSON.stringify({ status: summary.status, output, records: records.length, failure: summaryFailure })}\n`);
 if (summary.status !== 'PASS') process.exitCode = 1;
 
@@ -80,11 +83,11 @@ function renderMarkdown(value) {
   if (value.limitations?.length) {
     lines.push('', '## Limitations', '', ...value.limitations.map(item => `- ${item}`));
   }
-  lines.push('', '## Comparable conditions', '', '| Condition | Median wall | Range | IQR | MAD | Median runner time | Speedup | Efficiency |', '|---|---:|---:|---:|---:|---:|---:|---:|');
+  lines.push('', '## Comparable conditions', '', '| Condition | Median execution + merge | Range | IQR | MAD | Instrumented runner time | Execution speedup | Efficiency |', '|---|---:|---:|---:|---:|---:|---:|---:|');
   for (const [id, condition] of Object.entries(value.conditions)) {
-    lines.push(`| ${condition.label} (\`${id}\`) | ${formatMs(condition.wallMs.median)} | ${formatMs(condition.wallMs.min)}–${formatMs(condition.wallMs.max)} | ${formatMs(condition.wallMs.iqr)} | ${formatMs(condition.wallMs.mad)} | ${formatMs(condition.aggregateRunnerMs.median)} | ${formatRatio(condition.speedup)} | ${formatRatio(condition.parallelEfficiency)} |`);
+    lines.push(`| ${condition.label} (\`${id}\`) | ${formatMs(condition.criticalPathMs.median)} | ${formatMs(condition.criticalPathMs.min)}–${formatMs(condition.criticalPathMs.max)} | ${formatMs(condition.criticalPathMs.iqr)} | ${formatMs(condition.criticalPathMs.mad)} | ${formatMs(condition.aggregateRunnerMs.median)} | ${formatRatio(condition.speedup)} | ${formatRatio(condition.parallelEfficiency)} |`);
   }
-  lines.push('', 'Elapsed wall time and aggregate runner time are reported separately. Distributed sharding is not treated as free compute, and no speedup is claimed unless every condition executed the identical ForgeQA inventory.', '');
+  lines.push('', 'Queue-inclusive elapsed wall time is retained separately in raw data. Ratios use the measured critical-path execution duration, not shared matrix-barrier waiting. Failed cohorts never receive speedup ratios.', '');
   return `${lines.join('\n')}\n`;
 }
 function formatMs(value) { return `${Math.round(value)} ms`; }

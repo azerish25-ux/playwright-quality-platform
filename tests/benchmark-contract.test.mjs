@@ -13,6 +13,8 @@ function record(condition, repetition, wallMs, overrides = {}) {
   return {
     schemaVersion: 1,
     kind: 'forgeqa-benchmark-run',
+    measurementVersion: 2,
+    protocolDigest: digest,
     status: 'PASS',
     sourceSha: 'b'.repeat(40),
     warmups: 0,
@@ -28,6 +30,9 @@ function record(condition, repetition, wallMs, overrides = {}) {
       testWallMs: wallMs - 20,
       testAggregateMs: (wallMs - 20) * condition.shards,
       mergeMs: 20,
+      criticalPathMs: wallMs,
+      schedulingSkewMs: 0,
+      coordinationWaitMs: 0,
       wallMs,
       aggregateRunnerMs: wallMs * condition.shards
     },
@@ -123,7 +128,7 @@ test('summary materializes failure evidence when benchmark records are absent', 
 });
 
 test('hosted workflow uses independent shard jobs and fail-closed evidence merging', async () => {
-  const workflow = await readFile('.github/workflows/benchmark.yml', 'utf8');
+  const workflow = (await readFile('.github/workflows/benchmark.yml', 'utf8')).replaceAll('\r\n', '\n');
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /cancel-in-progress: false/);

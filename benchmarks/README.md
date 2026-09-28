@@ -18,11 +18,12 @@ One immutable ForgeQA discovery inventory is created per condition. Each measure
 
 The hosted workflow is `.github/workflows/benchmark.yml`.
 
+- Relevant main-branch pushes run a one-repetition acceptance smoke.
 - Manual runs accept 1, 3, or 5 measured repetitions.
 - Use five repetitions for release evidence.
 - The monthly scheduled run uses one repetition as a bounded workflow and contract smoke test; it is not represented as release-quality performance evidence.
 - Dependency caching is disabled so cache state is explicit and identical across conditions.
-- The current candidate records zero unmeasured warm-up executions; that limitation is carried into every summary rather than hidden.
+- Each shard verifies one unmeasured warm-up using a distinct run identity. Warm-up journals are retained separately and excluded from measured merges.
 
 `npm run benchmark` previews the exact condition matrix without consuming hosted runners. `npm run benchmark:synthetic` runs the separately labelled deterministic-factory microbenchmark. Synthetic results are never presented as TeamBoard or browser-suite measurements.
 
@@ -37,7 +38,7 @@ For every condition and repetition the workflow retains:
 - merged canonical reports and gate outcome;
 - a schema-versioned benchmark record.
 
-The final summary artifact contains `raw.jsonl`, `raw.csv`, `summary.json`, and `summary.md`. It reports median, range, interquartile range, median absolute deviation, elapsed wall time, aggregate runner time, speedup, and parallel efficiency. Elapsed latency and consumed runner time remain separate.
+The final summary artifact contains `raw.jsonl`, `raw.csv`, `summary.json`, `summary.md`, and `SHA256SUMS`. It reports median, range, interquartile range, median absolute deviation, elapsed wall time, aggregate runner time, critical-path execution speedup, and parallel efficiency. Ratios never use shared matrix-barrier waiting and are suppressed for any failed cohort. Elapsed latency and consumed runner time remain separate.
 
 ## Integrity rules
 
@@ -55,3 +56,7 @@ A smaller sample is allowed for workflow smoke testing but is labelled as a limi
 ## Current boundary
 
 The harness, workflow, schemas, statistics, and regression tests are implemented. No production benchmark result is claimed until the hosted workflow succeeds at the exact delivered source revision and the retained summary is reviewed and recorded in the delivery ledger.
+
+## Measurement boundaries
+
+Measurement version 2 compares `max(shard.runMs) + mergeMs`, not queue-inclusive workflow wall time. The observed `wallMs` and scheduling skew remain in raw records; shared job barriers can inflate them. Aggregate runner time covers instrumented intervals only, excluding checkout, service provisioning, final uploads and service shutdown. Application readiness, execution, in-process reporting and shutdown remain combined inside each shard run. Exact source and lock/config/runner-protocol digests must match. Source-mode benchmarks are not registry or packed-package performance evidence.

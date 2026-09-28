@@ -1,7 +1,8 @@
 import { BENCHMARK_CONDITIONS, parseRepetitions } from './conditions.mjs';
 import { summarizeSeries, ratio } from './statistics.mjs';
+import { MEASUREMENT_VERSION, SPEEDUP_BASIS, TIMING_LIMITATIONS } from './measurement.mjs';
 
-const durationFields = ['planMs', 'setupWallMs', 'setupAggregateMs', 'testWallMs', 'testAggregateMs', 'mergeMs', 'wallMs', 'aggregateRunnerMs'];
+const durationFields = ['planMs', 'setupWallMs', 'setupAggregateMs', 'testWallMs', 'testAggregateMs', 'mergeMs', 'criticalPathMs', 'schedulingSkewMs', 'coordinationWaitMs', 'wallMs', 'aggregateRunnerMs'];
 
 function requiredString(value, name) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`Benchmark record ${name} must be a non-empty string.`);
@@ -17,6 +18,9 @@ export function validateBenchmarkRecord(record) {
   if (!record || typeof record !== 'object') throw new Error('Benchmark record must be an object.');
   if (record.schemaVersion !== 1 || record.kind !== 'forgeqa-benchmark-run') throw new Error('Unsupported benchmark record schema.');
   requiredString(record.sourceSha, 'sourceSha');
+  if (!/^[a-f0-9]{40}$/.test(record.sourceSha)) throw new Error('Benchmark sourceSha must be an exact commit SHA.');
+  if (record.measurementVersion !== MEASUREMENT_VERSION) throw new Error('Unsupported benchmark measurement version.');
+  if (!/^[a-f0-9]{64}$/.test(record.protocolDigest ?? '')) throw new Error('Benchmark protocol digest is required.');
   requiredString(record.condition, 'condition');
   if (!BENCHMARK_CONDITIONS.some(condition => condition.id === record.condition)) throw new Error(`Unknown benchmark condition: ${record.condition}`);
   if (!Number.isSafeInteger(record.repetition) || record.repetition < 1 || record.repetition > 5) throw new Error('Benchmark repetition must be between 1 and 5.');
@@ -30,6 +34,9 @@ export function validateBenchmarkRecord(record) {
   for (const field of durationFields) nonNegative(record.durations[field], `durations.${field}`);
   if (!Number.isSafeInteger(record.workers) || record.workers < 1) throw new Error('Benchmark workers must be positive.');
   if (!Number.isSafeInteger(record.shards) || record.shards < 1) throw new Error('Benchmark shards must be positive.');
+  const condition = BENCHMARK_CONDITIONS.find(value => value.id === record.condition);
+  if (record.workers !== condition.workers || record.shards !== condition.shards) throw new Error('Benchmark execution dimensions contradict the condition.');
+  if (record.durations.criticalPathMs !== record.durations.testWallMs + record.durations.mergeMs) throw new Error('Critical-path duration contradicts measured execution and merge.');
   return record;
 }
 
@@ -54,6 +61,8 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
   if (expectedDigests.length !== 1 || observedDigests.length !== 1 || expectedDigests[0] !== observedDigests[0]) {
     throw new Error('Benchmark conditions did not execute an identical inventory.');
   }
+  if (new Set(validated.map(record => record.inventory.count)).size !== 1) throw new Error('Benchmark inventory counts disagree.');
+  if (new Set(validated.map(record => record.protocolDigest)).size !== 1) throw new Error('Benchmark protocols or runner environments differ.');
   const warmupCounts = [...new Set(validated.map(record => record.warmups))];
   if (warmupCounts.length !== 1) throw new Error('Benchmark records do not share one warm-up policy.');
   const failed = validated.filter(record => record.status !== 'PASS');
@@ -66,17 +75,18 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
       shards: condition.shards,
       topology: condition.topology,
       samples: conditionRecords.length,
+      criticalPathMs: summarizeSeries(conditionRecords.map(record => record.durations.criticalPathMs)),
       wallMs: summarizeSeries(conditionRecords.map(record => record.durations.wallMs)),
       testWallMs: summarizeSeries(conditionRecords.map(record => record.durations.testWallMs)),
       aggregateRunnerMs: summarizeSeries(conditionRecords.map(record => record.durations.aggregateRunnerMs)),
       mergeMs: summarizeSeries(conditionRecords.map(record => record.durations.mergeMs))
     };
   }
-  const baseline = byCondition['serial-1x1'].wallMs.median;
+  const baseline = byCondition['serial-1x1'].criticalPathMs.median;
   for (const condition of BENCHMARK_CONDITIONS) {
     const summary = byCondition[condition.id];
-    summary.speedup = ratio(baseline, summary.wallMs.median);
-    summary.parallelEfficiency = ratio(summary.speedup, condition.workers * condition.shards);
+    summary.speedup = failed.length ? null : ratio(baseline, summary.criticalPathMs.median);
+    summary.parallelEfficiency = summary.speedup === null ? null : ratio(summary.speedup, condition.workers * condition.shards);
   }
   return {
     schemaVersion: 1,
@@ -85,11 +95,15 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
     sourceSha: sourceShas[0],
     repetitions,
     inventoryDigest: expectedDigests[0],
+    measurementVersion: MEASUREMENT_VERSION,
+    speedupBasis: SPEEDUP_BASIS,
+    protocolDigest: validated[0].protocolDigest,
     inventoryCount: validated[0].inventory.count,
     warmups: warmupCounts[0],
     limitations: [
       ...(repetitions < 5 ? [`Only ${repetitions} measured repetition${repetitions === 1 ? '' : 's'} per condition; run five repetitions for release evidence.`] : []),
-      ...(warmupCounts[0] === 0 ? ['No unmeasured warm-up execution is currently performed; cache state remains disabled and this limitation must accompany any result.'] : [])
+      ...(warmupCounts[0] === 0 ? ['No unmeasured warm-up execution is currently performed; cache state remains disabled and this limitation must accompany any result.'] : []),
+      ...TIMING_LIMITATIONS
     ],
     failed: failed.map(record => ({ condition: record.condition, repetition: record.repetition, failures: record.failures ?? [] })),
     conditions: byCondition
