@@ -90,3 +90,12 @@ test('documentation workflow requires all acceptance steps without deployment pe
   assert(!workflow.includes('pages: write'));
   assert(!workflow.includes('id-token: write'));
 });
+
+test('search acceptance uses real keyboard events and opens a matching result', async () => {
+  const browser = await readFile(resolve(root, 'scripts/docs/browser-check.mjs'), 'utf8');
+  assert(browser.includes("pressSequentially('quarantine')"));
+  assert(!browser.includes(".fill('quarantine')"));
+  assert(browser.includes("hasText: /^Quarantine$/"));
+  assert(browser.includes('browser-failure.json'));
+  assert(browser.includes('throw error;'));
+});

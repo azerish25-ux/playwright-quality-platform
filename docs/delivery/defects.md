@@ -28,6 +28,12 @@ All entries distinguish an implementation repair from the later exact-SHA CI pro
 | B-004 | Blocking: Firefox role-transition warm-up failed in run `36439279027`. | Navigation raced completion of the logout request and login-form rendering. Await successful logout response and visible sign-in form before navigation; retain every browser and assertion. | `logoutPage` fixture; `tests/benchmark-lifecycle.test.mjs`; repeated real TeamBoard UI execution. |
 | B-005 | Integrity: five-repetition run `36442326322` completed all test executions but mixed Linux memory readings and CPU models. | Earlier protocol hashing conflated software identity with hardware comparability. Measurement v3 keeps software/policy equality strict and records exact, unrounded hardware fingerprints separately. Even a one-byte memory difference blocks performance eligibility and ratios, while complete valid observations remain retainable. Previous failed runs remain failed evidence. | `tests/benchmark-lifecycle.test.mjs`; `tests/benchmark-measurement.test.mjs`; exact-source five-repetition acceptance and machine-readable `NOT_COMPARABLE` boundary. |
 
+## Documentation acceptance repairs
+
+| ID | Severity and reproduction | Root cause and repair | Regression evidence |
+|---|---|---|---|
+| DOC-001 | Blocking: documentation run `36467309806` passed installation, snippets, build and 3,543 local references, then found no search results in Chromium. | The acceptance driver used `fill`, while the pinned MkDocs search implementation registers a `keyup` handler. Exercise actual keyboard events with `pressSequentially`, retain the nonempty-result assertion, and open the matching Quarantine page. Capture failure diagnostics without masking the originating error. No timeout, retry or quality gate is relaxed. | `tests/docs-contract.test.mjs`; `scripts/docs/browser-check.mjs`; exact-source hosted rerun required. |
+
 ## Scope still requiring verification
 
 This ledger does not certify production suitability, registry publication, immutable public action distribution, deployed documentation, comparable release benchmarks, or a genuine LedgerGuard browser interface. Missing, failed, or cancelled hosted jobs remain blocking in the aggregate check. Review the exact delivered commit rather than relying on a previous green run.

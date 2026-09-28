@@ -22,11 +22,11 @@ const server = createServer(async (request, response) => {
 });
 await new Promise((done) => server.listen(0, '127.0.0.1', done));
 const origin = `http://127.0.0.1:${server.address().port}`;
-let browser;
+let browser, page;
 const failures = [];
 try {
   browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.on('pageerror', (error) => failures.push(error.message));
   page.on('response', (response) => { if (response.url().startsWith(origin) && response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   await page.goto(`${origin}${base}`, { waitUntil: 'networkidle' });
@@ -36,10 +36,12 @@ try {
   assert(page.url().startsWith(`${origin}${base}next/quickstart/`));
   await page.screenshot({ path: 'evidence/docs/desktop.png', fullPage: true });
   await page.getByRole('link', { name: /Search/ }).first().click();
-  await page.locator('#mkdocs-search-query').fill('quarantine');
+  // MkDocs 1.6.1 listens for keyup; fill() does not model typing those events.
+  await page.locator('#mkdocs-search-query').pressSequentially('quarantine');
   await expect(page.locator('#mkdocs-search-results a').first()).toBeVisible();
   await page.screenshot({ path: 'evidence/docs/search.png' });
-  await page.keyboard.press('Escape');
+  await page.locator('#mkdocs-search-results a').filter({ hasText: /^Quarantine$/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Quarantine', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${origin}${base}next/quickstart/`, { waitUntil: 'networkidle' });
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), 'Mobile documentation overflows its viewport.');
@@ -47,6 +49,13 @@ try {
   assert.deepEqual(failures, [], 'Documentation browser or asset failures.');
   await writeFile('evidence/docs/browser.json', `${JSON.stringify({ schemaVersion: 1, status: 'PASS', base, navigation: true, localSearch: true, mobileOverflow: false, consoleErrors: failures, publicationClaimed: false }, null, 2)}\n`);
   console.log('Documentation navigation, local search, mobile layout and asset checks passed.');
+} catch (error) {
+  // Diagnostic capture must not replace the originating assertion failure.
+  try {
+    if (page) await page.screenshot({ path: 'evidence/docs/browser-failure.png', fullPage: true });
+    await writeFile('evidence/docs/browser-failure.json', `${JSON.stringify({ schemaVersion: 1, status: 'FAIL', message: String(error), pageErrors: failures, publicationClaimed: false }, null, 2)}\n`);
+  } catch (diagnosticError) { console.error('Could not retain browser failure diagnostics:', String(diagnosticError)); }
+  throw error;
 } finally {
   if (browser) await browser.close();
   await new Promise((done) => server.close(done));
