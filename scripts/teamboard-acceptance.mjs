@@ -2,6 +2,8 @@ import {spawnSync} from 'node:child_process';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import pg from 'pg';
+// The same required acceptance lane also exercises the public PostgreSQL adapter.
+await import('./postgres-adapter-acceptance.mjs');
 const output=resolve('evidence');await mkdir(output,{recursive:true});
 const result=spawnSync(process.execPath,[resolve('packages/cli/dist/cli.js'),'run','--suite','release','--json'],{cwd:'examples/demo-saas',env:process.env,encoding:'utf8',timeout:240000,maxBuffer:5*1024*1024});
 if(result.error)throw result.error;

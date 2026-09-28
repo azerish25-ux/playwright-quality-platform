@@ -2,7 +2,7 @@ name: Release candidates
 on:
   push:
     branches: [main]
-    paths: ['scripts/release-*.mjs', 'tests/release-*.test.mjs', '.github/workflows/release.yml']
+    paths: ['packages/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', '.github/workflows/release.yml']
   workflow_dispatch:
 permissions: { contents: read }
 concurrency:
