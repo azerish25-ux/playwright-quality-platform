@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgeqa.dev/schemas/benchmark-summary.v1.json",
+  "title": "ForgeQA TeamBoard benchmark summary",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "kind", "generatedAt", "sourceSha", "application", "expectedRepetitions", "status", "inventory", "conditions", "failures", "limitations"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "kind": { "const": "forgeqa-teamboard-benchmark-summary" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "sourceSha": { "type": "string", "minLength": 1 },
+    "application": { "const": "TeamBoard" },
+    "expectedRepetitions": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["PASS", "FAIL"] },
+    "conditions": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["condition", "topology", "shardCount", "workersPerShard", "totalConcurrency", "samples", "wholeWorkflowWallMs", "aggregateRunnerMs", "speedup", "parallelEfficiency"]
+      }
+    },
+    "failures": { "type": "array" },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  }
+}
