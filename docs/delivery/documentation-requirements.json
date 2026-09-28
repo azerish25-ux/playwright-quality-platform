@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "milestone": "P11B",
-  "status": "IMPLEMENTED_PENDING_HOSTED_ACCEPTANCE",
-  "sourceSha": null,
+  "status": "HOSTED_ACCEPTED",
+  "sourceSha": "54f25b2a865b8b90c7fe00b34142cbb282d99a57",
   "hostedAcceptance": {
-    "status": "NOT_RUN",
-    "workflowRun": null
+    "status": "PASS",
+    "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36468235212",
+    "workflowJob": 109083620021,
+    "ciRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36468235190",
+    "artifact": {
+      "id": 10990396723,
+      "name": "documentation-54f25b2a865b8b90c7fe00b34142cbb282d99a57-1",
+      "digest": "sha256:df6edc2527fb023fbb2e85904048f056072c3c46780853b34c323e3e135bf71d",
+      "sizeInBytes": 7598808,
+      "expiresAt": "2026-10-12T18:53:50Z"
+    },
+    "evidenceRecord": "docs/delivery/documentation-live-acceptance.md"
   },
   "publicationClaimed": false,
   "requirements": [
     {
       "id": "P11B-01",
       "requirement": "Version-aware static site with next and validated frozen snapshots",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "paths": [
         "docs/versions.json",
         "scripts/docs/prepare.mjs",
@@ -22,7 +32,7 @@
     {
       "id": "P11B-02",
       "requirement": "Public API declaration reference, guides and substantive decisions",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "paths": [
         "docs/guide",
         "adrs",
@@ -32,7 +42,7 @@
     {
       "id": "P11B-03",
       "requirement": "Installed CLI bootstrap, exact snippets and clean npm/pnpm onboarding",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "paths": [
         "tests/consumers/packed.mjs",
         "docs/snippets"
@@ -41,7 +51,7 @@
     {
       "id": "P11B-04",
       "requirement": "Strict build, internal links, anchors and assets",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "paths": [
         "scripts/docs/check_site.py",
         ".github/workflows/docs.yml"
@@ -50,7 +60,7 @@
     {
       "id": "P11B-05",
       "requirement": "Browser navigation, local search and responsive layout",
-      "status": "IMPLEMENTED",
+      "status": "PASS",
       "paths": [
         "scripts/docs/browser-check.mjs"
       ]
@@ -58,7 +68,7 @@
     {
       "id": "P11B-06",
       "requirement": "Exact-source hosted documentation and full-platform acceptance",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "paths": [
         ".github/workflows/docs.yml",
         ".github/workflows/ci.yml"
@@ -78,5 +88,6 @@
     "No released snapshots exist; synthetic frozen fixtures test validation only.",
     "External links are inventoried, not HTTP-certified by the local link checker.",
     "Full adapter/restart/override lifecycle gaps and benchmark comparability limits remain in their own ledgers."
-  ]
+  ],
+  "evidenceSemantics": "PASS applies to the identified exact-source hosted checkpoint. Later commits must pass their own Documentation and CI workflows. A build artifact is not public deployment."
 }

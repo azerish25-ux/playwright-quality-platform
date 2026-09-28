@@ -12,9 +12,9 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **Release status:** npm publication, an immutable public action tag and major alias, deployed versioned documentation, comparable hosted benchmark results, Marketplace distribution, and the final delivery audit remain later phases.
 
-## Documentation candidate
+## Documentation and onboarding
 
-The Phase 11B documentation implementation provides a version-aware static site, generated public API references, tested source snippets and isolated npm/pnpm onboarding through installed candidate tarballs. `next` is unreleased; no live website or registry publication is claimed. The independent read-only `Documentation` workflow must pass at the delivered source revision alongside the full platform CI.
+**Phase 11B hosted acceptance passed** at `54f25b2a865b8b90c7fe00b34142cbb282d99a57`: Documentation run `36468235212` and full CI `36468235190` succeeded. The version-aware site contains 46 documentation pages, generated references for all eight public packages, 15 substantive ADRs and exact tested snippets. All 3,543 local references passed; installed-tarball onboarding succeeded independently with npm and pnpm; Chromium verified navigation, search and mobile layout. [Acceptance receipt](docs/delivery/documentation-live-acceptance.md). `next` remains unreleased: no public website or registry publication is claimed. Subsequent source commits must pass both workflows again.
 
 Start with [the source-candidate quickstart](docs/guide/quickstart.md), [documentation build/version maintenance](docs/guide/releases.md), and [the acceptance ledger](docs/delivery/documentation-requirements.json).
 

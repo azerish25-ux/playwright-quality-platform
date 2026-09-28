@@ -1,8 +1,8 @@
-# Delivery checkpoint — Phase 11B documentation candidate
+# Delivery checkpoint — Phase 11B documentation accepted
 
-**ForgeQA has hosted acceptance for the Phase 11A benchmark execution/evidence system at `9361d9fa9515ae9c173f644b993472133032e85e`, including five repetitions per condition. Hardware comparability and finer lifecycle profiling remain limited; the complete public product is not released.**
+**Phase 11B documentation and installed-package onboarding passed hosted acceptance at `54f25b2a865b8b90c7fe00b34142cbb282d99a57` in Documentation run `36468235212` and full CI `36468235190`. Phase 11A benchmark execution remains accepted with its hardware-comparability limitations. The complete public product is not released.**
 
-## Current accepted source baseline
+## Phase 10 accepted source baseline
 
 Phase 10A is accepted at source revision `b679c996d9f33afb6a7d89fee294bd6fdfe3afc6` through CI run `36355636084`. The run completed successfully on September 27, 2026. Its aggregate `forgeqa-quality` job `108723606813` passed after every required cross-platform, packed-consumer, TeamBoard, LedgerGuard, hardening, and action lane succeeded.
 
@@ -46,13 +46,15 @@ Hardware fingerprints are not identical: `performanceStatus` is `NOT_COMPARABLE`
 
 See [benchmark-live-acceptance.md](benchmark-live-acceptance.md), [benchmark-requirements.json](benchmark-requirements.json), [benchmark-evidence.json](benchmark-evidence.json) and [benchmark-observations.csv](benchmark-observations.csv).
 
-## Phase 11B documentation candidate
+## Phase 11B hosted documentation acceptance
 
 A version-aware MkDocs build now assembles maintained guides, 15 substantive ADRs and generated declarations for all eight public package APIs. `next` is explicitly unreleased. Future frozen versions require an exact source SHA, manifest hash and complete checked file inventory; no fictitious release snapshot is created.
 
 Documentation acceptance bootstraps through installed package tarballs in separate npm and pnpm consumers, compiles the exact embedded snippets, exercises doctor/plan/ForgeQA/native execution and compares identities. The separate read-only `Documentation` workflow also builds strictly, checks local links/anchors/assets, and exercises desktop/mobile navigation and local search in Chromium. It preserves evidence on failure and does not deploy Pages or publish packages.
 
-This records implementation, not hosted acceptance. The exact new source must pass both the full CI and `docs-quality` before these checks are promoted. External-link HTTP availability, live deployment, real release snapshots and comprehensive adapter lifecycle acceptance are not claimed. See [documentation-requirements.json](documentation-requirements.json).
+Documentation job `109083620021` passed at `54f25b2a865b8b90c7fe00b34142cbb282d99a57`. Its retained artifact `10990396723` contains the strict site build, toolchain receipts, source and snippet hashes, npm/pnpm onboarding records and desktop/mobile/search screenshots. The build contains 46 documentation pages plus the generated 404 page; all 3,543 local references passed. Thirteen Node and seven Python documentation checks passed, and Chromium opened a real search result without page or asset errors. The full platform CI also succeeded at this exact source. P11B-01 through P11B-06 are `PASS`; see [documentation-live-acceptance.md](documentation-live-acceptance.md) and [documentation-requirements.json](documentation-requirements.json).
+
+The initial browser-driver failure is retained as DOC-001 in the defect ledger; the accepted repair types actual keyboard events instead of silently assigning the search value. No timeout or retry policy was weakened. Later source revisions still require their own green CI and Documentation workflows. External-link HTTP availability, live deployment, real release snapshots and comprehensive adapter lifecycle acceptance are not claimed.
 
 ## GitHub platform and trusted PR reporting
 
