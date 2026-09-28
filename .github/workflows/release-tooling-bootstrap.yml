@@ -1,0 +1,40 @@
+name: Release tooling bootstrap
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release-tooling-bootstrap.yml']
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency:
+  group: forgeqa-release-tooling-bootstrap
+  cancel-in-progress: false
+jobs:
+  prepare-tooling:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { fetch-depth: 0, persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - name: Resolve compatible release tooling into exact dependency locks
+        run: |
+          npm ci --ignore-scripts
+          npm install --save-dev --save-exact --ignore-scripts --no-audit --no-fund semantic-release@24 @semantic-release/commit-analyzer@13 @semantic-release/release-notes-generator@14 conventional-changelog-conventionalcommits@8
+          node node_modules/pnpm/bin/pnpm.cjs install --lockfile-only --ignore-scripts
+          npm ls semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator conventional-changelog-conventionalcommits
+      - name: Retain source and tooling for local verification without credentials
+        run: |
+          mkdir -p evidence/tooling
+          git bundle create evidence/tooling/source.bundle HEAD --tags
+          tar --exclude='./.git' --exclude='./evidence' -czf evidence/tooling/workspace.tgz .
+          cd evidence/tooling
+          sha256sum source.bundle workspace.tgz > SHA256SUMS
+          cat SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-tooling-${{ github.sha }}
+          path: evidence/tooling/
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 3
