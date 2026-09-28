@@ -25,6 +25,13 @@ evidence/
 **/blob-report/
 .tmp/
 
+# Reproducible benchmark outputs are retained as workflow artifacts, not committed.
+benchmarks/results/
+.benchmark-output/
+.benchmark-artifacts/
+.benchmark-plan/
+.benchmark-shards/
+
 # The callable GitHub Action must carry its compiled runtime in every action ref.
 !packages/github-action/dist/
 !packages/github-action/dist/**/*.js
