@@ -1,0 +1,64 @@
+name: Controlled local benchmarks
+on:
+  push:
+    branches: [main]
+    paths: ['benchmarks/controlled.mjs', 'benchmarks/lib/controlled.mjs', 'tests/benchmark-controlled.test.mjs', '.github/workflows/benchmark-controlled.yml']
+  workflow_dispatch:
+    inputs:
+      repetitions:
+        description: Measured repetitions per local worker condition
+        type: choice
+        default: '5'
+        options: ['1', '5']
+permissions: { contents: read }
+concurrency:
+  group: controlled-benchmark-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  FORGEQA_SOURCE_SHA: ${{ github.sha }}
+jobs:
+  controlled:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: forgeqa_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: forgeqa-disposable-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forgeqa_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - name: Retain exact experiment source and environment
+        run: |
+          mkdir -p evidence/benchmarks/controlled
+          git archive --format=tar.gz --output=evidence/benchmarks/controlled/source.tar.gz HEAD
+          git rev-parse HEAD > evidence/benchmarks/controlled/source-sha.txt
+          node --version > evidence/benchmarks/controlled/node-version.txt
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build --workspace examples/demo-saas
+      - run: node --test tests/benchmark-controlled.test.mjs
+      - run: node scripts/prepare-teamboard-db.mjs
+        env:
+          DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
+          FORGEQA_ALLOW_DB_SETUP: '1'
+      - run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - name: Interleave serial and local parallel execution on this one runner
+        env:
+          REPETITIONS: ${{ inputs.repetitions || '5' }}
+        run: node benchmarks/controlled.mjs --repetitions "$REPETITIONS"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: controlled-benchmark-${{ github.sha }}-${{ github.run_attempt }}
+          path: evidence/benchmarks/controlled/
+          if-no-files-found: error
+          retention-days: 30
