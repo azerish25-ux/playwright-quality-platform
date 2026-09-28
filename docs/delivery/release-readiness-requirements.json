@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-release-readiness-checkpoint",
+  "baselineSha": "a21432dbf42995322f8bd20d2961361368a10029",
+  "baselineCI": 36487423852,
+  "publicationAuthorized": false,
+  "requirements": [
+    {
+      "id": "RR-01",
+      "requirement": "Comparable local worker measurements with retained limitations",
+      "status": "PARTIAL",
+      "implementationPaths": ["benchmarks/controlled.mjs", "benchmarks/lib/controlled.mjs", ".github/workflows/benchmark-controlled.yml"],
+      "verification": "Controlled benchmark workflow; tests/benchmark-controlled.test.mjs",
+      "actualResult": "Implementation retained from c2687f5. Same-runner comparison does not establish distributed comparability or complete granular lifecycle timing. Full benchmark acceptance remains false."
+    },
+    {
+      "id": "RR-02",
+      "requirement": "Concurrent initialization and interruption recovery",
+      "status": "PASS",
+      "sourceSha": "a21432dbf42995322f8bd20d2961361368a10029",
+      "implementationPaths": ["packages/cli/src/init.ts", "tests/cli-initialization-lifecycle.test.mjs"],
+      "verification": "CI 36487423852",
+      "actualResult": "Required CI passed with deterministic concurrency, conflict and interruption regressions. This scoped acceptance does not imply arbitrary existing-suite migration is complete."
+    },
+    {
+      "id": "RR-03",
+      "requirement": "PostgreSQL ownership and stale reclamation guard acceptance",
+      "status": "PASS",
+      "sourceSha": "a21432dbf42995322f8bd20d2961361368a10029",
+      "implementationPaths": ["packages/test-data/src/postgres.ts", "scripts/postgres-adapter-acceptance.mjs", "tests/postgres-adapter-guards.test.mjs"],
+      "verification": "CI 36487423852; required TeamBoard lane",
+      "actualResult": "Required CI passed with real database ownership/reclamation acceptance. The broader generic adapter contract remains separately tracked."
+    },
+    {
+      "id": "RR-04",
+      "requirement": "Complete-tarball candidate staging and simulated interruption recovery",
+      "status": "PARTIAL",
+      "implementationPaths": ["scripts/release-manifest.mjs", "scripts/release-state.mjs", "tests/release-state.test.mjs", "tests/release-state-boundaries.test.mjs"],
+      "verification": "Release candidates workflow; node --test tests/release-*.test.mjs",
+      "actualResult": "Complete-byte integrity and synthetic recovery are implemented. Live registry transport and actual partial-publication recovery are not claimed. New strict boundary checks passed locally; hosted verification must be associated with their delivery SHA."
+    },
+    {
+      "id": "RR-05",
+      "requirement": "Bind staged candidates to full exact-source CI and Documentation acceptance",
+      "status": "NOT_RUN",
+      "implementationPaths": ["scripts/release-evidence.mjs", "tests/release-evidence.test.mjs", ".github/workflows/release.yml"],
+      "verification": "Release candidates workflow source-acceptance.json at the delivered SHA",
+      "actualResult": "Local regression tests passed. Live hosted execution of the new gate has not yet been recorded in this checkpoint. No publication is authorized by this gate."
+    },
+    {
+      "id": "RR-06",
+      "requirement": "Complete reusable authentication and fixture lifecycle acceptance",
+      "status": "PARTIAL",
+      "implementationPaths": ["packages/playwright/src/index.ts"],
+      "verification": "Broader R-008 and M1-03 acceptance",
+      "actualResult": "Typed fixture composition and diagnostics exist; complete reusable auth-state/override/lifecycle acceptance remains incomplete."
+    },
+    {
+      "id": "RR-07",
+      "requirement": "Semantic-release lockstep coordinator and live external distributions",
+      "status": "NOT_RUN",
+      "implementationPaths": [".github/workflows/release.yml"],
+      "verification": "Future coordinated release and external registry/action/docs acceptance",
+      "actualResult": "The current workflow stages source-version candidates, not semantically prepared releases. Version calculation, live publication and public distribution verification remain unimplemented or unaccepted."
+    }
+  ]
+}

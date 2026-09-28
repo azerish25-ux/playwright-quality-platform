@@ -10,15 +10,19 @@ export function artifactDigests(bytes) {
 }
 
 export function validateReleaseManifest(manifest) {
-  if (manifest?.schemaVersion !== 2 || manifest.kind !== 'forgeqa-release-candidate' || !/^[a-f0-9]{40}$/.test(manifest.sourceSha ?? '')) throw new Error('Invalid release source or schema.');
+  if (manifest?.schemaVersion !== 2 || manifest.kind !== 'forgeqa-release-candidate' || typeof manifest.sourceSha !== 'string' || !/^[a-f0-9]{40}$/.test(manifest.sourceSha ?? '')) throw new Error('Invalid release source or schema.');
+  if (typeof manifest.version !== 'string') throw new Error('Release version must be a string.');
   const version = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.exec(manifest.version ?? '');
   if (!version || version[4]?.split('.').some(part => /^0\d+$/.test(part)) || manifest.channel !== CANDIDATE_CHANNEL) throw new Error('Invalid version or forbidden publication channel.');
   if (!Array.isArray(manifest.entries) || manifest.entries.length !== RELEASE_PACKAGES.length) throw new Error('All eight release packages are required.');
+  if (!['staged', 'partial', 'candidate-verified'].includes(manifest.status)) throw new Error('Invalid release state.');
   const seen = new Set(), filenames = new Set();
   for (const entry of manifest.entries) {
+    if (!entry || !['staged', 'pending', 'publishing', 'unconfirmed', 'verified'].includes(entry.status)) throw new Error('Invalid package state.');
+    if (manifest.status === 'candidate-verified' && entry.status !== 'verified') throw new Error('Verified manifest contains an unverified package.');
     if (!RELEASE_PACKAGES.includes(entry.name) || seen.has(entry.name) || entry.version !== manifest.version) throw new Error('Missing, duplicate or non-lockstep package.');
     seen.add(entry.name);
-    if (filenames.has(entry.filename) || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.tgz$/.test(entry.filename ?? '') || !Number.isSafeInteger(entry.size) || entry.size < 1 || entry.size > 5 * 1024 * 1024 || !/^[a-f0-9]{64}$/.test(entry.sha256 ?? '') || !/^sha512-[A-Za-z0-9+/]{86}==$/.test(entry.integrity ?? '')) throw new Error('Invalid complete-tarball metadata.');
+    if (typeof entry.filename !== 'string' || typeof entry.sha256 !== 'string' || typeof entry.integrity !== 'string' || filenames.has(entry.filename) || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.tgz$/.test(entry.filename ?? '') || !Number.isSafeInteger(entry.size) || entry.size < 1 || entry.size > 5 * 1024 * 1024 || !/^[a-f0-9]{64}$/.test(entry.sha256 ?? '') || !/^sha512-[A-Za-z0-9+/]{86}==$/.test(entry.integrity ?? '')) throw new Error('Invalid complete-tarball metadata.');
     filenames.add(entry.filename);
   }
   return manifest;
@@ -52,6 +56,7 @@ export async function saveManifestAtomically(path, manifest) {
  * A real registry transport and account authorization are separate release gates.
  */
 export async function reconcileCandidate(input, transport, { allowPublish = false } = {}) {
+  if (typeof allowPublish !== 'boolean') throw new Error('allowPublish must be an explicit boolean.');
   validateReleaseManifest(input);
   const manifest = structuredClone(input);
   const staged = new Map();
@@ -96,6 +101,7 @@ export async function reconcileCandidate(input, transport, { allowPublish = fals
 
 export function assertStablePromotion(manifest, evidence) {
   validateReleaseManifest(manifest);
+  if (manifest.version.includes('-')) throw new Error('A prerelease cannot be promoted as a stable version.');
   if (manifest.status !== 'candidate-verified' || manifest.entries.some(e => e.status !== 'verified')) throw new Error('Partial publication cannot be promoted.');
   for (const gate of ['platform', 'teamboardRegistry', 'ledgerguardRegistry', 'immutableAction', 'documentation', 'benchmarks', 'lifecycle', 'semanticVersion']) {
     const result = evidence?.[gate];

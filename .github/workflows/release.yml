@@ -4,7 +4,7 @@ on:
     branches: [main]
     paths: ['packages/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', '.github/workflows/release.yml']
   workflow_dispatch:
-permissions: { contents: read }
+permissions: { contents: read, actions: read }
 concurrency:
   group: forgeqa-release-candidates-${{ github.ref }}
   cancel-in-progress: false
@@ -13,7 +13,7 @@ env:
 jobs:
   verify-artifacts:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with: { persist-credentials: false }
@@ -27,6 +27,10 @@ jobs:
       - name: Verify all retained artifact checksums
         working-directory: evidence/release-candidate
         run: sha256sum --check SHA256SUMS
+      - name: Require complete exact-source CI and Documentation acceptance
+        run: node scripts/release-evidence.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
