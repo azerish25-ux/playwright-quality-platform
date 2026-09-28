@@ -75,7 +75,7 @@ function renderMarkdown(value) {
     `- Status: **${value.status}**`,
     `- Source SHA: \`${value.sourceSha}\``,
     `- Measured repetitions per condition: ${value.repetitions}`,
-    `- Unmeasured warm-up executions per condition: ${value.warmups ?? 0}`,
+    `- Unmeasured warm-up executions per shard per repetition: ${value.warmups ?? 0}`,
     `- Generated: ${value.generatedAt}`
   ];
   if (value.failure) return `${lines.join('\n')}\n\n## Failure\n\n${value.failure}\n`;
@@ -87,7 +87,7 @@ function renderMarkdown(value) {
   for (const [id, condition] of Object.entries(value.conditions)) {
     lines.push(`| ${condition.label} (\`${id}\`) | ${formatMs(condition.criticalPathMs.median)} | ${formatMs(condition.criticalPathMs.min)}–${formatMs(condition.criticalPathMs.max)} | ${formatMs(condition.criticalPathMs.iqr)} | ${formatMs(condition.criticalPathMs.mad)} | ${formatMs(condition.aggregateRunnerMs.median)} | ${formatRatio(condition.speedup)} | ${formatRatio(condition.parallelEfficiency)} |`);
   }
-  lines.push('', 'Queue-inclusive elapsed wall time is retained separately in raw data. Ratios use the measured critical-path execution duration, not shared matrix-barrier waiting. Failed cohorts never receive speedup ratios.', '');
+  lines.push('', 'Queue-inclusive elapsed wall time is retained separately in raw data. Ratios use the measured critical-path execution duration, not shared matrix-barrier waiting. Failed or hardware-incomparable cohorts never receive speedup ratios.', '');
   return `${lines.join('\n')}\n`;
 }
 function formatMs(value) { return `${Math.round(value)} ms`; }

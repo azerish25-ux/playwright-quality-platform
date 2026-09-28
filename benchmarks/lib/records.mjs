@@ -66,6 +66,8 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
   const warmupCounts = [...new Set(validated.map(record => record.warmups))];
   if (warmupCounts.length !== 1) throw new Error('Benchmark records do not share one warm-up policy.');
   const failed = validated.filter(record => record.status !== 'PASS');
+  const cpuModels = [...new Set(validated.flatMap(record => (record.runners ?? []).map(runner => runner.cpuModel)).filter(Boolean))].sort();
+  const hardwareComparable = cpuModels.length === 1 && validated.every(record => record.runners?.length === record.shards);
   const byCondition = {};
   for (const condition of BENCHMARK_CONDITIONS) {
     const conditionRecords = validated.filter(record => record.condition === condition.id).sort((left, right) => left.repetition - right.repetition);
@@ -85,7 +87,7 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
   const baseline = byCondition['serial-1x1'].criticalPathMs.median;
   for (const condition of BENCHMARK_CONDITIONS) {
     const summary = byCondition[condition.id];
-    summary.speedup = failed.length ? null : ratio(baseline, summary.criticalPathMs.median);
+    summary.speedup = failed.length || !hardwareComparable ? null : ratio(baseline, summary.criticalPathMs.median);
     summary.parallelEfficiency = summary.speedup === null ? null : ratio(summary.speedup, condition.workers * condition.shards);
   }
   return {
@@ -98,11 +100,14 @@ export function summarizeBenchmarkRecords(records, repetitionsValue) {
     measurementVersion: MEASUREMENT_VERSION,
     speedupBasis: SPEEDUP_BASIS,
     protocolDigest: validated[0].protocolDigest,
+    hardwareComparable,
+    cpuModels,
     inventoryCount: validated[0].inventory.count,
     warmups: warmupCounts[0],
     limitations: [
       ...(repetitions < 5 ? [`Only ${repetitions} measured repetition${repetitions === 1 ? '' : 's'} per condition; run five repetitions for release evidence.`] : []),
       ...(warmupCounts[0] === 0 ? ['No unmeasured warm-up execution is currently performed; cache state remains disabled and this limitation must accompany any result.'] : []),
+      ...(!hardwareComparable ? ['CPU models vary or hardware records are incomplete; cross-condition speedup and efficiency are withheld.'] : []),
       ...TIMING_LIMITATIONS
     ],
     failed: failed.map(record => ({ condition: record.condition, repetition: record.repetition, failures: record.failures ?? [] })),

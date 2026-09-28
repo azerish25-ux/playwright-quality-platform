@@ -22,6 +22,7 @@ function record(condition, repetition, wallMs, overrides = {}) {
     repetition,
     workers: condition.workers,
     shards: condition.shards,
+    runners: Array.from({length:condition.shards},()=>({cpuModel:'test-cpu'})),
     inventory: { count: 20, expectedDigest: digest, observedDigest: digest },
     durations: {
       planMs: 10,

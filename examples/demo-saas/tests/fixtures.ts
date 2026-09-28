@@ -31,4 +31,12 @@ export async function loginPage(page:Page,tenant:Tenant,role:'owner'|'editor'|'v
   await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();
   await expect(page.getByText(tenant.accounts[role].email,{exact:true})).toBeVisible();
 }
+export async function logoutPage(page:Page):Promise<void>{
+  const [response]=await Promise.all([
+    page.waitForResponse(value=>value.url().endsWith('/api/logout')&&value.request().method()==='POST'),
+    page.getByRole('button',{name:'Sign out',exact:true}).click()
+  ]);
+  expect(response.status(),'logout completes before any navigation or role transition').toBe(200);
+  await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();
+}
 export {expect};

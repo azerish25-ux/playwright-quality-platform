@@ -60,3 +60,11 @@ The harness, workflow, schemas, statistics, and regression tests are implemented
 ## Measurement boundaries
 
 Measurement version 2 compares `max(shard.runMs) + mergeMs`, not queue-inclusive workflow wall time. The observed `wallMs` and scheduling skew remain in raw records; shared job barriers can inflate them. Aggregate runner time covers instrumented intervals only, excluding checkout, service provisioning, final uploads and service shutdown. Application readiness, execution, in-process reporting and shutdown remain combined inside each shard run. Exact source and lock/config/runner-protocol digests must match. Source-mode benchmarks are not registry or packed-package performance evidence.
+
+## Supplementary measurements and execution requests
+
+The same workflow runs `reporter-overhead.mjs` against all 20 real TeamBoard executions with native JSON/blob reporters, then with the ForgeQA reporter added. One warm-up per mode is excluded; measured mode order alternates. Whole-process overhead can be negative for a small/noisy sample; no improvement is required. `synthetic/result-scaling.mjs` measures 1,000, 10,000 and 100,000 synthetic attempts in fresh processes, retaining merge/render durations, output sizes/checksums and peak RSS. These are not customer suites. A read-only database scan verifies zero owned test resources after execution.
+
+Manual execution supports five repetitions. A trusted main-branch benchmark commit explicitly containing `[benchmark:5]` requests the same five-repetition acceptance run; other relevant pushes and scheduled runs use one. The parser bounds repetitions to 1–5. Condition submission order rotates between repetitions; hosted runner scheduling is outside the harness's control.
+
+Exact memory bytes remain in raw data, but protocol equivalence compares capacity rounded to 1 MiB to avoid treating different Linux reserved page counts as different VM capacities. CPU model variability is retained and cross-condition speedup/efficiency are withheld when models differ. Passing execution/identity checks is not evidence of controlled-hardware performance.

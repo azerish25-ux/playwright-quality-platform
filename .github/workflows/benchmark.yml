@@ -2,7 +2,7 @@ name: ForgeQA benchmarks
 on:
   push:
     branches: [main]
-    paths: ['benchmarks/**', '.github/workflows/benchmark.yml', 'examples/demo-saas/*benchmark.config.ts']
+    paths: ['benchmarks/**', '.github/workflows/benchmark*.yml', 'examples/demo-saas/*benchmark.config.ts']
   workflow_dispatch:
     inputs:
       repetitions:
@@ -36,7 +36,7 @@ jobs:
         with: { node-version: 22, package-manager-cache: false }
       - id: matrix
         env:
-          BENCHMARK_REPETITIONS: ${{ inputs.repetitions || '1' }}
+          BENCHMARK_REPETITIONS: ${{ inputs.repetitions || (github.event_name == 'push' && contains(github.event.head_commit.message, '[benchmark:5]') && '5') || '1' }}
         run: node benchmarks/workflow-matrix.mjs --repetitions "$BENCHMARK_REPETITIONS"
 
   plan:
@@ -283,8 +283,14 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  supplementary:
+    needs: setup
+    uses: ./.github/workflows/benchmark-secondary.yml
+    with:
+      repetitions: ${{ needs.setup.outputs.repetitions }}
+
   summarize:
-    needs: [setup, merge]
+    needs: [setup, merge, supplementary]
     if: always() && needs.setup.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -298,6 +304,10 @@ jobs:
         with:
           pattern: benchmark-record-*-${{ github.sha }}
           path: evidence/benchmarks/records
+      - name: Enforce supplementary acceptance
+        env:
+          SUPPLEMENTARY_RESULT: ${{ needs.supplementary.result }}
+        run: test "$SUPPLEMENTARY_RESULT" = success
       - name: Verify inventory equivalence and summarize measurements
         if: always()
         run: node benchmarks/summarize.mjs --input evidence/benchmarks/records --repetitions "${{ needs.setup.outputs.repetitions }}" --output "benchmarks/results/${{ github.sha }}"

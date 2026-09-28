@@ -31,8 +31,10 @@ export function createWorkflowMatrices(repetitionsValue) {
   }));
   const shards = [];
   const merges = [];
-  for (const condition of conditions) {
-    for (let repetition = 1; repetition <= repetitions; repetition += 1) {
+  // Interleave repetitions and rotate condition order deterministically.
+  for (let repetition = 1; repetition <= repetitions; repetition += 1) {
+    const offset = (repetition - 1) % conditions.length;
+    for (const condition of [...conditions.slice(offset), ...conditions.slice(0, offset)]) {
       merges.push({ ...condition, repetition });
       for (let shard = 1; shard <= condition.shards; shard += 1) {
         shards.push({ ...condition, repetition, shard });

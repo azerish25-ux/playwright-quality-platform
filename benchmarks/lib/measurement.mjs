@@ -54,6 +54,9 @@ export async function protocolDigest(runner) {
   const paths = ['package-lock.json', 'examples/demo-saas/forgeqa.benchmark.config.ts', 'examples/demo-saas/playwright.benchmark.config.ts'];
   const contents = await Promise.all(paths.map(async path => [path, (await readFile(path, 'utf8')).replaceAll('\r\n', '\n')]));
   // CPU allocation, binary versions and policy inputs must match; VM IDs must not.
-  const environment = Object.fromEntries(['platform', 'arch', 'node', 'playwright', 'image', 'imageVersion', 'cpuCount', 'totalMemoryBytes'].map(key => [key, runner[key]]));
+  const environment = Object.fromEntries(['platform', 'arch', 'node', 'playwright', 'image', 'imageVersion', 'cpuCount'].map(key => [key, runner[key]]));
+  // Linux reserves a few pages differently across otherwise equal VM allocations.
+  // Keep exact bytes in raw data; compare capacity at 1 MiB granularity.
+  environment.memoryMiB = Math.round(runner.totalMemoryBytes / (1024 * 1024));
   return createHash('sha256').update(JSON.stringify({ measurementVersion: MEASUREMENT_VERSION, contents, environment, cache: 'disabled', retries: 0, warmups: 1 })).digest('hex');
 }

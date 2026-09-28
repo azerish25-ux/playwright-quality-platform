@@ -12,6 +12,7 @@ function records() {
   return BENCHMARK_CONDITIONS.map(condition => ({
     schemaVersion: 1, measurementVersion: 2, kind: 'forgeqa-benchmark-run', sourceSha: 'a'.repeat(40), protocolDigest: 'b'.repeat(64),
     status: 'PASS', condition: condition.id, repetition: 1, warmups: 1, workers: condition.workers, shards: condition.shards,
+    runners: Array.from({length:condition.shards},()=>({cpuModel:'test-cpu'})),
     inventory: { count: 20, expectedDigest: 'c'.repeat(64), observedDigest: 'c'.repeat(64) },
     durations: measuredDurations(Array.from({ length: condition.shards }, () => shard()), 10, 600, 800, 900)
   }));
@@ -62,4 +63,13 @@ test('workflow guard remains strict with LF and Windows CRLF checkout', async ()
   }
   assert.match(source, /warmup\.mjs/);
   assert.match(source, /benchmark-warmup-/);
+});
+
+test('heterogeneous CPUs retain observations without implying comparable speedup', () => {
+  const cohort = records();
+  cohort[1].runners[0].cpuModel = 'different-silicon';
+  const summary = summarizeBenchmarkRecords(cohort, 1);
+  assert.equal(summary.status, 'PASS');
+  assert.equal(summary.hardwareComparable, false);
+  for (const condition of Object.values(summary.conditions)) assert.equal(condition.speedup, null);
 });
