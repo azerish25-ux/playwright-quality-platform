@@ -30,7 +30,10 @@
     "test:consumers": "node tests/consumers/packed.mjs",
     "test:teamboard": "npm run build --workspace examples/demo-saas && npm run typecheck --workspace examples/demo-saas && node scripts/teamboard-acceptance.mjs && node scripts/distributed-browser-evidence.mjs",
     "test:ledgerguard:consumer": "node scripts/ledgerguard-consumer-preflight.mjs",
-    "test:ledgerguard": "node scripts/ledgerguard-acceptance.mjs"
+    "test:ledgerguard": "node scripts/ledgerguard-acceptance.mjs",
+    "benchmark:synthetic": "node benchmarks/synthetic/factory-throughput.mjs",
+    "benchmark:summarize": "node benchmarks/summarize.mjs",
+    "test:benchmarks": "node --test tests/benchmark-*.test.mjs"
   },
   "license": "MIT",
   "devDependencies": {

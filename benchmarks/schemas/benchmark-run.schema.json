@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgeqa.dev/schemas/benchmark-run-v1.json",
+  "title": "ForgeQA benchmark run",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "status",
+    "sourceSha",
+    "condition",
+    "repetition",
+    "warmups",
+    "workers",
+    "shards",
+    "inventory",
+    "durations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "forgeqa-benchmark-run"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "sourceSha": {
+      "type": "string",
+      "minLength": 1
+    },
+    "condition": {
+      "enum": [
+        "serial-1x1",
+        "local-2x1",
+        "local-4x1",
+        "distributed-2x1",
+        "distributed-4x1"
+      ]
+    },
+    "repetition": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "workers": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "shards": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "inventory": {
+      "type": "object",
+      "required": [
+        "count",
+        "expectedDigest",
+        "observedDigest"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expectedDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "observedDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "durations": {
+      "type": "object",
+      "required": [
+        "planMs",
+        "setupWallMs",
+        "setupAggregateMs",
+        "testWallMs",
+        "testAggregateMs",
+        "mergeMs",
+        "wallMs",
+        "aggregateRunnerMs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "planMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "setupWallMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "setupAggregateMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "testWallMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "testAggregateMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mergeMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "wallMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "aggregateRunnerMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "warmups": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

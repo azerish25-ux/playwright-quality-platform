@@ -1,0 +1,292 @@
+name: ForgeQA benchmarks
+on:
+  workflow_dispatch:
+    inputs:
+      repetitions:
+        description: Measured repetitions per condition; use 5 for release evidence
+        required: true
+        type: choice
+        default: '1'
+        options: ['1', '3', '5']
+  schedule:
+    - cron: '17 4 1 * *'
+permissions:
+  contents: read
+concurrency:
+  group: forgeqa-benchmark-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  FORGEQA_SOURCE_SHA: ${{ github.sha }}
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      repetitions: ${{ steps.matrix.outputs.repetitions }}
+      conditions: ${{ steps.matrix.outputs.conditions }}
+      shards: ${{ steps.matrix.outputs.shards }}
+      merges: ${{ steps.matrix.outputs.merges }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - id: matrix
+        env:
+          BENCHMARK_REPETITIONS: ${{ github.event_name == 'schedule' && '1' || inputs.repetitions }}
+        run: node benchmarks/workflow-matrix.mjs --repetitions "$BENCHMARK_REPETITIONS"
+
+  plan:
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.conditions) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build --workspace examples/demo-saas
+      - name: Create one immutable inventory for ${{ matrix.condition }}
+        env:
+          CONDITION: ${{ matrix.condition }}
+          WORKERS: ${{ matrix.workers }}
+          SHARDS: ${{ matrix.shards }}
+        run: |
+          set -euo pipefail
+          output="$GITHUB_WORKSPACE/evidence/benchmarks/plans/$CONDITION"
+          mkdir -p "$output"
+          started=$(date +%s%3N)
+          (
+            cd examples/demo-saas
+            node ../../packages/cli/dist/cli.js plan \
+              --suite release \
+              --config forgeqa.benchmark.config.ts \
+              --playwright-config playwright.benchmark.config.ts \
+              --workers "$WORKERS" \
+              --shard "1/$SHARDS" \
+              --output "forgeqa-benchmark-results/$CONDITION" \
+              --json
+          ) > "$output/plan.json"
+          completed=$(date +%s%3N)
+          node benchmarks/materialize-manifests.mjs \
+            --condition "$CONDITION" \
+            --repetitions "${{ needs.setup.outputs.repetitions }}" \
+            --plan "$output/plan.json" \
+            --plan-duration-ms "$((completed-started))" \
+            --output "$output"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: benchmark-plan-${{ matrix.condition }}-${{ github.sha }}
+          path: evidence/benchmarks/plans/${{ matrix.condition }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  shard:
+    needs: [setup, plan]
+    if: needs.setup.result == 'success' && needs.plan.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: forgeqa_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: forgeqa-disposable-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forgeqa_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - name: Start runner timer
+        run: date +%s%3N > .benchmark-job-start-ms
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build --workspace examples/demo-saas
+      - run: node scripts/prepare-teamboard-db.mjs
+        env:
+          DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
+          FORGEQA_ALLOW_DB_SETUP: '1'
+      - run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: benchmark-plan-${{ matrix.condition }}-${{ github.sha }}
+          path: evidence/benchmarks/plans/${{ matrix.condition }}
+      - name: Mark setup completion
+        run: date +%s%3N > .benchmark-setup-end-ms
+      - name: Execute shard ${{ matrix.shard }}/${{ matrix.shards }} for ${{ matrix.condition }} repetition ${{ matrix.repetition }}
+        env:
+          CONDITION: ${{ matrix.condition }}
+          REPETITION: ${{ matrix.repetition }}
+          WORKERS: ${{ matrix.workers }}
+          SHARDS: ${{ matrix.shards }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -uo pipefail
+          evidence="$GITHUB_WORKSPACE/evidence/benchmarks/shards/$CONDITION/r$REPETITION/s$SHARD"
+          manifest="$GITHUB_WORKSPACE/evidence/benchmarks/plans/$CONDITION/manifest-r$REPETITION.json"
+          mkdir -p "$evidence"
+          run_started=$(date +%s%3N)
+          set +e
+          (
+            cd examples/demo-saas
+            node ../../packages/cli/dist/cli.js run \
+              --suite release \
+              --config forgeqa.benchmark.config.ts \
+              --playwright-config playwright.benchmark.config.ts \
+              --workers "$WORKERS" \
+              --shard "$SHARD/$SHARDS" \
+              --manifest "$manifest" \
+              --output "forgeqa-benchmark-results/$CONDITION" \
+              --json
+          ) > "$evidence/run-summary.json" 2> "$evidence/run-stderr.log"
+          status=$?
+          set -e
+          run_completed=$(date +%s%3N)
+          node benchmarks/write-shard-metadata.mjs \
+            --condition "$CONDITION" \
+            --repetition "$REPETITION" \
+            --shard "$SHARD" \
+            --status "$status" \
+            --job-start-ms "$(cat .benchmark-job-start-ms)" \
+            --setup-end-ms "$(cat .benchmark-setup-end-ms)" \
+            --run-start-ms "$run_started" \
+            --run-end-ms "$run_completed" \
+            --output "$evidence/shard-metadata.json"
+          exit "$status"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-shard-${{ matrix.condition }}-r${{ matrix.repetition }}-${{ matrix.shard }}-of-${{ matrix.shards }}-${{ github.sha }}
+          path: |
+            evidence/benchmarks/shards/${{ matrix.condition }}/r${{ matrix.repetition }}/s${{ matrix.shard }}/
+            examples/demo-saas/forgeqa-benchmark-results/${{ matrix.condition }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  merge:
+    needs: [setup, plan, shard]
+    if: always() && needs.setup.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.merges) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - name: Start merge runner timer
+        run: date +%s%3N > .benchmark-merge-job-start-ms
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: benchmark-plan-${{ matrix.condition }}-${{ github.sha }}
+          path: evidence/benchmarks/plans/${{ matrix.condition }}
+      - name: Download every independent shard
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: benchmark-shard-${{ matrix.condition }}-r${{ matrix.repetition }}-*-${{ github.sha }}
+          path: evidence/benchmarks/downloaded-shards
+      - name: Merge canonical and native evidence
+        if: always()
+        env:
+          CONDITION: ${{ matrix.condition }}
+          REPETITION: ${{ matrix.repetition }}
+        run: |
+          set -uo pipefail
+          output="$GITHUB_WORKSPACE/evidence/benchmarks/merged/$CONDITION/r$REPETITION"
+          manifest="$GITHUB_WORKSPACE/evidence/benchmarks/plans/$CONDITION/manifest-r$REPETITION.json"
+          mkdir -p "$output"
+          merge_started=$(date +%s%3N)
+          mapfile -t reports < <(find evidence/benchmarks/downloaded-shards -type f -name attempts.ndjson.final.json | sort)
+          set +e
+          if [ ! -f "$manifest" ] || [ "${#reports[@]}" -eq 0 ]; then
+            printf '%s\n' 'Required benchmark manifest or shard evidence is missing.' > "$output/merge-stderr.log"
+            status=3
+          else
+            node packages/cli/dist/cli.js report merge \
+              --manifest "$manifest" \
+              --output "$output/report" \
+              "${reports[@]}" \
+              --json > "$output/merge-summary.json" 2> "$output/merge-stderr.log"
+            status=$?
+          fi
+          set -e
+          merge_completed=$(date +%s%3N)
+          printf '%s\n' "$status" > "$output/merge-status.txt"
+          printf '%s\n' "$merge_started" > "$output/merge-start-ms.txt"
+          printf '%s\n' "$merge_completed" > "$output/merge-end-ms.txt"
+          exit "$status"
+      - name: Materialize auditable benchmark record
+        if: always()
+        env:
+          CONDITION: ${{ matrix.condition }}
+          REPETITION: ${{ matrix.repetition }}
+        run: |
+          set -uo pipefail
+          output="$GITHUB_WORKSPACE/evidence/benchmarks/merged/$CONDITION/r$REPETITION"
+          status=$(cat "$output/merge-status.txt" 2>/dev/null || printf '3')
+          merge_started=$(cat "$output/merge-start-ms.txt" 2>/dev/null || date +%s%3N)
+          merge_completed=$(cat "$output/merge-end-ms.txt" 2>/dev/null || date +%s%3N)
+          node benchmarks/record-run.mjs \
+            --condition "$CONDITION" \
+            --repetition "$REPETITION" \
+            --manifest "evidence/benchmarks/plans/$CONDITION/manifest-r$REPETITION.json" \
+            --plan-metadata "evidence/benchmarks/plans/$CONDITION/plan-metadata.json" \
+            --shard-root evidence/benchmarks/downloaded-shards \
+            --merged-root "$output/report" \
+            --merge-status "$status" \
+            --merge-job-start-ms "$(cat .benchmark-merge-job-start-ms)" \
+            --merge-start-ms "$merge_started" \
+            --merge-end-ms "$merge_completed" \
+            --output "$output/record.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-record-${{ matrix.condition }}-r${{ matrix.repetition }}-${{ github.sha }}
+          path: evidence/benchmarks/merged/${{ matrix.condition }}/r${{ matrix.repetition }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  summarize:
+    needs: [setup, merge]
+    if: always() && needs.setup.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 22, package-manager-cache: false }
+      - name: Download benchmark records
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: benchmark-record-*-${{ github.sha }}
+          path: evidence/benchmarks/records
+      - name: Verify inventory equivalence and summarize measurements
+        if: always()
+        run: node benchmarks/summarize.mjs --input evidence/benchmarks/records --repetitions "${{ needs.setup.outputs.repetitions }}" --output "benchmarks/results/${{ github.sha }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-summary-${{ github.sha }}
+          path: |
+            benchmarks/results/${{ github.sha }}/
+            evidence/benchmarks/records/
+          if-no-files-found: error
+          retention-days: 30

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceSha": "e9f4bf76337813d442f57fc054df5cef9f1cfac3",
-  "updatedAt": "2026-09-27T16:21:17Z",
+  "sourceSha": "b679c996d9f33afb6a7d89fee294bd6fdfe3afc6",
+  "updatedAt": "2026-09-28T12:55:31Z",
   "requirements": [
     {
       "id": "R-001",
@@ -32,15 +32,15 @@
     {
       "id": "R-003",
       "requirement": "Stable logical, execution, attempt, run, and shard identities",
-      "status": "PARTIAL",
-      "actualResult": "Real native run/execution/attempt identities are exercised. Distributed run/shard orchestration is still refused, not represented as complete.",
+      "status": "PASS",
+      "actualResult": "Stable logical, execution, attempt, run, and shard identities are exercised by native and distributed execution, including canonical tie-breaking independent of shard arrival order.",
       "implementationPaths": [
         "packages/core/src",
         "packages/playwright/src/reporter.ts"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084; tests/integration/distributed-runner.test.mjs; tests/hardening/merge-ordering.test.mjs",
       "expectedBehavior": "Stable logical, execution, attempt, run, and shard identities",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-004",
@@ -71,15 +71,15 @@
     {
       "id": "R-006",
       "requirement": "Deterministic factories and collision-resistant namespaces",
-      "status": "PARTIAL",
-      "actualResult": "Seeded factories and namespace unit cases pass; real concurrent TeamBoard tenants are isolated. Broad property-based/restart validation remains incomplete.",
+      "status": "PASS",
+      "actualResult": "Seeded factories and collision-resistant namespaces pass invariant coverage across worker, shard, repetition, and sequence dimensions.",
       "implementationPaths": [
         "packages/test-data/src",
         "tests/data.test.mjs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084; tests/hardening/property-invariants.test.mjs",
       "expectedBehavior": "Deterministic factories and collision-resistant namespaces",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-007",
@@ -110,41 +110,41 @@
     {
       "id": "R-009",
       "requirement": "Strict shard merge and report outputs",
-      "status": "PARTIAL",
-      "actualResult": "Native single-runner reports and strict finalization/negative tests pass. Pure shard merge tests pass separately; actual distributed merging is not implemented.",
+      "status": "PASS",
+      "actualResult": "Native single-runner and true distributed shard evidence are finalized, checksum-validated, reconciled with Playwright blob reports, and merged into canonical reports with strict missing/duplicate/incompatible rejection.",
       "implementationPaths": [
         "packages/reporter/src",
         "packages/playwright/src/reporter.ts"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084; tests/integration/distributed-runner.test.mjs; scripts/distributed-browser-evidence.mjs",
       "expectedBehavior": "Strict shard merge and report outputs",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-010",
       "requirement": "History metrics, fingerprints, quarantine, and comparisons",
-      "status": "PARTIAL",
-      "actualResult": "Unit metrics/fingerprints and strict expired-quarantine execution pass. Real history import, comparable prior-run reporting and quarantine mutation workflows remain incomplete.",
+      "status": "PASS",
+      "actualResult": "Immutable history records, bounded GitHub artifact import, comparable cohorts, retry-aware metrics, diagnostic repetition, accountable quarantine mutation, and centralized history gates are implemented and verified.",
       "implementationPaths": [
         "packages/flake-analysis/src",
         "tests/flake.test.mjs"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084; docs/delivery/history-reliability-requirements.json",
       "expectedBehavior": "History metrics, fingerprints, quarantine, and comparisons",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-011",
       "requirement": "GitHub Action distribution",
       "status": "PARTIAL",
-      "actualResult": "Action source exists; bundled external distribution and immutable published Action execution remain unverified.",
+      "actualResult": "A callable source-distributed Node 24 action and reusable multi-job workflow pass exact-source acceptance. Immutable public action tags, major-alias verification, and external released-action consumption remain Phase 12 work.",
       "implementationPaths": [
         "packages/github-action",
         "action.yml"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084 action job; docs/delivery/github-platform-requirements.json",
       "expectedBehavior": "GitHub Action distribution",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-012",
@@ -163,28 +163,28 @@
       "id": "R-013",
       "requirement": "LedgerGuard real consumer",
       "status": "PARTIAL",
-      "actualResult": "A genuine API-first LedgerGuard consumer is implemented against verified P07A SHA 9478663f97f9dc65d0c85117f244e1b8b80c37cb. It contains twelve real API journeys, isolated npm/pnpm packed-package adoption, reconciliation and infrastructure-cleanup gates. Hosted exact-head acceptance is not yet recorded, and real UI coverage remains blocked by the absent LedgerGuard product interface.",
+      "actualResult": "The genuine API-first LedgerGuard consumer passes hosted exact-source acceptance with isolated npm/pnpm packages, twelve application journeys, financial reconciliation, and infrastructure cleanup. Browser UI coverage remains blocked because the pinned application has no genuine product UI.",
       "implementationPaths": [
         "examples/ledgerguard-integration",
         "scripts/ledgerguard-acceptance.mjs",
         ".github/workflows/ci.yml",
         "docs/delivery/ledgerguard-consumer-requirements.json"
       ],
-      "verification": "node --test tests/ledgerguard-contract.test.mjs; hosted ledgerguard CI lane required for PASS",
+      "verification": "CI runs 36346441131 and 36355636084; docs/delivery/ledgerguard-consumer-requirements.json",
       "expectedBehavior": "LedgerGuard real consumer",
-      "evidenceRecord": "ledgerguard-consumer-candidate"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-014",
       "requirement": "Cross-platform CI",
-      "status": "PARTIAL",
-      "actualResult": "All six OS/Node foundation jobs and all three OS packed Chromium consumer jobs passed, along with Linux PostgreSQL/three-browser execution and the aggregate gate. Full release coverage remains broader.",
+      "status": "PASS",
+      "actualResult": "The delivered source passes Linux, macOS, and Windows on Node 22 and 24, independent packed consumers on all three operating systems, TeamBoard, LedgerGuard, hardening, action acceptance, and the aggregate quality gate.",
       "implementationPaths": [
         ".github/workflows/ci.yml"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084",
       "expectedBehavior": "Cross-platform CI",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-015",
@@ -213,26 +213,29 @@
     {
       "id": "R-017",
       "requirement": "Coverage thresholds 90/85",
-      "status": "NOT_RUN",
-      "actualResult": "Maintained runtime 90/85 coverage gates have not been measured or verified.",
+      "status": "PASS",
+      "actualResult": "The required hardening lane enforces 90% line and 85% branch/function thresholds and measured 98.63% lines, 96.46% branches, and 98.77% functions at exact source revision b679c996d9f33afb6a7d89fee294bd6fdfe3afc6.",
       "implementationPaths": [
         "tests"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "CI run 36355636084; hardening artifact 10944475111; docs/delivery/hardening-live-acceptance.md",
       "expectedBehavior": "Coverage thresholds 90/85",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-10-current"
     },
     {
       "id": "R-018",
       "requirement": "Benchmarks",
       "status": "PARTIAL",
-      "actualResult": "Synthetic harness exists; equivalent-inventory distributed browser benchmarks remain unexecuted.",
+      "actualResult": "The Phase 11A benchmark harness, independent-runner workflow, inventory-equivalence checks, timing records, schemas, statistics, raw JSONL/CSV output, and regression tests are implemented. No hosted five-repetition benchmark result is claimed yet.",
       "implementationPaths": [
-        "benchmarks"
+        "benchmarks",
+        ".github/workflows/benchmark.yml",
+        "tests/benchmark-contract.test.mjs",
+        "docs/delivery/benchmark-requirements.json"
       ],
-      "verification": "CI at exact source SHA; see scope-specific test commands in docs/first-consumer.md",
+      "verification": "node --test tests/benchmark-*.test.mjs; hosted benchmark workflow still required",
       "expectedBehavior": "Benchmarks",
-      "evidenceRecord": "first-consumer-checkpoint"
+      "evidenceRecord": "phase-11a-candidate"
     },
     {
       "id": "M1-01",
@@ -269,7 +272,7 @@
       "verification": "npm run test:integration; npm run test:consumers -- template",
       "status": "PARTIAL",
       "actualResult": "Typed callable fixture composition is compiled in isolated consumers; browser diagnostics are exercised, but complete diagnostic/adaptor lifecycle adversarial coverage remains incomplete.",
-      "expectedBehavior": "Typed composable Playwright fixtures and browser diagnostics",
+      "expectedBehavior": "Typed composable Playwright fixtures and browser diagostics",
       "evidenceRecord": "first-consumer-checkpoint"
     },
     {
@@ -348,12 +351,12 @@
       "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "First executable consumer milestone; full product remains incomplete",
-  "evidenceSemantics": "Statuses below refer to the identified observed checkpoint, not an unverified future commit. Every subsequent source revision must pass its own CI; see the current commit checks.",
+  "scope": "Current source checkpoint through the Phase 11A benchmark candidate; public release remains incomplete",
+  "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where publication, hosted benchmark, documentation deployment, or other later-phase acceptance is absent.",
   "evidenceLocations": [
-    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740",
-    "docs/delivery/first-consumer-evidence.json",
-    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624704"
+    "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
+    "docs/delivery/hardening-live-acceptance.md",
+    "docs/delivery/benchmark-requirements.json"
   ],
   "workflowConclusion": "success",
   "evidenceRecords": {
@@ -362,6 +365,18 @@
       "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36275624740",
       "result": "success",
       "reportManifest": "docs/delivery/first-consumer-evidence.json"
+    },
+    "phase-10-current": {
+      "sourceSha": "b679c996d9f33afb6a7d89fee294bd6fdfe3afc6",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
+      "result": "success",
+      "reportManifest": "docs/delivery/hardening-live-acceptance.md"
+    },
+    "phase-11a-candidate": {
+      "sourceSha": null,
+      "workflowRun": null,
+      "result": "implemented-pending-hosted-acceptance",
+      "reportManifest": "docs/delivery/benchmark-requirements.json"
     }
   }
 }

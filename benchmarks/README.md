@@ -1,0 +1,57 @@
+# ForgeQA benchmarks
+
+ForgeQA benchmarks are evidence-producing acceptance workflows, not marketing fixtures. The authoritative end-to-end benchmark runs the real PostgreSQL-backed TeamBoard inventory under five execution conditions while keeping source revision, test inventory, browser projects, retry policy, artifact policy, package versions, and application behavior fixed.
+
+## Comparable conditions
+
+| ID | Shards | Workers per shard | Runner topology |
+|---|---:|---:|---|
+| `serial-1x1` | 1 | 1 | one GitHub runner |
+| `local-2x1` | 1 | 2 | one GitHub runner |
+| `local-4x1` | 1 | 4 | one GitHub runner |
+| `distributed-2x1` | 2 | 1 | two independent GitHub runners |
+| `distributed-4x1` | 4 | 1 | four independent GitHub runners |
+
+One immutable ForgeQA discovery inventory is created per condition. Each measured repetition receives a distinct run identity while retaining the same expected executions. Every distributed shard uploads finalized journal evidence and a Playwright blob report. The merge job refuses missing, duplicate, incompatible, corrupt, or inventory-divergent evidence.
+
+## Running the benchmark
+
+The hosted workflow is `.github/workflows/benchmark.yml`.
+
+- Manual runs accept 1, 3, or 5 measured repetitions.
+- Use five repetitions for release evidence.
+- The monthly scheduled run uses one repetition as a bounded workflow and contract smoke test; it is not represented as release-quality performance evidence.
+- Dependency caching is disabled so cache state is explicit and identical across conditions.
+- The current candidate records zero unmeasured warm-up executions; that limitation is carried into every summary rather than hidden.
+
+`npm run benchmark` previews the exact condition matrix without consuming hosted runners. `npm run benchmark:synthetic` runs the separately labelled deterministic-factory microbenchmark. Synthetic results are never presented as TeamBoard or browser-suite measurements.
+
+## Retained evidence
+
+For every condition and repetition the workflow retains:
+
+- the immutable selection manifest and its execution-identity digest;
+- per-shard setup, test, and total runner timings;
+- runner operating system, CPU, memory, Node, Playwright, package-manager, and runner-image metadata;
+- finalized ForgeQA journals and native Playwright blob evidence;
+- merged canonical reports and gate outcome;
+- a schema-versioned benchmark record.
+
+The final summary artifact contains `raw.jsonl`, `raw.csv`, `summary.json`, and `summary.md`. It reports median, range, interquartile range, median absolute deviation, elapsed wall time, aggregate runner time, speedup, and parallel efficiency. Elapsed latency and consumed runner time remain separate.
+
+## Integrity rules
+
+A summary fails closed when:
+
+- a condition or repetition is missing or duplicated;
+- records do not share one exact source SHA;
+- expected or observed execution inventories differ;
+- a shard or merge exits nonzero;
+- the merged report is incomplete or its quality gate fails;
+- fewer records exist than the selected repetition count.
+
+A smaller sample is allowed for workflow smoke testing but is labelled as a limitation. No speedup claim is accepted by the release process until five comparable repetitions complete successfully.
+
+## Current boundary
+
+The harness, workflow, schemas, statistics, and regression tests are implemented. No production benchmark result is claimed until the hosted workflow succeeds at the exact delivered source revision and the retained summary is reviewed and recorded in the delivery ledger.

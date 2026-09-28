@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgeqa.dev/schemas/benchmark-summary-v1.json",
+  "title": "ForgeQA benchmark summary",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "status",
+    "sourceSha",
+    "repetitions",
+    "warmups"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "forgeqa-benchmark-summary"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "sourceSha": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repetitions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "inventoryDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "conditions": {
+      "type": "object"
+    },
+    "warmups": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

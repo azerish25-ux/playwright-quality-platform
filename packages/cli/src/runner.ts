@@ -194,7 +194,7 @@ export async function runCommand(parsed: Parsed): Promise<void> {
   const requestPath=resolve(executionDir,'request.json');
   const request={...value.request,runDir:executionDir,mode:'run' as const,manifestPath:value.manifestPath};
   await writeFile(requestPath,JSON.stringify(request),{mode:0o600});
-  const env=childEnvironment(requestPath,executionDir);
+  const env=childEnvironment(requestPath,executionDi6);
   const nativeShard=value.shard.total===1?[]:['--shard',`${value.shard.index}/${value.shard.total}`];
   const runner=await invoke(value.runner.cli,[...value.args,...nativeShard,'--reporter',`${value.runner.reporter},blob`],env,600_000);
   let exitCode=runner.code===0?0:runner.code===130?130:1;
@@ -224,7 +224,8 @@ export async function runCommand(parsed: Parsed): Promise<void> {
   } catch(error) {exitCode=3;failures.push({code:'FORGEQA_INTEGRITY',message:error instanceof Error?error.message:String(error)});}
   if(runner.interrupted)exitCode=130;
   if(runner.code!==0)failures.push({code:'NATIVE_RUNNER',exitCode:runner.code,diagnostics:runner.stderr||runner.stdout});
-  emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,exitCode,runnerExitCode:runner.code,completion:report?.completion ?? 'incomplete',tests:new Set(report?.attempts.map(a=>a.executionId)).size,attempts:report?.attempts.length ?? 0,gate:report?.gate,failures},`ForgeQA ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nReport: ${resolve(executionDir,'index.html')}\n${report?.gate?.violations.map(v=>`${v.id}: ${v.message}`).join('\n') ?? ''}${failures.length?'\n'+JSON.stringify(failures):''}`);
+  const shardReportPath=resolve(executionDir,'attempts.ndjson.final.json');
+  emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,...(existsSync(shardReportPath)?{shardReport:shardReportPath}:{}),exitCode,runnerExitCode:runner.code,completion:report?.completion ?? 'incomplete',tests:new Set(report?.attempts.map(a=>a.executionId)).size,attempts:report?.attempts.length ?? 0,gate:report?.gate,failures},`ForgeQA ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nReport: ${resolve(executionDir,'index.html')}\n${report?.gate?.violations.map(v=>`${v.id}: ${v.message}`).join('\n') ?? ''}${failures.length?'\n'+JSON.stringify(failures):''}`);
   process.exitCode=exitCode;
 }
 export async function doctorCommand(parsed:Parsed):Promise<void> {

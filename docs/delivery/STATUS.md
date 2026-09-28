@@ -1,80 +1,93 @@
-# Delivery checkpoint — Phase 10A hardening candidate
+# Delivery checkpoint — Phase 11A benchmark candidate
 
-**The source-distributed GitHub Action, reusable workflow, fork-safe PR reporting, two real consumers, and the Phase 10A hardening implementation are present. The hardening candidate still requires its own exact-source hosted green run, and the complete ForgeQA product is not released.**
+**ForgeQA has exact-source hosted acceptance for its source-distributed GitHub platform, both real consumer integrations, and the Phase 10A release-blocking hardening baseline. This revision implements the Phase 11A reproducible TeamBoard benchmark system, but no hosted five-repetition benchmark result or public release is claimed yet.**
 
-The foundational Phase 8 checkpoint is `570bcd08c0334cd4f9776a8846e6dda8dbdbb10b`. CI run `36319982582` is the exact-source pull-request verification for that revision. It completed successfully on September 27, 2026. The trusted publisher permission repair is merged at `9f607d13bfe7fcb314c66ea87220ea2e0448d8e9`; hosted creation and update-in-place acceptance was exercised by PR #7 through head `24a5894628da0f5d21323202ca0628de0517523a`.
+## Current accepted source baseline
+
+Phase 10A is accepted at source revision `b679c996d9f33afb6a7d89fee294bd6fdfe3afc6` through CI run `36355636084`. The run completed successfully on September 27, 2026. Its aggregate `forgeqa-quality` job `108723606813` passed after every required cross-platform, packed-consumer, TeamBoard, LedgerGuard, hardening, and action lane succeeded.
+
+The retained hardening artifact is `10944475111`, named `hardening-evidence-b679c996d9f33afb6a7d89fee294bd6fdfe3afc6`, with digest `sha256:2d0fa4830c9944a8dcb6327d9101a8bb04c32b6a4a73e96c147e9929744d6069`. Exact details are recorded in [hardening-live-acceptance.md](hardening-live-acceptance.md).
 
 ## Verified platform behavior
 
-- Real config-driven Playwright discovery and execution, typed composable fixtures, strict native and CLI gates, journal/finalization integrity, and canonical JSON/JUnit/Markdown/HTML output.
-- Native distributed Playwright execution with immutable expected inventories, real shard dimensions and stable execution identities.
-- Strict distributed evidence validation: finalized journals, completion markers, checksums, captured attachments and Playwright blob reports are validated before merge.
-- Native blob reports merge through Playwright's supported command, and native counts/outcomes/projects are reconciled exactly with canonical ForgeQA results before publication.
-- PostgreSQL-backed TeamBoard executes eight API cases and four UI journeys in Chromium, Firefox and WebKit, including workspace and independent npm/pnpm package consumers.
-- Historical reliability includes immutable records, bounded GitHub artifact import, comparable cohorts, precise retry metrics, diagnostic repetition, explicit quarantine mutation and centralized history-aware gates.
-- The exact Phase 8 checkpoint passed all six Linux/macOS/Windows Node 22/24 verification jobs, all three independent consumer jobs, the PostgreSQL/three-browser TeamBoard job, the real action-acceptance job and the aggregate `forgeqa-quality` gate.
+- Real config-driven Playwright discovery and execution with immutable expected inventories and stable logical, execution, attempt, run, and shard identities.
+- Typed composable Playwright fixtures, strict native and CLI gates, journal/finalization integrity, and canonical JSON, JUnit, Markdown, and static HTML reports.
+- Native distributed Playwright execution with independent shard dimensions and stable execution identities.
+- Strict validation of finalized journals, completion markers, checksums, captured attachments, and Playwright blob reports before merge.
+- Exact reconciliation between native Playwright counts, outcomes, projects, and canonical ForgeQA results.
+- Canonical merge ordering remains independent of shard arrival order even when timestamps and retry indexes tie.
+- PostgreSQL-backed TeamBoard executes eight API cases and four UI journeys across Chromium, Firefox, and WebKit, including workspace and isolated npm/pnpm consumers.
+- Genuine API-first LedgerGuard adoption executes twelve authentication, authorization, ownership, transfer, payment, adjustment, and scheduling journeys against pinned P07A application source, followed by financial reconciliation and owned-infrastructure cleanup.
+- Historical reliability includes immutable records, bounded GitHub artifact import, comparable cohorts, retry-aware metrics, repeat diagnostics, accountable quarantine mutation, and centralized history-aware gates.
+- A callable Node 24 GitHub Action, distributed reusable workflow, stable aggregate check, and fork-safe trusted PR publisher.
+- Release-blocking invariant, seeded-defect, compatibility, coverage, exact-tarball audit, and clean-consumer gates.
 
-## GitHub platform milestone delivered
+## Phase 10A hardening acceptance
 
-- `action.yml` invokes a tracked Node 24 JavaScript distribution. A checkout of an action ref contains the callable runtime without requiring a build step first.
-- Action inputs are typed and validated. Working directories, configuration, CLI, manifest, evidence and output paths are confined to `GITHUB_WORKSPACE` with canonical-path and symbolic-link checks.
-- GitHub, Actions and registry credentials are removed from application, ForgeQA and Playwright child processes. Dependency installation receives registry authentication only where needed.
-- The action supports plan, bounded local multi-shard execution, explicit distributed-shard execution and strict evidence merge modes.
-- Local shards share one total worker budget, retain every shard result and merge canonical/native evidence before propagating quality or infrastructure status.
-- Exit codes `1`, `2`, `3` and `130` remain nonzero after outputs and evidence are written. Early validation failures retain an owned `action-failure.json` record.
-- The reusable workflow creates one immutable manifest, expands a validated independent shard matrix with `fail-fast: false`, uploads complete per-shard evidence and provides a stable aggregate `forgeqa-quality` job.
-- Plan, shard and merge jobs use one immutable action commit rather than a floating branch or tag.
-- The source repository exercised `uses: ./` against a real two-test API-only consumer, ran two shards, merged the native and canonical evidence, verified action outputs and uploaded the evidence artifact.
-- Workflow tests enforce the tracked action entrypoint, immutable internal references, absence of failure masking, aggregate-gate wiring and cross-platform line-ending behavior.
+The exact accepted run measured:
 
-The detailed M4 requirement ledger is [github-platform-requirements.json](github-platform-requirements.json). M4-01 through M4-08 pass. Release-specific M4-09 through M4-11 remain not run.
+| Metric | Required | Observed |
+|---|---:|---:|
+| Lines | 90% | 98.63% |
+| Branches | 85% | 96.46% |
+| Functions | 85% | 98.77% |
 
-## PR reporting hosted acceptance passed
+The hardening lane audits all eight package tarballs, rejects private-source or local-protocol leakage, verifies exported and executable targets, scans for credential canaries, and installs the exact tarballs in clean npm and pnpm consumers. P10-01 through P10-06 are `PASS` in [hardening-requirements.json](hardening-requirements.json).
 
-The M4-08 implementation and hosted evidence prove:
+## Phase 11A benchmark candidate implemented
 
-- pull-request CI emits a run/attempt-bound, data-only report artifact even when the aggregate quality step fails;
-- a separate `workflow_run` publisher executes only default-branch source with narrowly scoped read/comment permissions and never checks out pull-request code;
-- GitHub API metadata resolves PR association when `workflow_run.pull_requests` is empty;
-- artifact names, metadata, extracted paths, size/file bounds, schema fields, revisions, timestamps, job inventory and conclusions fail closed;
-- current-head and newer-run checks execute before processing and immediately before mutation;
-- one bot-owned marker comment is created or updated idempotently, paginated lookup is supported, attacker marker comments are ignored and duplicate bot comments are removed;
-- missing evidence or comment permission does not become a clean result and does not alter the originating CI conclusion;
-- a pre-download authorization pass rejects changed CI workflows and oversized, missing, duplicate or expired artifacts before extraction;
-- report claims are cross-checked against GitHub's exact-attempt job inventory and conclusions rather than trusted from PR-produced JSON.
+This revision adds a reproducible benchmark system around the real TeamBoard inventory. It compares:
 
-Hosted PR #7 acceptance first created comment `5856548977` after CI run `36324283050` and publisher run `36324606250`. A later documentation-only revision at `24a5894628da0f5d21323202ca0628de0517523a` passed CI run `36327735451`; publisher run `36328071048` updated the same comment in place. Detailed acceptance evidence is recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md).
+- one shard with one worker;
+- one shard with two workers;
+- one shard with four workers;
+- two independent GitHub runners with one worker each;
+- four independent GitHub runners with one worker each.
 
-## Phase 9 LedgerGuard hosted acceptance passed
+The benchmark implementation provides:
 
-ForgeQA contains a genuine API-first second-consumer harness under `consumers/ledgerguard`. It pins `azerish25-ux/transaction-reliability-lab` to verified P07A source `9478663f97f9dc65d0c85117f244e1b8b80c37cb`, whose application verification run is `36319414655`.
+- one immutable discovery inventory per condition;
+- unique run identities per measured repetition;
+- independent PostgreSQL and browser setup for every distributed shard;
+- finalized ForgeQA journals and native Playwright blob evidence from every shard;
+- fail-closed canonical merge and exact expected-versus-observed execution identity comparison;
+- setup, execution, merge, elapsed wall, and aggregate runner timing;
+- runner OS, CPU, memory, image, Node, Playwright, and package-manager metadata;
+- retained raw JSONL and CSV records plus JSON and Markdown summaries;
+- median, range, interquartile range, median absolute deviation, speedup, and parallel-efficiency calculations;
+- bounded one-, three-, or five-repetition execution, with five required for release evidence;
+- an explicit zero-warm-up policy recorded as a limitation rather than hidden from the results;
+- focused regression tests for matrices, inventories, statistics, records, manifest materialization, and workflow structure.
 
-At ForgeQA source `4ed8584ec0a04e14283109ad5e7f1fa7a4053077`, CI run `36346441131` completed successfully. Its `ledgerguard` job `108696406407` started LedgerGuard's real PostgreSQL, RabbitMQ, API, outbox, two payment-worker and two scheduler topology; installed all eight packed ForgeQA packages into isolated npm and pnpm consumers; executed twelve authentication, authorization, ownership, transfer, payment, adjustment and scheduling tests; compared both consumer identity inventories; reconciled financial state; and proved container, volume, and network cleanup. Retained artifact `10941370883` has digest `sha256:75edc52defcc70910e03698ec519481bc57f4fe5c73f57380651ff908f8528c0`.
+The workflow is present at `.github/workflows/benchmark.yml`. The monthly scheduled run is a one-repetition contract smoke and is not release-quality performance evidence. A manually dispatched five-repetition exact-source run is still required before any benchmark result is accepted. See [benchmark-requirements.json](benchmark-requirements.json) and [../../benchmarks/README.md](../../benchmarks/README.md).
 
-M5-08 is therefore `PASS`. LedgerGuard still has no genuine React product interface, so M5-09 remains `BLOCKED`; no fabricated UI is substituted. See [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) and [../ledgerguard-consumer.md](../ledgerguard-consumer.md).
+## GitHub platform and trusted PR reporting
 
-## Phase 10A hardening candidate implemented
+The source-distributed action remains accepted:
 
-The next source revision adds a required, release-blocking `hardening` job and expands trusted PR-report schema compatibility from versions 1 and 2 to a hardening-aware version 3. The candidate includes:
+- `action.yml` carries a tracked callable Node 24 distribution;
+- action inputs and workspace-relative paths are validated and confined to `GITHUB_WORKSPACE`;
+- application and test children do not inherit GitHub, Actions, or registry write credentials;
+- plan, bounded local-shard, distributed-shard, and strict merge modes preserve nonzero quality, configuration, integrity, and interruption outcomes;
+- the reusable workflow creates one immutable manifest, expands a `fail-fast: false` matrix, uploads complete evidence, and exposes a stable aggregate job;
+- the trusted `workflow_run` publisher executes default-branch source only, validates run-bound data artifacts and exact GitHub job conclusions, rejects stale or changed-workflow results, and updates one bot-owned PR comment idempotently.
 
-- a built-in Node coverage runner enforcing 90% line and 85% branch coverage over release-critical policy, identity, redaction, data-ownership, merge-integrity and quarantine modules;
-- invariant-oriented tests for merge order independence, deterministic gates, reproducible factories, collision-resistant namespaces, ownership-limited cleanup and redaction idempotence;
-- focused seeded-defect oracles proving that always-pass gates, incomplete merge acceptance, empty changed-area selection, quarantine bypass and identity redaction are detected;
-- frozen pre-release contracts for all eight package boundaries, action inputs/outputs, CLI entrypoint, result schema and PR-report schemas 1/2/3;
-- deep inspection of all eight `npm pack` tarballs, including file allowlists, export/bin target existence, local-protocol rejection, private-source import rejection and credential-canary scans;
-- installation and compilation of those exact tarballs in clean npm and pnpm consumer directories;
-- a 50-scenario adversarial evidence ledger at [hardening-requirements.json](hardening-requirements.json).
-
-This section records implementation, not hosted acceptance. P10-06 remains `NOT_RUN` until the new `hardening` lane and the expanded aggregate gate pass at the exact source revision. The ledger distinguishes prior hosted `PASS` evidence from new `IMPLEMENTED` checks awaiting that run.
+Hosted PR reporting evidence remains recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md). Public action tags, a controlled major alias, and external immutable-action consumption remain Phase 12 work.
 
 ## Explicit remaining boundaries
 
-No immutable public action release tag, controlled major alias, standalone action-distribution release or external consumer against a released action is claimed. Source-level `uses: ./` acceptance is not substituted for released-action acceptance.
+No npm registry package publication is claimed. Source and CI tarballs are release candidates, not proof that the registry contains the release.
 
-No GitHub Marketplace listing or Marketplace account-owner terms acceptance is claimed.
+No immutable public action release tag, controlled major alias, standalone action-distribution release, or external consumer against a released action is claimed. Source-level `uses: ./` acceptance is not substituted for released-action acceptance.
 
-LedgerGuard has genuine API-first hosted acceptance but still has no browser product interface, and no mock or copied application is substituted for browser coverage.
+No GitHub Marketplace listing or account-owner terms acceptance is claimed.
 
-Comparable distributed benchmarks, versioned documentation deployment, npm publication, immutable action-tag consumption, partial-publication recovery, and final release audit remain unverified or unreleased. The new 90/85 coverage and package-hardening gates remain an implementation candidate until exact-source hosted acceptance is recorded. Source-candidate tarballs are not registry publications.
+LedgerGuard has genuine hosted API-first acceptance but still has no browser product interface. No copied or fabricated UI is substituted.
 
-See [requirements.json](requirements.json) for the broader product matrix, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, [hardening-requirements.json](hardening-requirements.json) for Phase 10, and [defects.md](defects.md) for repaired defects and regression evidence.
+No accepted comparable benchmark result is claimed until the five-repetition hosted workflow passes at the exact delivered revision and its retained records are reviewed.
+
+No versioned documentation website deployment is claimed. Markdown documentation and ADR source are not substituted for a visited, versioned deployment with link and snippet verification.
+
+Partial-publication recovery, registry installation acceptance, public action-tag acceptance, documentation deployment, coordinated release verification, and the final delivery audit remain incomplete.
+
+See [requirements.json](requirements.json) for the broader product matrix, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, [github-platform-requirements.json](github-platform-requirements.json) for Phase 8, [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) for Phase 9, [hardening-requirements.json](hardening-requirements.json) for Phase 10, [benchmark-requirements.json](benchmark-requirements.json) for Phase 11A, and [defects.md](defects.md) for repaired defects and regression evidence.

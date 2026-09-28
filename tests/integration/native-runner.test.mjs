@@ -24,9 +24,11 @@ async function report(result) {return JSON.parse(await readFile(join(result.valu
 test('real native discovery, callable fixture extension, attempts and artifact checksums',async t=>{
  const dir=await consumer(t,`test('worker context',{tag:'@smoke',annotation:forgeId('native.worker')},async({forge},info)=>{expect(forge.namespace).toMatch(/^fq-/);expect(info.project.name).toBe('api');});`);
  const plan=await invoke(cli,['plan','--json'],dir);assert.equal(plan.code,0,plan.out+plan.err);assert.equal(JSON.parse(plan.out).manifest.expected.length,1);
- const result=await run(dir);assert.equal(result.code,0,result.out+result.err);assert.equal(result.value.tests,1);assert.equal(result.value.attempts,1);
+ const result=await run(dir);assert.equal(result.code,0,result.out+result.err);assert.equal(result.value.tests,1);assert.equal(result.value.attempts,1);assert.equal(result.value.shardReport,join(result.value.runDir,'attempts.ndjson.final.json'));
  const data=await report(result);assert.equal(data.gate.outcome,'pass');assert.equal(data.attempts[0].logicalTestId,'native.worker');assert.equal(data.attempts[0].artifacts.find(a=>a.type==='trace').state,'inapplicable');
+ const marker=JSON.parse(await readFile(join(result.value.runDir,'shard-complete.json'),'utf8'));assert.equal(marker.shardTotal,1);assert.equal(marker.report,'attempts.ndjson.final.json');
  const blobs=await readdir(join(result.value.runDir,'blob-report'));assert.ok(blobs.some(p=>p.endsWith('.zip')));
+ const merged=await invoke(cli,['report','merge','--manifest',result.value.manifestPath,'--output',join(dir,'merged-single'),result.value.shardReport,'--json'],dir);assert.equal(merged.code,0,merged.out+merged.err);const mergedValue=JSON.parse(merged.out);assert.equal(mergedValue.tests,1);assert.equal(mergedValue.evidence.reconciliation.status,'MATCHED');
 });
 
 test('real failure is not converted to success by report generation',async t=>{

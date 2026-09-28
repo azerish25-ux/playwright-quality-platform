@@ -177,9 +177,9 @@ export default class ForgeReporter implements Reporter {
       await this.journal!.finalize(shard);
       const finalized=await readFinalizedShard(this.journal!.finalPath);
       const dimensions=this.dimensions();
+      atomic(resolve(m.runDir,'shard-complete.json'),JSON.stringify({schemaVersion:1,runId:m.runId,shardId:finalized.shardId,shardIndex:dimensions.index,shardTotal:dimensions.total,selectionHash:this.manifest.selectionHash,configHash:m.config.configHash,completion:finalized.completion,report:'attempts.ndjson.final.json',reportSha256:sha256(readFileSync(this.journal!.finalPath))},null,2)+'\n');
       if(dimensions.total>1) {
         if(this.globalLog)atomic(resolve(m.runDir,'runtime.log'),this.globalLog);
-        atomic(resolve(m.runDir,'shard-complete.json'),JSON.stringify({schemaVersion:1,runId:m.runId,shardId:finalized.shardId,shardIndex:dimensions.index,shardTotal:dimensions.total,selectionHash:this.manifest.selectionHash,configHash:m.config.configHash,completion:finalized.completion,report:'attempts.ndjson.final.json',reportSha256:sha256(readFileSync(this.journal!.finalPath))},null,2)+'\n');
         return {status:result.status==='passed' && finalized.completion==='complete'?'passed':'failed'};
       }
       const report: MergedRunResult=mergeShardResults([finalized],this.manifest);

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P11A",
+  "title": "Reproducible TeamBoard benchmarks",
+  "status": "IMPLEMENTED_PENDING_HOSTED_ACCEPTANCE",
+  "sourceSha": null,
+  "hostedAcceptance": {
+    "status": "NOT_RUN",
+    "workflowRun": null,
+    "artifactId": null,
+    "summaryDigest": null
+  },
+  "conditions": [
+    {
+      "id": "serial-1x1",
+      "workers": 1,
+      "shards": 1,
+      "topology": "single-runner"
+    },
+    {
+      "id": "local-2x1",
+      "workers": 2,
+      "shards": 1,
+      "topology": "single-runner"
+    },
+    {
+      "id": "local-4x1",
+      "workers": 4,
+      "shards": 1,
+      "topology": "single-runner"
+    },
+    {
+      "id": "distributed-2x1",
+      "workers": 1,
+      "shards": 2,
+      "topology": "github-multi-runner"
+    },
+    {
+      "id": "distributed-4x1",
+      "workers": 1,
+      "shards": 4,
+      "topology": "github-multi-runner"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "P11-01",
+      "requirement": "Serial, two local-parallel, and two genuine independent-runner shard conditions",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/lib/conditions.mjs",
+        ".github/workflows/benchmark.yml"
+      ]
+    },
+    {
+      "id": "P11-02",
+      "requirement": "One exact execution inventory across every compared condition",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/lib/inventory.mjs",
+        "benchmarks/materialize-manifests.mjs",
+        "benchmarks/record-run.mjs"
+      ]
+    },
+    {
+      "id": "P11-03",
+      "requirement": "Independent PostgreSQL and browser runners for each distributed shard",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        ".github/workflows/benchmark.yml"
+      ]
+    },
+    {
+      "id": "P11-04",
+      "requirement": "Retained raw JSONL, CSV, machine summary, and Markdown summary evidence",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/summarize.mjs",
+        "benchmarks/schemas"
+      ]
+    },
+    {
+      "id": "P11-05",
+      "requirement": "Median, range, IQR, MAD, speedup, and parallel-efficiency calculations",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/lib/statistics.mjs",
+        "benchmarks/lib/records.mjs"
+      ]
+    },
+    {
+      "id": "P11-06",
+      "requirement": "Separate setup, execution, merge, elapsed wall, and aggregate runner timing",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/write-shard-metadata.mjs",
+        "benchmarks/record-run.mjs"
+      ]
+    },
+    {
+      "id": "P11-07",
+      "requirement": "One-to-five bounded measured repetitions with five required for release evidence",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "benchmarks/workflow-matrix.mjs",
+        ".github/workflows/benchmark.yml"
+      ]
+    },
+    {
+      "id": "P11-08",
+      "requirement": "Focused regression coverage for statistics, inventories, manifests, and workflow trust boundaries",
+      "status": "IMPLEMENTED",
+      "implementationPaths": [
+        "tests/benchmark-statistics.test.mjs",
+        "tests/benchmark-inventory.test.mjs",
+        "tests/benchmark-contract.test.mjs"
+      ],
+      "verification": "node --test tests/benchmark-*.test.mjs"
+    },
+    {
+      "id": "P11-09",
+      "requirement": "Reporter-overhead and large-result scaling measurements",
+      "status": "NOT_RUN",
+      "implementationPaths": [
+        "benchmarks/synthetic/factory-throughput.mjs"
+      ]
+    },
+    {
+      "id": "P11-10",
+      "requirement": "Hosted exact-source five-repetition benchmark acceptance",
+      "status": "NOT_RUN",
+      "implementationPaths": [
+        ".github/workflows/benchmark.yml"
+      ]
+    }
+  ],
+  "statusSemantics": {
+    "PASS": "Verified by exact-source automated evidence already recorded in the repository.",
+    "IMPLEMENTED": "Executable implementation and regression coverage exist but the hosted benchmark has not yet established a measured result.",
+    "NOT_RUN": "The named measurement or hosted acceptance has not been executed and is not represented as complete."
+  }
+}
