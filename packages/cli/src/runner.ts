@@ -194,7 +194,7 @@ export async function runCommand(parsed: Parsed): Promise<void> {
   const requestPath=resolve(executionDir,'request.json');
   const request={...value.request,runDir:executionDir,mode:'run' as const,manifestPath:value.manifestPath};
   await writeFile(requestPath,JSON.stringify(request),{mode:0o600});
-  const env=childEnvironment(requestPath,executionDi6);
+  const env=childEnvironment(requestPath,executionDir);
   const nativeShard=value.shard.total===1?[]:['--shard',`${value.shard.index}/${value.shard.total}`];
   const runner=await invoke(value.runner.cli,[...value.args,...nativeShard,'--reporter',`${value.runner.reporter},blob`],env,600_000);
   let exitCode=runner.code===0?0:runner.code===130?130:1;
