@@ -50,11 +50,13 @@
         "scripts/release-manifest.mjs",
         "scripts/release-state.mjs",
         "tests/release-state.test.mjs",
-        "tests/release-state-boundaries.test.mjs"
+        "tests/release-state-boundaries.test.mjs",
+        "scripts/release-registry.mjs",
+        "tests/release-registry.test.mjs"
       ],
-      "verification": "Release candidates 36494379998; release-readiness-live-acceptance.md",
-      "actualResult": "All eight complete tarballs passed hosted hardening and npm/pnpm consumer checks, then independent downloaded SHA-256/SHA-512 verification. Synthetic recovery and strict state-boundary tests passed. Live registry transport and actual partial-publication recovery remain unaccepted.",
-      "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1"
+      "verification": "Release candidates 36503848112; release-engine-live-acceptance.md",
+      "actualResult": "Source and semantically prepared tarballs passed exact-source hardening and npm/pnpm consumers. Actual npm protocol recovery after three prepared-package uploads and fresh registry consumers passed on an owned loopback registry; both downloaded archives and all sixteen source/prepared tarballs were independently checked. Public npm interruption/recovery has not been exercised.",
+      "sourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44"
     },
     {
       "id": "RR-05",
@@ -91,12 +93,14 @@
         "scripts/release-registry.mjs",
         ".github/workflows/release.yml"
       ],
-      "verification": "tests/release-*.test.mjs; docs/delivery/release-engine-requirements.json",
-      "actualResult": "Phase 12A adds real semantic-release lockstep coordination, final-artifact consumer checks and real npm registry recovery. Focused local release tests pass; exact-source hosted acceptance is pending. Public npm authorization/publication, released action, deployed docs and final distribution acceptance are not claimed."
+      "verification": "CI 36503848156; Release candidates 36503848112; release-engine-acceptance.json",
+      "actualResult": "Semantic-release 25.0.9 prepared all eight packages at 1.0.0 from real history. Final-artifact and isolated-registry npm/pnpm consumers plus real npm interruption/recovery passed exact-source hosted acceptance. P12A-01 through P12A-06 and P12A-08 are PASS within that scope. P12A-07, public npm authorization/publication, released action, deployed docs and final distribution acceptance remain incomplete.",
+      "sourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44"
     }
   ],
   "acceptedSourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
   "acceptedCI": 36494379888,
   "acceptedDocumentation": 36494380027,
-  "candidateRun": 36494379998
+  "candidateRun": 36494379998,
+  "releaseEngineAcceptance": "release-engine-acceptance.json"
 }

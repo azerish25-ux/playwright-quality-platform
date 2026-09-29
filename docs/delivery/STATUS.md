@@ -1,6 +1,14 @@
-# Delivery checkpoint — release-readiness source accepted
+# Delivery checkpoint — Phase 12A release engine accepted
 
-**Phase 11B documentation and installed-package onboarding passed hosted acceptance at `54f25b2a865b8b90c7fe00b34142cbb282d99a57` in Documentation run `36468235212` and full CI `36468235190`. Phase 11A benchmark execution remains accepted with its hardware-comparability limitations. The complete public product is not released.**
+**Phase 12A semantic preparation and isolated-registry recovery passed hosted acceptance at `eab1c4fb105de7def46de0511b0af8c16763db44`. All 14 required CI jobs, Documentation and Release candidates passed. The complete public product is not released.**
+
+## Phase 12A coordinated release acceptance
+
+CI `36503848156`, Documentation `36503848142` and Release candidates `36503848112` passed at the exact source above. Semantic-release 25.0.9 prepared all eight packages at 1.0.0 without changing the source 0.1.0 manifests. Installed CLI/template versions, final-tarball npm/pnpm consumers, actual npm protocol interruption/recovery and fresh loopback-registry consumers passed.
+
+Both downloaded archives matched GitHub digests. All sixteen source/prepared tarballs matched their sizes and SHA-256/SHA-512 values, and prepared non-manifest contents matched the source artifacts byte for byte. Four independent consumer receipts and their canonical reports were checked against exact source, version, package digests and first-pass outcomes. See [the hosted acceptance](release-engine-live-acceptance.md), [machine-readable receipt](release-engine-acceptance.json), and [Phase 12A matrix](release-engine-requirements.json).
+
+P12A-01 through P12A-06 and P12A-08 are PASS within this scope. P12A-07 and broader RR-07 remain PARTIAL: the public publishing job was skipped, actual npm authorization/publication is unverified, and no stable tag, action alias or public website was released. The historical sections below retain their original source bindings rather than relabeling earlier artifacts.
 
 ## Release-readiness source acceptance
 
@@ -8,7 +16,7 @@ The continuation at `c8304873cfce584f352eca69d7ccae068fd3e3b1` passed full CI `3
 
 Concurrent initialization/interruption recovery and real PostgreSQL ownership/reclamation regressions are included in this accepted source. The earlier [controlled local benchmark](controlled-local-acceptance.json) also has hosted acceptance and independently recomputed measurements; it does not establish distributed comparability or granular lifecycle timing. The history below retains its original source-specific boundaries.
 
-No public publication is authorized or claimed. Generic auth/fixture lifecycle acceptance and semantic-release version coordination remain incomplete, alongside actual registry/action distribution, website deployment and the final audit.
+At that earlier source, generic auth/fixture lifecycle acceptance and semantic-release version coordination were incomplete, alongside actual registry/action distribution, website deployment and the final audit. Phase 12A above accepts semantic preparation and isolated-registry recovery, not public publication or the remaining lifecycle/distribution requirements.
 
 ## Phase 10 accepted source baseline
 
@@ -79,7 +87,7 @@ Hosted PR reporting evidence remains recorded in [pr-reporting-live-acceptance.m
 
 ## Explicit remaining boundaries
 
-No npm registry package publication is claimed. Source and CI tarballs are release candidates, not proof that the registry contains the release.
+No public npm registry package publication is claimed. Source and prepared tarballs, including those exercised against the loopback registry, are not proof that npmjs.com contains the release.
 
 No immutable public action release tag, controlled major alias, standalone action-distribution release, or external consumer against a released action is claimed. Source-level `uses: ./` acceptance is not substituted for released-action acceptance.
 
@@ -91,6 +99,6 @@ The five-repetition execution/evidence pipeline is accepted. Controlled-hardware
 
 No versioned documentation website deployment is claimed. Markdown documentation and ADR source are not substituted for a visited, versioned deployment with link and snippet verification.
 
-Partial-publication recovery, registry installation acceptance, public action-tag acceptance, documentation deployment, coordinated release verification, and the final delivery audit remain incomplete.
+Public npm publication/recovery, full registry-installed TeamBoard/LedgerGuard acceptance, public action-tag acceptance, documentation deployment, complete generic authentication/fixture lifecycle, and the final delivery audit remain incomplete. The narrower semantic-preparation and isolated-registry recovery slice is accepted above.
 
-See [requirements.json](requirements.json) for the broader product matrix, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, [github-platform-requirements.json](github-platform-requirements.json) for Phase 8, [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) for Phase 9, [hardening-requirements.json](hardening-requirements.json) for Phase 10, [benchmark-requirements.json](benchmark-requirements.json) for Phase 11A, and [defects.md](defects.md) for repaired defects and regression evidence.
+See [requirements.json](requirements.json) for the broader product matrix, [release-engine-requirements.json](release-engine-requirements.json) for Phase 12A, [history-reliability-requirements.json](history-reliability-requirements.json) for Phase 7, [github-platform-requirements.json](github-platform-requirements.json) for Phase 8, [ledgerguard-consumer-requirements.json](ledgerguard-consumer-requirements.json) for Phase 9, [hardening-requirements.json](hardening-requirements.json) for Phase 10, [benchmark-requirements.json](benchmark-requirements.json) for Phase 11A, and [defects.md](defects.md) for repaired defects and regression evidence.

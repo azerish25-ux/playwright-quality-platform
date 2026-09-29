@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-release-engine-hosted-acceptance",
+  "status": "PASS",
+  "scope": "Phase 12A semantic preparation, exact-artifact consumers and isolated registry recovery; not public npm publication",
+  "sourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44",
+  "sourceTree": "e1926d1fd22ca6324245574095aca38fe8472623",
+  "sourceVersion": "0.1.0",
+  "preparedVersion": "1.0.0",
+  "semanticReleaseVersion": "25.0.9",
+  "semanticPlanSha256": "1c4ef1c205241f56ed119a1209c9c9d4c7aa38f0c0b2c0e5d4e2f1bccff94c84",
+  "preparedManifestSha256": "bd5efc2b5f9772be442a190cf7447d0e39c9b2644d90cee357412e194e658080",
+  "sourceManifestSha256": "139b2fa68d8af672746e74d5e06ae1781a79799218de0ff6ac28dc778a0f6997",
+  "publicationAuthorized": false,
+  "publicNpmPublication": "NOT_ATTEMPTED",
+  "stablePromotion": "NOT_ATTEMPTED",
+  "workflows": [
+    {
+      "name": "CI",
+      "runId": 36503848156,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "requiredJobs": 14,
+      "aggregateJobId": 109202502301,
+      "jobIds": [109201045070, 109201045162, 109201045245, 109201045266, 109201045296, 109201045300, 109201045312, 109201045322, 109201045348, 109201045368, 109201045389, 109201045427, 109201045506, 109202502301]
+    },
+    {
+      "name": "Documentation",
+      "runId": 36503848142,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "jobId": 109200663431
+    },
+    {
+      "name": "Release candidates",
+      "runId": 36503848112,
+      "runAttempt": 1,
+      "verificationJobId": 109200663012,
+      "verificationConclusion": "success",
+      "publicPublicationJobId": 109202930629,
+      "publicPublicationConclusion": "skipped"
+    }
+  ],
+  "downloadedArtifacts": [
+    {
+      "id": 11006946901,
+      "name": "release-candidates-eab1c4fb105de7def46de0511b0af8c16763db44-1",
+      "size": 561509,
+      "sha256": "3f87a60ab285396e879cbf5748c4c529a5dd6852859d3bf21afb7a96cb147460",
+      "createdAt": "2026-09-29T00:44:24Z",
+      "expiresAt": "2026-10-29T00:44:23Z"
+    },
+    {
+      "id": 11007221471,
+      "name": "prepared-release-eab1c4fb105de7def46de0511b0af8c16763db44-1",
+      "size": 313754,
+      "sha256": "77c84f797e6b11336ebd5f914fc518fb09bce2e6181c8dc2a18d60add0053b22",
+      "createdAt": "2026-09-29T00:44:26Z",
+      "expiresAt": "2026-10-29T00:44:25Z"
+    }
+  ],
+  "independentVerification": {
+    "archiveDigests": "PASS",
+    "matchingPreparedFilesAcrossArchives": "PASS",
+    "completeTarballDigestsAndSizesChecked": 16,
+    "sourceAndPreparedPackageSets": 2,
+    "unchangedNonManifestPackageContents": 8,
+    "publicRuntimeContract": ">=22",
+    "rewrittenInternalDependencies": "PASS",
+    "semanticPlanDigest": "PASS",
+    "sourceAndPreparedManifestDigests": "PASS",
+    "consumerReceipts": 4,
+    "successfulFirstPassReportAttemptsChecked": 8
+  },
+  "consumers": [
+    { "manager": "npm", "distribution": "prepared-tarballs", "packages": 8, "version": "1.0.0", "tests": 2, "attempts": 2, "status": "PASS" },
+    { "manager": "pnpm", "distribution": "prepared-tarballs", "packages": 8, "version": "1.0.0", "tests": 2, "attempts": 2, "status": "PASS" },
+    { "manager": "npm", "distribution": "loopback-registry", "packages": 8, "version": "1.0.0", "tests": 2, "attempts": 2, "status": "PASS" },
+    { "manager": "pnpm", "distribution": "loopback-registry", "packages": 8, "version": "1.0.0", "tests": 2, "attempts": 2, "status": "PASS" }
+  ],
+  "registryRecovery": {
+    "scope": "isolated-loopback-registry",
+    "interruptedAfter": 3,
+    "uniquePublications": 8,
+    "npmConsumer": "PASS",
+    "pnpmConsumer": "PASS",
+    "cleanup": "PASS"
+  },
+  "preparedTarballSha256": {
+    "azerish25-ux-forgeqa-core-1.0.0.tgz": "811474cfb9dbe5e77ed342021914bf5d6b84817679bded03a2c9058efe2aae9f",
+    "azerish25-ux-forgeqa-api-1.0.0.tgz": "c408456bfc5d5bee1ed54e8db7261376938ec6ea4ddbf6b86df45fb017e5369c",
+    "azerish25-ux-forgeqa-test-data-1.0.0.tgz": "e990a6233f4f550197489fc30b67c2accf2348eb2148f54659c5a13d5979a498",
+    "azerish25-ux-forgeqa-reporter-1.0.0.tgz": "37a8992dde684ba3f59049ee57050b86b2bf08b8f07986a1697268bf88bb10f4",
+    "azerish25-ux-forgeqa-flake-analysis-1.0.0.tgz": "652018d5446a0fba1426d2c03995b270df2d2c36ef97397ffcaac1ee3a52dc51",
+    "azerish25-ux-forgeqa-playwright-1.0.0.tgz": "9e8572f664a185fa9cb83ca859e8480106bb6cb19cb7371be0dd23bdaa992b2a",
+    "azerish25-ux-forgeqa-github-1.0.0.tgz": "f9a5d3c4c432ff76478c881781fb5e01f13986b68ed113b8de328050bf38b44f",
+    "azerish25-ux-forgeqa-cli-1.0.0.tgz": "abc94be74f65649d096fec5d60a64cb32ed81868bde62715c64cbc7bc3a1f552"
+  },
+  "remaining": [
+    "Actual npm scope ownership and trusted-publisher authorization have not been verified.",
+    "The public publishing job was skipped; isolated registry success is not npmjs.com publication.",
+    "Full registry-installed TeamBoard and LedgerGuard acceptance, immutable public action distribution, deployed versioned docs, complete fixture/auth lifecycle, remaining benchmark acceptance and final delivery audit are incomplete.",
+    "Later source revisions require their own workflow verification; this receipt must retain its original source SHA."
+  ]
+}

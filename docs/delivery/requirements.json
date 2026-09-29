@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",
-  "updatedAt": "2026-09-28T22:55:59.072763Z",
+  "sourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44",
+  "updatedAt": "2026-09-29T02:07:07Z",
   "requirements": [
     {
       "id": "R-001",
@@ -181,40 +181,45 @@
       "id": "R-014",
       "requirement": "Cross-platform CI",
       "status": "PASS",
-      "actualResult": "The delivered source passes Linux, macOS, and Windows on Node 22 and 24, independent packed consumers on all three operating systems, TeamBoard, LedgerGuard, hardening, action acceptance, and the aggregate quality gate.",
+      "actualResult": "All fourteen required CI jobs passed at the Phase 12A source, including Linux, macOS and Windows on Node 22/24, all three independent-consumer lanes, real TeamBoard/LedgerGuard, hardening, action and the aggregate.",
       "implementationPaths": [
         ".github/workflows/ci.yml"
       ],
-      "verification": "CI run 36355636084",
+      "verification": "CI 36503848156; release-engine-acceptance.json",
       "expectedBehavior": "Cross-platform CI",
-      "evidenceRecord": "phase-10-current"
+      "evidenceRecord": "phase-12a-hosted"
     },
     {
       "id": "R-015",
       "requirement": "npm publication",
       "status": "BLOCKED",
-      "actualResult": "Eight complete source-version tarballs passed hardening, installed npm/pnpm consumers and exact-source CI/Documentation acceptance with independently verified downloaded hashes. Registry authorization, semantic version coordination and actual publication remain unaccepted; no npm release is claimed.",
+      "actualResult": "Semantic-release lockstep coordination, eight final 1.0.0 tarballs, exact-artifact npm/pnpm consumers and real npm protocol interruption/recovery passed against an owned loopback registry. Actual npm scope/trusted-publisher authorization remains unverified and public publication was not attempted.",
       "implementationPaths": [
         ".github/workflows/release.yml",
         "scripts/release-manifest.mjs",
         "scripts/release-state.mjs",
-        "scripts/release-evidence.mjs"
+        "scripts/release-evidence.mjs",
+        "release.config.mjs",
+        "scripts/release-engine.mjs",
+        "scripts/release-version.mjs",
+        "scripts/release-prepare.mjs",
+        "scripts/release-registry.mjs"
       ],
-      "verification": "Release candidates 36494379998; release-readiness-live-acceptance.md",
+      "verification": "Release candidates 36503848112; release-engine-live-acceptance.md",
       "expectedBehavior": "npm publication",
-      "evidenceRecord": "release-readiness-source"
+      "evidenceRecord": "phase-12a-hosted"
     },
     {
       "id": "R-016",
       "requirement": "Versioned documentation deployment",
       "status": "NOT_RUN",
-      "actualResult": "Version-aware documentation build, installed-package onboarding, links and browser checks pass hosted Documentation acceptance. No public versioned website deployment is verified.",
+      "actualResult": "Version-aware documentation build, installed-package onboarding, links and browser checks passed at the Phase 12A source. No public versioned website deployment is verified.",
       "implementationPaths": [
         "docs"
       ],
-      "verification": "Documentation 36494380027; deployment remains NOT_RUN",
+      "verification": "Documentation 36503848142; deployment remains NOT_RUN",
       "expectedBehavior": "Versioned documentation deployment",
-      "evidenceRecord": "release-readiness-source"
+      "evidenceRecord": "phase-12a-hosted"
     },
     {
       "id": "R-017",
@@ -360,7 +365,7 @@
       "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "Release-readiness source acceptance with independently verified staged tarballs; local worker comparisons accepted separately; full lifecycle and public distribution remain incomplete",
+  "scope": "Phase 12A semantic preparation and isolated registry recovery accepted with independently verified artifacts; public distribution and remaining lifecycle/benchmark requirements remain incomplete",
   "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where controlled-hardware performance, publication, documentation deployment, or other later-phase acceptance is absent.",
   "evidenceLocations": [
     "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
@@ -370,7 +375,10 @@
     "docs/delivery/benchmark-evidence.json",
     "docs/delivery/release-readiness-live-acceptance.md",
     "docs/delivery/release-source-acceptance.json",
-    "docs/delivery/controlled-local-acceptance.json"
+    "docs/delivery/controlled-local-acceptance.json",
+    "docs/delivery/release-engine-live-acceptance.md",
+    "docs/delivery/release-engine-acceptance.json",
+    "docs/delivery/release-engine-requirements.json"
   ],
   "workflowConclusion": "success",
   "evidenceRecords": {
@@ -412,6 +420,14 @@
       "result": "success",
       "scope": "Same-runner local workers only; the separate full CI at this earlier source was canceled",
       "reportManifest": "docs/delivery/controlled-local-acceptance.json"
+    },
+    "phase-12a-hosted": {
+      "sourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36503848156",
+      "candidateRun": 36503848112,
+      "result": "success",
+      "scope": "Semantic preparation and isolated registry recovery only; public npm publishing skipped",
+      "reportManifest": "docs/delivery/release-engine-acceptance.json"
     }
   }
 }

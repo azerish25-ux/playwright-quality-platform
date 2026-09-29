@@ -2,94 +2,76 @@
   "schemaVersion": 1,
   "kind": "forgeqa-release-engine-requirements",
   "baselineSha": "4ea02391f371cda91a2451e46c3d4fe41d8467f4",
-  "acceptedSourceSha": null,
+  "acceptedSourceSha": "eab1c4fb105de7def46de0511b0af8c16763db44",
+  "acceptedCI": 36503848156,
+  "acceptedDocumentation": 36503848142,
+  "candidateRun": 36503848112,
+  "evidenceRecord": "release-engine-acceptance.json",
   "publicNpmPublication": "NOT_ATTEMPTED",
   "requirements": [
     {
       "id": "P12A-01",
       "requirement": "Real semantic-release analysis from existing history",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-version.mjs",
-        "release.config.mjs"
-      ],
-      "verification": "tests/release-version.test.mjs",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-version.mjs", "release.config.mjs"],
+      "verification": "tests/release-version.test.mjs; Release candidates 36503848112 semantic-plan.json",
+      "actualResult": "Semantic-release 25.0.9 calculated initial version 1.0.0 from real history without manufacturing release tags. First-release, patch, minor, breaking-change and no-release regressions passed. The downloaded plan digest was independently recomputed."
     },
     {
       "id": "P12A-02",
       "requirement": "Lockstep package preparation without source-version mutation",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-prepare.mjs"
-      ],
-      "verification": "tests/release-preparation.test.mjs; Release candidates",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-prepare.mjs"],
+      "verification": "tests/release-preparation.test.mjs; Release candidates 36503848112",
+      "actualResult": "Eight audited source packages at 0.1.0 produced eight prepared packages at 1.0.0 with correct internal ranges. All non-manifest contents matched source artifacts byte for byte; source versions and public Node >=22 support remained unchanged."
     },
     {
       "id": "P12A-03",
       "requirement": "Installed CLI and generated configuration use the prepared version",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "packages/cli/src/version.ts",
-        "packages/cli/src/templates.ts"
-      ],
-      "verification": "tests/release-preparation.test.mjs; prepared npm/pnpm consumers",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["packages/cli/src/version.ts", "packages/cli/src/templates.ts"],
+      "verification": "tests/release-preparation.test.mjs; prepared and loopback-registry npm/pnpm consumers",
+      "actualResult": "Installed CLI output and generated ForgeQA dependencies used 1.0.0, not a compiled 0.1.0 constant. All eight installed public packages matched the prepared version in every consumer receipt."
     },
     {
       "id": "P12A-04",
       "requirement": "Exact final tarball npm/pnpm acceptance",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-engine.mjs",
-        "tests/consumers/packed.mjs"
-      ],
-      "verification": "Release candidates prepared-acceptance.json",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-engine.mjs", "tests/consumers/packed.mjs"],
+      "verification": "Release candidates 36503848112 prepared-acceptance.json and prepared-consumers receipts",
+      "actualResult": "Fresh npm/pnpm consumers used the final prepared artifacts and installed CLI. Each passed both demo API/UI cases on first attempt, public TypeScript compilation and native Playwright execution. Tarball and receipt digests were independently verified."
     },
     {
       "id": "P12A-05",
       "requirement": "Real npm protocol interruption and lost-acknowledgement recovery",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-registry.mjs",
-        "tests/fixtures/release-registry-server.mjs"
-      ],
-      "verification": "tests/release-registry.test.mjs; registry-acceptance.json",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-registry.mjs", "tests/fixtures/release-registry-server.mjs"],
+      "verification": "tests/release-registry.test.mjs; Release candidates 36503848112 registry-acceptance.json",
+      "actualResult": "Actual npm CLI publication of the prepared set was interrupted after three uploads and resumed to eight unique publications without republishing. Lost-acknowledgement, conflict and failure regressions passed. Acceptance is limited to the owned loopback registry."
     },
     {
       "id": "P12A-06",
       "requirement": "Prepared package registry-installed consumer acceptance",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-engine.mjs",
-        "tests/consumers/packed.mjs"
-      ],
-      "verification": "Release candidates registry-consumers receipts",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-engine.mjs", "tests/consumers/packed.mjs"],
+      "verification": "Release candidates 36503848112 registry-consumers receipts",
+      "actualResult": "Fresh npm and pnpm consumers installed all eight prepared versions from the loopback registry, not tarball paths, and each passed two first-attempt demo cases plus native execution. Matching source/version/checksum receipts and normal registry cleanup were verified. This is not public npm or full registry-installed TeamBoard/LedgerGuard acceptance."
     },
     {
       "id": "P12A-07",
       "requirement": "Fail-closed explicit public candidate publication path",
       "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-engine.mjs",
-        ".github/workflows/release.yml"
-      ],
+      "implementationPaths": ["scripts/release-engine.mjs", ".github/workflows/release.yml"],
       "verification": "tests/release-preparation.test.mjs; future authorized public acceptance",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "actualResult": "Workflow/source/scope/OIDC refusal tests passed and the public publishing job was correctly skipped on push. Actual npm authorization and live candidate publication remain unverified; no public release is claimed."
     },
     {
       "id": "P12A-08",
       "requirement": "Stable promotion remains separate and blocked by incomplete evidence",
-      "status": "PARTIAL",
-      "implementationPaths": [
-        "scripts/release-state.mjs"
-      ],
-      "verification": "tests/release-state.test.mjs; tests/release-state-boundaries.test.mjs",
-      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+      "status": "PASS",
+      "implementationPaths": ["scripts/release-state.mjs"],
+      "verification": "tests/release-state.test.mjs; tests/release-state-boundaries.test.mjs; CI 36503848156",
+      "actualResult": "Partial sets, prereleases and missing or mismatched source/version gates cannot pass stable-promotion checks. No stable dist-tag, source release tag or action alias was changed."
     }
   ]
 }

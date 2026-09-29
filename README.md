@@ -12,7 +12,7 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **Release status:** npm publication, an immutable public action tag and major alias, deployed versioned documentation, comparable hosted benchmark results, Marketplace distribution, and the final delivery audit remain later phases.
 
-> **Phase 12A implementation:** a coordinated semantic-release engine prepares all eight packages, verifies installed CLI/template versions, and tests real npm registry interruption/recovery. Hosted prepared-artifact acceptance is tracked separately in the [release-engine ledger](docs/delivery/release-engine-requirements.json). Public npm publication and stable promotion are not claimed. See the [maintainer guide](docs/guide/release-engine.md).
+> **Phase 12A hosted acceptance passed** at `eab1c4fb105de7def46de0511b0af8c16763db44`: CI `36503848156`, Documentation `36503848142` and Release candidates `36503848112` passed. Semantic-release prepared all eight packages at 1.0.0; final-tarball and isolated-registry npm/pnpm consumers plus actual npm interruption/recovery passed. Both downloaded archives and all source/prepared tarballs were independently verified. [Exact acceptance](docs/delivery/release-engine-live-acceptance.md), [scoped ledger](docs/delivery/release-engine-requirements.json), and [maintainer guide](docs/guide/release-engine.md). The public publishing job was skipped: 1.0.0 is a prepared candidate, not a public or stable release.
 
 ## Documentation and onboarding
 
@@ -98,4 +98,4 @@ export default defineForgeConfig({
 
 ## Current limitations
 
-ForgeQA is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; controlled-hardware comparison and finer lifecycle profiling remain incomplete. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, publication-recovery acceptance, or a completed final delivery audit.
+ForgeQA is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; controlled-hardware comparison and finer lifecycle profiling remain incomplete. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, public-registry publication-recovery acceptance, or a completed final delivery audit.
