@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
-  "updatedAt": "2026-09-29T03:40:11.890522Z",
+  "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+  "updatedAt": "2026-09-29T13:00:08.390070+00:00",
   "requirements": [
     {
       "id": "R-001",
@@ -101,7 +101,7 @@
       "id": "R-008",
       "requirement": "Native Playwright fixture integration",
       "status": "PARTIAL",
-      "actualResult": "Exact-source CI and Documentation passed reusable role-aware authentication, serialized worker leases, private integrity-checked state, bounded cleanup, scoped flags/routes/clock/files, real TeamBoard/LedgerGuard adapters and isolated npm/pnpm browser contracts. Generic hard-termination authentication/private-file reclamation and shared cross-process recovery remain incomplete; no complete lifecycle or public release is claimed.",
+      "actualResult": "Exact-source CI and Documentation passed reusable role-aware authentication, serialized worker leases, private integrity-checked state, bounded cleanup, scoped flags/routes/clock/files, real TeamBoard/LedgerGuard adapters and isolated npm/pnpm browser contracts. The newer RC-01 through RC-06 receipt additionally accepts same-host process-crash reclamation with a surviving private journal. Lost-runner and cross-host recovery remain incomplete; no complete lifecycle or public release is claimed.",
       "implementationPaths": [
         "packages/playwright/src",
         "tests/consumers",
@@ -113,7 +113,7 @@
         "tests/integration/fixture-lifecycle.test.mjs",
         "tests/consumers/fixture-acceptance"
       ],
-      "verification": "CI 36517554945; Documentation 36517554767; fixture-lifecycle-acceptance.json",
+      "verification": "CI 36517554945; Documentation 36517554767; fixture-lifecycle-acceptance.json; crash-recovery-acceptance.json (CI 36560725309)",
       "expectedBehavior": "Native Playwright fixture integration",
       "evidenceRecord": "fixture-lifecycle-hosted"
     },
@@ -188,13 +188,13 @@
       "id": "R-014",
       "requirement": "Cross-platform CI",
       "status": "PASS",
-      "actualResult": "All fourteen required jobs passed at the fixture lifecycle source, including six Linux/macOS/Windows Node 22/24 verification lanes, three independent npm/pnpm consumer lanes, real TeamBoard/LedgerGuard, hardening, action and the aggregate.",
+      "actualResult": "All fourteen required CI jobs passed at the timing source, including six Linux/macOS/Windows Node 22/24 verification lanes, three independent npm/pnpm consumer lanes, real TeamBoard/LedgerGuard, hardening, action and forgeqa-quality.",
       "implementationPaths": [
         ".github/workflows/ci.yml"
       ],
-      "verification": "CI 36517554945; fixture-lifecycle-acceptance.json",
+      "verification": "CI 36569710737; timing-profiling-acceptance.json",
       "expectedBehavior": "Cross-platform CI",
-      "evidenceRecord": "fixture-lifecycle-hosted"
+      "evidenceRecord": "timing-profiling-hosted"
     },
     {
       "id": "R-015",
@@ -232,19 +232,19 @@
       "id": "R-017",
       "requirement": "Coverage thresholds 90/85",
       "status": "PASS",
-      "actualResult": "The unchanged 90% line and 85% branch/function gates passed with 98.82% lines, 96.45% branches and 98.11% functions across fourteen release-critical modules, including four new lifecycle modules. Downloaded LCOV totals were independently recomputed.",
+      "actualResult": "Unchanged 90% line and 85% branch/function gates passed with 98.99% lines, 95.07% branches and 98.69% functions across sixteen release-critical runtime modules, including timing integrity. The new timing module achieved 100% lines, 92.68% branches and 100% functions. Downloaded LCOV totals were independently recomputed.",
       "implementationPaths": [
         "tests"
       ],
-      "verification": "CI 36517554945; hardening artifact 11011960681; fixture-lifecycle-acceptance.json",
+      "verification": "CI 36569710737; hardening artifact 11034170301; timing-profiling-acceptance.json",
       "expectedBehavior": "Coverage thresholds 90/85",
-      "evidenceRecord": "fixture-lifecycle-hosted"
+      "evidenceRecord": "timing-profiling-hosted"
     },
     {
       "id": "R-018",
       "requirement": "Benchmarks",
       "status": "PARTIAL",
-      "actualResult": "The earlier distributed benchmark retained 500 clean equivalent executions but could not compare heterogeneous hardware. A separate controlled same-runner benchmark now passed 15 measured records and 300 identical first-pass executions across one/two/four workers, with independently recomputed summaries and 30 cleanups. Distributed comparability and finer lifecycle profiling remain incomplete.",
+      "actualResult": "Exact-source profiling passed 15 controlled same-runner measurements (300 clean executions and 30 zero-leak cleanup checks) plus 25 distributed-condition records (500 clean executions and 45 validated shard profiles). Readiness, test-window, reporter finalization and shutdown spans are retained and summaries independently recomputed. Two local workers measured 20.27 s median versus 23.58 s serial and 24.74 s with four. Distributed hardware still differs, so full comparative benchmark acceptance remains partial.",
       "implementationPaths": [
         "benchmarks",
         ".github/workflows/benchmark.yml",
@@ -252,11 +252,13 @@
         "docs/delivery/benchmark-requirements.json",
         ".github/workflows/benchmark-controlled.yml",
         "benchmarks/controlled.mjs",
-        "tests/benchmark-controlled.test.mjs"
+        "tests/benchmark-controlled.test.mjs",
+        "packages/core/src/timing.ts",
+        "benchmarks/lib/profiling.mjs"
       ],
-      "verification": "Benchmark 36485081291; controlled-local-acceptance.json; earlier distributed evidence retained in benchmark-live-acceptance.md",
+      "verification": "Controlled 36569710704; distributed 36569711293; timing-profiling-acceptance.json",
       "expectedBehavior": "Benchmarks",
-      "evidenceRecord": "controlled-local-benchmark"
+      "evidenceRecord": "timing-profiling-hosted"
     },
     {
       "id": "M1-01",
@@ -297,9 +299,9 @@
         "tests/integration/fixture-lifecycle.test.mjs",
         "tests/consumers/fixture-acceptance"
       ],
-      "verification": "CI 36517554945; Documentation 36517554767; fixture-lifecycle-acceptance.json",
+      "verification": "CI 36517554945; Documentation 36517554767; fixture-lifecycle-acceptance.json; crash-recovery-acceptance.json (CI 36560725309)",
       "status": "PARTIAL",
-      "actualResult": "Exact-source CI and Documentation passed reusable role-aware authentication, serialized worker leases, private integrity-checked state, bounded cleanup, scoped flags/routes/clock/files, real TeamBoard/LedgerGuard adapters and isolated npm/pnpm browser contracts. Generic hard-termination authentication/private-file reclamation and shared cross-process recovery remain incomplete; no complete lifecycle or public release is claimed.",
+      "actualResult": "Exact-source CI and Documentation passed reusable role-aware authentication, serialized worker leases, private integrity-checked state, bounded cleanup, scoped flags/routes/clock/files, real TeamBoard/LedgerGuard adapters and isolated npm/pnpm browser contracts. The newer RC-01 through RC-06 receipt additionally accepts same-host process-crash reclamation with a surviving private journal. Lost-runner and cross-host recovery remain incomplete; no complete lifecycle or public release is claimed.",
       "expectedBehavior": "Typed composable Playwright fixtures and browser diagostics",
       "evidenceRecord": "fixture-lifecycle-hosted"
     },
@@ -379,7 +381,7 @@
       "evidenceRecord": "first-consumer-checkpoint"
     }
   ],
-  "scope": "Process-local authentication and recoverable fixture lifecycle accepted through exact-source CI and documentation; generic hard-termination recovery and public distribution remain incomplete",
+  "scope": "Source-bound lifecycle profiling and same-host surviving-journal crash recovery accepted; distributed hardware comparability, lost-runner/cross-host recovery and public distribution remain incomplete",
   "evidenceSemantics": "PASS means retained exact-source verification is identified. PARTIAL and NOT_RUN remain explicit where controlled-hardware performance, publication, documentation deployment, or other later-phase acceptance is absent.",
   "evidenceLocations": [
     "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36355636084",
@@ -395,7 +397,10 @@
     "docs/delivery/release-engine-requirements.json",
     "docs/delivery/fixture-lifecycle-live-acceptance.md",
     "docs/delivery/fixture-lifecycle-acceptance.json",
-    "docs/delivery/fixture-lifecycle-requirements.json"
+    "docs/delivery/fixture-lifecycle-requirements.json",
+    "docs/delivery/timing-profiling-live-acceptance.md",
+    "docs/delivery/timing-profiling-acceptance.json",
+    "docs/delivery/crash-recovery-acceptance.json"
   ],
   "workflowConclusion": "success",
   "evidenceRecords": {
@@ -453,6 +458,16 @@
       "result": "success",
       "scope": "Process-local authentication and recoverable fixtures; not generic forced-termination recovery or public distribution",
       "reportManifest": "docs/delivery/fixture-lifecycle-acceptance.json"
+    },
+    "timing-profiling-hosted": {
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569710737",
+      "documentationRun": 36569710789,
+      "controlledRun": 36569710704,
+      "distributedRun": 36569711293,
+      "result": "success",
+      "scope": "Lifecycle timing and controlled local workers; not comparable distributed speedup or public distribution",
+      "reportManifest": "docs/delivery/timing-profiling-acceptance.json"
     }
   }
 }

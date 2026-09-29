@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "forgeqa-timing-profiling-requirements",
   "baselineSha": "be00f67f95d16610e48905488dab5eed936b4561",
-  "status": "PARTIAL",
+  "status": "PASS",
   "scope": "Source-bound same-host lifecycle spans and per-shard benchmark profiling; no distributed comparability or publication claim",
   "localEvidence": {
     "focusedCommand": "node --test tests/execution-timing.test.mjs tests/benchmark-profiling.test.mjs tests/benchmark-profile-server.test.mjs",
@@ -19,46 +19,63 @@
     }
   },
   "hostedAcceptance": {
-    "status": "NOT_RUN"
+    "status": "PASS",
+    "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+    "ci": 36569710737,
+    "documentation": 36569710789,
+    "controlled": 36569710704,
+    "distributed": 36569711293,
+    "evidenceRecord": "timing-profiling-acceptance.json"
   },
   "requirements": [
     {
       "id": "TP-01",
       "requirement": "Monotonic source/run/shard/clock-bound private incomplete-first records",
-      "status": "PARTIAL",
-      "verification": "tests/execution-timing.test.mjs; cross-platform CI"
+      "status": "PASS",
+      "verification": "tests/execution-timing.test.mjs; cross-platform CI",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "evidenceRecord": "timing-profiling-acceptance.json"
     },
     {
       "id": "TP-02",
       "requirement": "Public reporter callbacks and real application readiness/shutdown measurements",
-      "status": "NOT_RUN",
-      "verification": "Controlled local benchmarks; ForgeQA benchmarks; tests/benchmark-profile-server.test.mjs"
+      "status": "PASS",
+      "verification": "Controlled local benchmarks; ForgeQA benchmarks; tests/benchmark-profile-server.test.mjs",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "evidenceRecord": "timing-profiling-acceptance.json"
     },
     {
       "id": "TP-03",
       "requirement": "Nested/parallel spans never double-counted as elapsed time",
-      "status": "PARTIAL",
-      "verification": "tests/execution-timing.test.mjs; tests/benchmark-profiling.test.mjs"
+      "status": "PASS",
+      "verification": "tests/execution-timing.test.mjs; tests/benchmark-profiling.test.mjs",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "evidenceRecord": "timing-profiling-acceptance.json"
     },
     {
       "id": "TP-04",
       "requirement": "Raw profiles revalidated through controlled and distributed evidence pipelines",
-      "status": "NOT_RUN",
-      "verification": "benchmarks/verify-controlled-timing.mjs; benchmarks/summarize.mjs"
+      "status": "PASS",
+      "verification": "benchmarks/verify-controlled-timing.mjs; benchmarks/summarize.mjs",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "evidenceRecord": "timing-profiling-acceptance.json"
     },
     {
       "id": "TP-05",
       "requirement": "Real fixed-inventory five-repetition same-runner profiling acceptance",
-      "status": "NOT_RUN",
-      "verification": ".github/workflows/benchmark-controlled.yml"
+      "status": "PASS",
+      "verification": ".github/workflows/benchmark-controlled.yml",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+      "evidenceRecord": "timing-profiling-acceptance.json"
     }
   ],
   "broaderStatus": {
-    "P11-06": "PARTIAL until exact-source hosted lifecycle acceptance",
+    "P11-06": "PASS for the documented instrumented timing scope; full benchmark acceptance remains partial",
     "P11-05": "PARTIAL; hardware comparability must be checked independently",
     "R-018": "PARTIAL",
     "RR-01": "PARTIAL",
     "RC-01-through-RC-06": "Prior PASS retained only for same-host crashes with surviving journal"
   },
-  "publicationClaimed": false
+  "publicationClaimed": false,
+  "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3"
 }

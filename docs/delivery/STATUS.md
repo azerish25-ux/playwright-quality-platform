@@ -34,7 +34,7 @@ The retained hardening artifact is `10944475111`, named `hardening-evidence-b679
 - Canonical merge ordering remains independent of shard arrival order even when timestamps and retry indexes tie.
 - PostgreSQL-backed TeamBoard executes eight API cases and four UI journeys across Chromium, Firefox, and WebKit, including workspace and isolated npm/pnpm consumers.
 - Genuine API-first LedgerGuard adoption executes twelve authentication, authorization, ownership, transfer, payment, adjustment, and scheduling journeys against pinned P07A application source, followed by financial reconciliation and owned-infrastructure cleanup.
-- Historical reliability includes immutable records, bounded GitHub artifact import, comparable cohorts, retry-aware metrics, repeat diagnostics, accountable quarantine mutation, and centralized history-aware gates.
+- Historical reliability includes immutable records, bounded GitHub artifact import, comparable cohorts, retry-aware metrics, diagnostic repetition, accountable quarantine mutation, and centralized history-aware gates.
 - A callable Node 24 GitHub Action, distributed reusable workflow, stable aggregate check, and fork-safe trusted PR publisher.
 - Release-blocking invariant, seeded-defect, compatibility, coverage, exact-tarball audit, and clean-consumer gates.
 
@@ -85,6 +85,12 @@ The source-distributed action remains accepted:
 
 Hosted PR reporting evidence remains recorded in [pr-reporting-live-acceptance.md](pr-reporting-live-acceptance.md). Public action tags, a controlled major alias, and external immutable-action consumption remain Phase 12 work.
 
+## Execution-stage profiling acceptance
+
+Source `470843e48b5f9eb19c8f75c439eb5e19f88de5e3` passed CI, Documentation, release-candidate verification, five-repetition controlled benchmarks and five-repetition distributed benchmarks. The [exact receipt](timing-profiling-live-acceptance.md) binds the downloaded archive digests, independently recomputed summaries, 300 controlled and 500 distributed-condition clean executions, 30 zero-leak controlled cleanup checks and unchanged coverage gates. `TP-01` through `TP-05` and the instrumented scope of `P11-06` are accepted; `R-018`, `P11-05` and `RR-01` remain partial for distributed comparability.
+
+The newer [crash recovery receipt](crash-recovery-acceptance.json) also accepts `RC-01` through `RC-06` for same-host process loss with a surviving private journal. It does not accept ephemeral-runner loss or cross-host ownership authority. Earlier dated fixture limitations must be read with that scoped extension.
+
 ## Explicit remaining boundaries
 
 No public npm registry package publication is claimed. Source and prepared tarballs, including those exercised against the loopback registry, are not proof that npmjs.com contains the release.
@@ -95,7 +101,7 @@ No GitHub Marketplace listing or account-owner terms acceptance is claimed.
 
 LedgerGuard has genuine hosted API-first acceptance but still has no browser product interface. No copied or fabricated UI is substituted.
 
-The five-repetition execution/evidence pipeline is accepted. Controlled-hardware comparative performance and complete granular lifecycle timing are not claimed.
+The five-repetition execution/evidence pipeline and [execution-stage profiling](timing-profiling-live-acceptance.md) are accepted. Same-runner local-worker comparison passed; distributed hardware comparability remains incomplete. The profiling receipt retains overlaps and unattributed time rather than claiming an exhaustive CPU or billed-workflow partition.
 
 No versioned documentation website deployment is claimed. Markdown documentation and ADR source are not substituted for a visited, versioned deployment with link and snippet verification.
 

@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-timing-profiling-acceptance",
+  "status": "PASS",
+  "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+  "sourceTreeSha": "851e49c9480c08abb6b7b285121d747f16a9aa82",
+  "verifiedAt": "2026-09-29T13:00:08.390070+00:00",
+  "scope": "Instrumented same-host lifecycle spans, controlled local worker comparison, and validated per-shard distributed timing; not distributed hardware comparability or public distribution",
+  "workflows": {
+    "ci": 36569710737,
+    "documentation": 36569710789,
+    "releaseCandidates": 36569710551,
+    "controlled": 36569710704,
+    "distributed": 36569711293,
+    "conclusion": "success",
+    "runAttempt": 1,
+    "publicPublishing": "skipped"
+  },
+  "verification": {
+    "localFocused": {
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "platform": "Linux Node 22.16.0"
+    },
+    "ciMatrix": "Linux/macOS/Windows, Node 22 and 24; packed npm/pnpm consumers; actual TeamBoard/LedgerGuard; action; hardening; forgeqa-quality",
+    "hardeningTests": 25,
+    "coverageTests": 135,
+    "packageTarballs": 8,
+    "isolatedHardeningConsumers": 2,
+    "publicTimingContract": "PASS: npm offline installation of the exact core tarball and synthetic public-API record roundtrip outside workspace links"
+  },
+  "coverage": {
+    "scope": "Sixteen release-critical runtime modules, not the entire repository",
+    "thresholds": {
+      "lines": 90,
+      "branches": 85,
+      "functions": 85
+    },
+    "totals": {
+      "lines": {
+        "found": 1780,
+        "hit": 1762
+      },
+      "branches": {
+        "found": 1034,
+        "hit": 983
+      },
+      "functions": {
+        "found": 229,
+        "hit": 226
+      }
+    },
+    "actual": {
+      "lines": 98.99,
+      "branches": 95.07,
+      "functions": 98.69
+    },
+    "newTimingModule": {
+      "lines": 100,
+      "branches": 92.68,
+      "functions": 100
+    },
+    "lcovIndependentlyRecomputed": true
+  },
+  "controlled": {
+    "records": 15,
+    "repetitions": 5,
+    "inventoryCount": 20,
+    "measuredExecutions": 300,
+    "profilesIncludingWarmups": 30,
+    "zeroLeakCleanupChecks": 30,
+    "hardware": {
+      "cpuModel": "INTEL(R) XEON(R) PLATINUM 8573C",
+      "cpuCount": 4,
+      "totalMemoryBytes": 16765374464
+    },
+    "performanceStatus": "COMPARABLE_LOCAL",
+    "localComparisonAccepted": true,
+    "fullBenchmarkAcceptance": false,
+    "summaryIndependentlyRecomputed": true,
+    "receiptsAndRawProfilesIndependentlyRevalidated": true,
+    "conditions": [
+      {
+        "id": "serial-1x1",
+        "workers": 1,
+        "samples": 5,
+        "runPlusMergeMs": {
+          "median": 23578.16081500001,
+          "min": 23488.651001999853,
+          "max": 24415.108538,
+          "mad": 28.550394999911077
+        },
+        "speedup": 1,
+        "stageMediansMs": {
+          "applicationReadiness": 108.48235400000002,
+          "testWindow": 19582.580604,
+          "forgeqaFinalization": 8.238033000001451,
+          "allReportersFinalization": 106.9948480000021,
+          "applicationShutdown": 7.433249000001524
+        },
+        "unattributedCliMedianMs": 2567.8436019999426
+      },
+      {
+        "id": "local-2x1",
+        "workers": 2,
+        "samples": 5,
+        "runPlusMergeMs": {
+          "median": 20267.54429499997,
+          "min": 19950.179031999898,
+          "max": 20316.967602999997,
+          "mad": 49.423308000026736
+        },
+        "speedup": 1.163345715288101,
+        "stageMediansMs": {
+          "applicationReadiness": 107.93281800000001,
+          "testWindow": 16077.796471,
+          "forgeqaFinalization": 8.45233399999779,
+          "allReportersFinalization": 108.68952199999694,
+          "applicationShutdown": 8.711856000001717
+        },
+        "unattributedCliMedianMs": 2760.5083249999443
+      },
+      {
+        "id": "local-4x1",
+        "workers": 4,
+        "samples": 5,
+        "runPlusMergeMs": {
+          "median": 24735.390603000007,
+          "min": 24402.93772399996,
+          "max": 24893.596288999892,
+          "mad": 152.03115800005617
+        },
+        "speedup": 0.9532156250704348,
+        "stageMediansMs": {
+          "applicationReadiness": 186.923136,
+          "testWindow": 19881.56287,
+          "forgeqaFinalization": 8.810222000000067,
+          "allReportersFinalization": 112.10222799999974,
+          "applicationShutdown": 7.531182999999146
+        },
+        "unattributedCliMedianMs": 3343.412327999995
+      }
+    ]
+  },
+  "distributed": {
+    "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+    "status": "PASS",
+    "records": 25,
+    "measuredExecutions": 500,
+    "shardProfiles": 45,
+    "summaryIndependentlyRecomputed": true,
+    "rawProfilesIndependentlyRevalidated": true,
+    "performanceStatus": "NOT_COMPARABLE",
+    "releaseEvidenceEligible": false,
+    "inventoryDigest": "6a98e55fa4320176262c4e387a75bfb5cf856bc7ee1574fdf01c5259785d0f22",
+    "protocolDigest": "dcb940360992364580c5d22babe4ed9a8239f717c76c7be038c47631f7ff28cc",
+    "cpuModels": [
+      "AMD EPYC 7763 64-Core Processor",
+      "AMD EPYC 9V45 96-Core Processor",
+      "AMD EPYC 9V74 80-Core Processor",
+      "INTEL(R) XEON(R) PLATINUM 8573C",
+      "Intel(R) Xeon(R) 6973P-C",
+      "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+    ]
+  },
+  "downloadedArchives": [
+    {
+      "kind": "hardening",
+      "id": 11034170301,
+      "sha256": "3060a4985a7001007fc53877e2f9392cc82d594f704f3ab7f68579c128ea7c8a"
+    },
+    {
+      "kind": "source-and-eight-tarballs",
+      "id": 11034260466,
+      "sha256": "7204b58544efcb836084a3bbe358e8855ded027fd10c0c78bf5dd7ada857020e"
+    },
+    {
+      "kind": "distributed-benchmark",
+      "id": 11033653370,
+      "sha256": "531fbf778733a0892a5b7ba019956d70f430f418ddabda9e4ac83a9df2e0554d"
+    },
+    {
+      "kind": "controlled-benchmark",
+      "id": 11034072867,
+      "sha256": "0dfed8dd0c527f059a18e4a8fc90e840ba15cd2b8a8ab397575d8de3c4847b7b"
+    }
+  ],
+  "independentIntegrity": {
+    "archiveDigestsVerified": 4,
+    "sourceTarSha256": "61252d16e4b961d86ed02cc477b831ecb2ba6e530e7d124fd6597cd4fbc16820",
+    "sourceFiles": 350,
+    "gitTreeIndependentlyRecomputed": true,
+    "allEightSourceTarballChecksumsVerified": true,
+    "distributedRawMatches25IndividualRecords": true,
+    "distributedChecksums": {
+      "raw.jsonl": "f62e506cf31ab6d4407f64820dfe267b3d5ed1e09038389e1cb4f8426448afbc",
+      "raw.csv": "c48b92d06114f58b81699480e7c0fa914383966c6128596d93d6f6be9fa5e2ce",
+      "lifecycle.csv": "6b83bbee60001039984bc952b3a1cbe40634e6bc623d2f68b536ff8407c6a081",
+      "summary.json": "b0e490a05000bf8726b396c7e7adfd501d41293e4ccb6b7c846c5cfc52440103",
+      "summary.md": "e65271a00a6db557269979c04f5c4b94cf9b4ccba8e20b0b8b4561e081f941be"
+    }
+  },
+  "remainingBoundaries": [
+    "Different distributed CPU models and memory capacities: no speedup or efficiency ratios.",
+    "Stage spans overlap; residual CLI time is explicit. These are not isolated CPU costs or an additive partition of workflow wall time.",
+    "Instrumented runner intervals do not include all checkout/service/upload overhead and are not billing measurements.",
+    "Same-host crash recovery with a surviving journal remains the accepted recovery scope; lost-runner and cross-host recovery are not accepted.",
+    "No public npm release, immutable public Action tag, stable promotion, Marketplace listing or versioned public website is claimed."
+  ],
+  "publicationClaimed": false
+}

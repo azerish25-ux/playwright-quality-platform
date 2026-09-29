@@ -103,13 +103,19 @@
     {
       "id": "P11-06",
       "requirement": "Separate setup, execution, merge, elapsed wall, and aggregate runner timing",
-      "status": "PARTIAL",
+      "status": "PASS",
       "implementationPaths": [
         "benchmarks/write-shard-metadata.mjs",
-        "benchmarks/record-run.mjs"
+        "benchmarks/record-run.mjs",
+        "packages/core/src/timing.ts",
+        "packages/playwright/src/reporter.ts",
+        "benchmarks/profile-server.mjs",
+        "benchmarks/lib/profiling.mjs",
+        "benchmarks/verify-controlled-timing.mjs"
       ],
-      "evidence": "docs/delivery/benchmark-live-acceptance.md",
-      "actualResult": "Setup, shard execution, merge, queue-inclusive wall and instrumented runner totals are retained. Readiness, in-process reporting and shutdown inside a shard are not separately profiled."
+      "evidence": "docs/delivery/timing-profiling-live-acceptance.md",
+      "actualResult": "Exact-source controlled and distributed acceptance now retains separate real readiness, test-window, ForgeQA finalization, all-reporters finalization and shutdown spans, plus setup/execution/merge/wall/aggregate intervals and an explicit unattributed CLI residual. Overlapping spans and different host clocks are not added or subtracted incorrectly. Instrumented runner intervals are not billed time; distributed comparability remains partial.",
+      "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3"
     },
     {
       "id": "P11-07",
@@ -162,5 +168,14 @@
     "IMPLEMENTED": "Executable implementation and regression coverage exist but the hosted benchmark has not yet established a measured result.",
     "NOT_RUN": "The named measurement or hosted acceptance has not been executed and is not represented as complete.",
     "PARTIAL": "The recorded execution evidence is valid but the named profiling or performance requirement has an explicit remaining limitation."
+  },
+  "timingAcceptance": {
+    "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
+    "status": "PASS",
+    "controlledRun": 36569710704,
+    "distributedRun": 36569711293,
+    "evidence": "docs/delivery/timing-profiling-acceptance.json",
+    "distributedPerformanceStatus": "NOT_COMPARABLE",
+    "fullBenchmarkAcceptance": false
   }
 }

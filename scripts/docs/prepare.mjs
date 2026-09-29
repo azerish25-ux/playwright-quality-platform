@@ -20,6 +20,7 @@ export const pages = [
   ['Execution and evidence', 'GitHub history import', 'docs/github-history.md', 'github-history.md'],
   ['Execution and evidence', 'Quarantine', 'docs/quarantine.md', 'quarantine.md'],
   ['Execution and evidence', 'Benchmarks', 'docs/guide/benchmarks.md', 'benchmarks.md'],
+  ['Execution and evidence', 'Execution timing', 'docs/guide/execution-timing.md', 'execution-timing.md'],
   ['Consumers and CI', 'TeamBoard', 'docs/first-consumer.md', 'teamboard.md'],
   ['Consumers and CI', 'LedgerGuard', 'docs/ledgerguard-consumer.md', 'ledgerguard.md'],
   ['Consumers and CI', 'GitHub Action', 'docs/github-action.md', 'github-action.md'],
