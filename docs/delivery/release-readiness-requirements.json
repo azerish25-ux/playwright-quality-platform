@@ -76,10 +76,18 @@
       "requirement": "Complete reusable authentication and fixture lifecycle acceptance",
       "status": "PARTIAL",
       "implementationPaths": [
-        "packages/playwright/src/index.ts"
+        "packages/playwright/src/index.ts",
+        "packages/core/src/lifecycle.ts",
+        "packages/playwright/src/authentication.ts",
+        "packages/playwright/src/owned-files.ts",
+        "packages/playwright/src/overrides.ts",
+        "tests/fixture-lifecycle.test.mjs",
+        "tests/integration/fixture-lifecycle.test.mjs",
+        "tests/consumers/fixture-acceptance"
       ],
-      "verification": "Broader R-008 and M1-03 acceptance",
-      "actualResult": "Typed fixture composition and diagnostics exist; complete reusable auth-state/override/lifecycle acceptance remains incomplete."
+      "verification": "CI 36517554945; Documentation 36517554767; fixture-lifecycle-acceptance.json",
+      "actualResult": "Exact-source CI and Documentation passed reusable role-aware authentication, serialized worker leases, private integrity-checked state, bounded cleanup, scoped flags/routes/clock/files, real TeamBoard/LedgerGuard adapters and isolated npm/pnpm browser contracts. Generic hard-termination authentication/private-file reclamation and shared cross-process recovery remain incomplete; no complete lifecycle or public release is claimed.",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902"
     },
     {
       "id": "RR-07",
@@ -102,5 +110,6 @@
   "acceptedCI": 36494379888,
   "acceptedDocumentation": 36494380027,
   "candidateRun": 36494379998,
-  "releaseEngineAcceptance": "release-engine-acceptance.json"
+  "releaseEngineAcceptance": "release-engine-acceptance.json",
+  "fixtureLifecycleAcceptance": "fixture-lifecycle-acceptance.json"
 }

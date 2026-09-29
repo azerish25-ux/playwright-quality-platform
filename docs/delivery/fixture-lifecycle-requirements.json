@@ -3,23 +3,105 @@
   "kind": "forgeqa-fixture-lifecycle-requirements",
   "milestone": "P03B",
   "baselineSha": "c8b53ad37323c977a2319f39ac0186f105254bbb",
-  "status": "IMPLEMENTED",
-  "hostedAcceptance": "NOT_RUN",
+  "status": "PARTIAL",
+  "hostedAcceptance": {
+    "status": "PASS",
+    "scope": "FL-01 through FL-06 only",
+    "ci": 36517554945,
+    "documentation": 36517554767,
+    "evidenceRecord": "fixture-lifecycle-acceptance.json"
+  },
   "localEvidence": {
-    "focusedTests": {"passed": 23, "failed": 0, "command": "node --test tests/fixture-lifecycle.test.mjs"},
+    "focusedTests": {
+      "passed": 23,
+      "failed": 0,
+      "command": "node --test tests/fixture-lifecycle.test.mjs"
+    },
     "coreAndDataCompilation": "PASS",
     "fullVerify": "NOT_RUN: local dependency installation is unavailable; hosted CI remains required",
-    "coverageGate": "NOT_ACCEPTED: local coverage command could not run the installed-CLI compatibility case without jiti"
+    "coverageGate": "Local dependency limitation retained; the complete hosted coverage gate passed and its LCOV totals were independently recomputed."
   },
   "requirements": [
-    {"id":"FL-01","requirement":"Bounded owned-resource teardown preserving primary and cleanup failures","status":"IMPLEMENTED","implementationPaths":["packages/core/src/lifecycle.ts","packages/test-data/src/cleanup.ts"],"verification":"tests/fixture-lifecycle.test.mjs; tests/integration/fixture-lifecycle.test.mjs"},
-    {"id":"FL-02","requirement":"Role-aware adapter, serialized worker leases, stale-state rejection and private state export","status":"IMPLEMENTED","implementationPaths":["packages/playwright/src/authentication.ts"],"verification":"tests/fixture-lifecycle.test.mjs; installed fixture-acceptance/lifecycle.spec.ts"},
-    {"id":"FL-03","requirement":"Native lazy scope/files fixtures with typed composition and recoverable worker restart","status":"IMPLEMENTED","implementationPaths":["packages/playwright/src/index.ts"],"verification":"tests/integration/fixture-lifecycle.test.mjs; installed npm/pnpm fixture acceptance"},
-    {"id":"FL-04","requirement":"Tenant flags, owned network handlers, isolated browser clock and bounded owned files","status":"IMPLEMENTED","implementationPaths":["packages/playwright/src/overrides.ts","packages/playwright/src/owned-files.ts"],"verification":"tests/fixture-lifecycle.test.mjs; tests/consumers/fixture-acceptance; TeamBoard UI acceptance"},
-    {"id":"FL-05","requirement":"Both real consumers use the shared authentication lifecycle","status":"IMPLEMENTED","implementationPaths":["examples/demo-saas/tests/adapters.ts","examples/demo-saas/tests/fixtures.ts","consumers/ledgerguard/tests/authentication.ts","consumers/ledgerguard/tests/fixtures.ts"],"verification":"CI TeamBoard and LedgerGuard plus independent npm/pnpm consumers"},
-    {"id":"FL-06","requirement":"Six isolated native browser contract cases through exact installed public packages","status":"IMPLEMENTED","implementationPaths":["tests/consumers/fixture-acceptance","tests/consumers/packed.mjs"],"verification":"CI consumer matrix; npm/pnpm fixture-lifecycle receipts"},
-    {"id":"FL-07","requirement":"Generic hard-termination authentication reclamation and cross-process recovery","status":"PARTIAL","actualResult":"No shared cross-process state is reused; worker identity changes and recoverable teardown have tests. Forced termination cannot run disposers. A generic stale authentication/file reclamation protocol is not implemented or accepted."}
+    {
+      "id": "FL-01",
+      "requirement": "Bounded owned-resource teardown preserving primary and cleanup failures",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/core/src/lifecycle.ts",
+        "packages/test-data/src/cleanup.ts"
+      ],
+      "verification": "tests/fixture-lifecycle.test.mjs; tests/integration/fixture-lifecycle.test.mjs",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-02",
+      "requirement": "Role-aware adapter, serialized worker leases, stale-state rejection and private state export",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/playwright/src/authentication.ts"
+      ],
+      "verification": "tests/fixture-lifecycle.test.mjs; installed fixture-acceptance/lifecycle.spec.ts",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-03",
+      "requirement": "Native lazy scope/files fixtures with typed composition and recoverable worker restart",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/playwright/src/index.ts"
+      ],
+      "verification": "tests/integration/fixture-lifecycle.test.mjs; installed npm/pnpm fixture acceptance",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-04",
+      "requirement": "Tenant flags, owned network handlers, isolated browser clock and bounded owned files",
+      "status": "PASS",
+      "implementationPaths": [
+        "packages/playwright/src/overrides.ts",
+        "packages/playwright/src/owned-files.ts"
+      ],
+      "verification": "tests/fixture-lifecycle.test.mjs; tests/consumers/fixture-acceptance; TeamBoard UI acceptance",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-05",
+      "requirement": "Both real consumers use the shared authentication lifecycle",
+      "status": "PASS",
+      "implementationPaths": [
+        "examples/demo-saas/tests/adapters.ts",
+        "examples/demo-saas/tests/fixtures.ts",
+        "consumers/ledgerguard/tests/authentication.ts",
+        "consumers/ledgerguard/tests/fixtures.ts"
+      ],
+      "verification": "CI TeamBoard and LedgerGuard plus independent npm/pnpm consumers",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-06",
+      "requirement": "Six isolated native browser contract cases through exact installed public packages",
+      "status": "PASS",
+      "implementationPaths": [
+        "tests/consumers/fixture-acceptance",
+        "tests/consumers/packed.mjs"
+      ],
+      "verification": "CI consumer matrix; npm/pnpm fixture-lifecycle receipts",
+      "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+      "evidenceRecord": "fixture-lifecycle-acceptance.json"
+    },
+    {
+      "id": "FL-07",
+      "requirement": "Generic hard-termination authentication reclamation and cross-process recovery",
+      "status": "PARTIAL",
+      "actualResult": "No shared cross-process state is reused; worker identity changes and recoverable teardown have tests. Forced termination cannot run disposers. A generic stale authentication/file reclamation protocol is not implemented or accepted."
+    }
   ],
   "publicationClaimed": false,
-  "broaderAcceptance": "R-008, M1-03 and RR-06 remain PARTIAL until the complete lifecycle contract, including outstanding crash reclamation, is accepted."
+  "broaderAcceptance": "R-008, M1-03 and RR-06 remain PARTIAL until the complete lifecycle contract, including outstanding crash reclamation, is accepted.",
+  "acceptedSourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902"
 }

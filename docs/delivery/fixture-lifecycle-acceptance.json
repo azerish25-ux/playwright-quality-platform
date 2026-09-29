@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-fixture-lifecycle-hosted-acceptance",
+  "status": "PASS",
+  "scope": "FL-01 through FL-06: process-local authentication and recoverable fixture lifecycle; generic forced-termination recovery remains incomplete",
+  "sourceSha": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+  "sourceTree": "fc4be5d05f0ecef1e54d6bd0414ac11c70b4a5e0",
+  "baselineSha": "c8b53ad37323c977a2319f39ac0186f105254bbb",
+  "implementationCommit": "e378dcf6749283b51948c71b547b35c615277135",
+  "receiptPathRepairCommit": "3c13c2bf0c84d1ac46f877ae81beaa56f3c56902",
+  "workflows": [
+    {
+      "name": "CI",
+      "runId": 36517554945,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "requiredJobs": 14,
+      "aggregateJobId": 109244535351,
+      "jobIds": [
+        109243434315,
+        109243434472,
+        109243434474,
+        109243434489,
+        109243434502,
+        109243434527,
+        109243434539,
+        109243434603,
+        109243434624,
+        109243434625,
+        109243434640,
+        109243434709,
+        109243434715,
+        109244535351
+      ]
+    },
+    {
+      "name": "Documentation",
+      "runId": 36517554767,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "jobId": 109243129441
+    },
+    {
+      "name": "Release candidates",
+      "runId": 36517554884,
+      "runAttempt": 1,
+      "verificationJobId": 109243129985,
+      "verificationConclusion": "success",
+      "publicPublicationJobId": 109245013680,
+      "publicPublicationConclusion": "skipped"
+    }
+  ],
+  "addedTests": {
+    "focusedUnitCases": 23,
+    "nativeFailureAndRestartCases": 2,
+    "installedBrowserContractCases": 6
+  },
+  "crossPlatformAcceptance": {
+    "operatingSystems": [
+      "Linux",
+      "macOS",
+      "Windows"
+    ],
+    "nodeVersions": [
+      22,
+      24
+    ],
+    "installedManagers": [
+      "npm",
+      "pnpm"
+    ],
+    "browserContractCasesPerManager": 6,
+    "basis": "Exact-source required job conclusions; independently downloaded npm/pnpm fixture receipts from the Linux lane"
+  },
+  "coverage": {
+    "includedModules": [
+      "packages/core/dist/lifecycle.js",
+      "packages/playwright/dist/authentication.js",
+      "packages/playwright/dist/owned-files.js",
+      "packages/playwright/dist/overrides.js",
+      "packages/core/dist/stable.js",
+      "packages/core/dist/redaction.js",
+      "packages/core/dist/identity.js",
+      "packages/core/dist/gates.js",
+      "packages/core/dist/selection.js",
+      "packages/test-data/dist/factory.js",
+      "packages/test-data/dist/namespace.js",
+      "packages/test-data/dist/cleanup.js",
+      "packages/reporter/dist/merge.js",
+      "packages/flake-analysis/dist/quarantine.js"
+    ],
+    "thresholds": {
+      "lines": 90,
+      "branches": 85,
+      "functions": 85
+    },
+    "totals": {
+      "lines": {
+        "found": 1021,
+        "hit": 1009
+      },
+      "branches": {
+        "found": 619,
+        "hit": 597
+      },
+      "functions": {
+        "found": 159,
+        "hit": 156
+      }
+    },
+    "actual": {
+      "lines": 98.82,
+      "branches": 96.45,
+      "functions": 98.11
+    },
+    "independentlyRecomputedFromLcov": true
+  },
+  "downloadedArtifacts": [
+    {
+      "id": 11012165429,
+      "kind": "candidate",
+      "size": 706497,
+      "sha256": "01aa46a6c79f62a0a3a221da0c8a2e5425547cbe707e489095c54574a58cf7ed"
+    },
+    {
+      "id": 11011960681,
+      "kind": "hardening",
+      "size": 11312,
+      "sha256": "9d8fb9f5921e577f2f829a4cdafba37e30f33dc3f993e651020455c5089d550e"
+    },
+    {
+      "id": 11011836030,
+      "kind": "linux",
+      "size": 32125,
+      "sha256": "702a43104ee8d6a8af49c3e7aa736f0a50a68adee46d1e6a9f4af9748e47a4a9"
+    },
+    {
+      "id": 11011438161,
+      "kind": "teamboard",
+      "size": 478405,
+      "sha256": "b40e5ff6ae706b3a8cc3348326e61641b2125a4e4a57fecddbad2d3cd95eea06"
+    },
+    {
+      "id": 11011786563,
+      "kind": "ledgerguard",
+      "size": 122295,
+      "sha256": "dd742aa63431a83b3ab8e0bbf9f42f90f688272bac04100a7d808a49d30efd2b"
+    }
+  ],
+  "independentVerification": {
+    "archiveDigests": "PASS",
+    "sourceFilesMatchingLocalAndRemoteTree": 327,
+    "sourceTarballChecksumsVerified": 8,
+    "sourceArchiveChecksum": "a81b8c7663a9923b4b670da112a10e71b4d3977d212a00322ac3a6b86ca65b6d",
+    "installedLinuxFixtureReceipts": 2,
+    "teamboardCanonicalReports": 3,
+    "teamboardMatchingInventory": true,
+    "ledgerguardCanonicalReports": 2
+  },
+  "consumers": [
+    {
+      "name": "TeamBoard",
+      "modes": [
+        "workspace",
+        "npm",
+        "pnpm"
+      ],
+      "executionsPerMode": 20,
+      "projectCounts": {
+        "api": 8,
+        "chromium": 4,
+        "firefox": 4,
+        "webkit": 4
+      },
+      "firstAttemptOnly": true,
+      "remainingOwnedNamespaces": 0,
+      "remainingOwnedTenants": 0,
+      "remainingOwnedAccounts": 0
+    },
+    {
+      "name": "LedgerGuard",
+      "applicationSourceSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
+      "modes": [
+        "npm",
+        "pnpm"
+      ],
+      "executionsPerMode": 12,
+      "firstAttemptOnly": true,
+      "reconciliationDiscrepancies": 0,
+      "remainingContainers": 0,
+      "remainingVolumes": 0,
+      "remainingNetworks": 0,
+      "apiFirst": true,
+      "uiClaimed": false
+    }
+  ],
+  "repairedDefects": [
+    {
+      "id": "FL-RECEIPT-01",
+      "failedSource": "e378dcf6749283b51948c71b547b35c615277135",
+      "failedCI": 36517334231,
+      "cause": "Relative JSON reporter output was resolved from the configuration directory, duplicating the fixture-acceptance path.",
+      "repair": "Use an absolute config-relative output path and retain list diagnostics. No test, inventory, retry or coverage gate was removed."
+    }
+  ],
+  "remainingBoundaries": [
+    "Generic hard-termination authentication/private-file reclamation is incomplete. Forced termination cannot run disposers.",
+    "State coordination is per worker process. Shared cross-process authentication state and distributed mutation locking are not provided.",
+    "A deadline bounds waiting and requests cooperative cancellation; it cannot forcibly stop an arbitrary promise or undo remote writes.",
+    "Public npm publication, stable promotion, released Action tags and public documentation deployment are not claimed."
+  ],
+  "publicationClaimed": false
+}
