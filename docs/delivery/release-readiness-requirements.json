@@ -82,12 +82,17 @@
     {
       "id": "RR-07",
       "requirement": "Semantic-release lockstep coordinator and live external distributions",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "implementationPaths": [
+        "release.config.mjs",
+        "scripts/release-engine.mjs",
+        "scripts/release-version.mjs",
+        "scripts/release-prepare.mjs",
+        "scripts/release-registry.mjs",
         ".github/workflows/release.yml"
       ],
-      "verification": "Future coordinated release and external registry/action/docs acceptance",
-      "actualResult": "The current workflow stages source-version candidates, not semantically prepared releases. Version calculation, live publication and public distribution verification remain unimplemented or unaccepted."
+      "verification": "tests/release-*.test.mjs; docs/delivery/release-engine-requirements.json",
+      "actualResult": "Phase 12A adds real semantic-release lockstep coordination, final-artifact consumer checks and real npm registry recovery. Focused local release tests pass; exact-source hosted acceptance is pending. Public npm authorization/publication, released action, deployed docs and final distribution acceptance are not claimed."
     }
   ],
   "acceptedSourceSha": "c8304873cfce584f352eca69d7ccae068fd3e3b1",

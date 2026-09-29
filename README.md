@@ -12,6 +12,8 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 > **Release status:** npm publication, an immutable public action tag and major alias, deployed versioned documentation, comparable hosted benchmark results, Marketplace distribution, and the final delivery audit remain later phases.
 
+> **Phase 12A implementation:** a coordinated semantic-release engine prepares all eight packages, verifies installed CLI/template versions, and tests real npm registry interruption/recovery. Hosted prepared-artifact acceptance is tracked separately in the [release-engine ledger](docs/delivery/release-engine-requirements.json). Public npm publication and stable promotion are not claimed. See the [maintainer guide](docs/guide/release-engine.md).
+
 ## Documentation and onboarding
 
 **Phase 11B hosted acceptance passed** at `54f25b2a865b8b90c7fe00b34142cbb282d99a57`: Documentation run `36468235212` and full CI `36468235190` succeeded. The version-aware site contains 46 documentation pages, generated references for all eight public packages, 15 substantive ADRs and exact tested snippets. All 3,543 local references passed; installed-tarball onboarding succeeded independently with npm and pnpm; Chromium verified navigation, search and mobile layout. [Acceptance receipt](docs/delivery/documentation-live-acceptance.md). `next` remains unreleased: no public website or registry publication is claimed. Subsequent source commits must pass both workflows again.

@@ -34,6 +34,14 @@ All entries distinguish an implementation repair from the later exact-SHA CI pro
 |---|---|---|---|
 | DOC-001 | Blocking: documentation run `36467309806` passed installation, snippets, build and 3,543 local references, then found no search results in Chromium. | The acceptance driver used `fill`, while the pinned MkDocs search implementation registers a `keyup` handler. Exercise actual keyboard events with `pressSequentially`, retain the nonempty-result assertion, and open the matching Quarantine page. Capture failure diagnostics without masking the originating error. No timeout, retry or quality gate is relaxed. | `tests/docs-contract.test.mjs`; `scripts/docs/browser-check.mjs`; exact-source hosted rerun required. |
 
+## Coordinated release repairs
+
+| ID | Severity and reproduction | Root cause and repair | Regression evidence |
+|---|---|---|---|
+| REL-001 | Blocking: rewriting package metadata to a new release version leaves the CLI and generated dependencies at 0.1.0. | Compiled constants ignored the installed manifest. Read the owned CLI package metadata and use that version for CLI output and both generated templates. | `tests/release-preparation.test.mjs`; independent installed-tarball and registry consumers check all eight versions. |
+| REL-002 | Integrity: modifying ignored build output after hardening can leave Git clean while changing release contents. | Git cleanliness alone does not bind build bytes. Repack source packages, match the exact hardening digests and stage only from those verified archives before version preparation. | `tests/release-preparation.test.mjs` altered-byte/size refusal; exact-source prepared artifact workflow. |
+| REL-003 | Integrity: a prepared set could be mistaken for an installed or published release. | Separate immutable prepared manifests, exact version/source/checksum consumer receipts, isolated registry evidence and mutable public publication checkpoints. Public execution requires explicit workflow/OIDC/scope confirmation. | `tests/release-preparation.test.mjs`; real npm interruption/lost-acknowledgement/conflict regressions in `tests/release-registry.test.mjs`. |
+
 ## Scope still requiring verification
 
 This ledger does not certify production suitability, registry publication, immutable public action distribution, deployed documentation, comparable release benchmarks, or a genuine LedgerGuard browser interface. Missing, failed, or cancelled hosted jobs remain blocking in the aggregate check. Review the exact delivered commit rather than relying on a previous green run.

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-release-engine-requirements",
+  "baselineSha": "4ea02391f371cda91a2451e46c3d4fe41d8467f4",
+  "acceptedSourceSha": null,
+  "publicNpmPublication": "NOT_ATTEMPTED",
+  "requirements": [
+    {
+      "id": "P12A-01",
+      "requirement": "Real semantic-release analysis from existing history",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-version.mjs",
+        "release.config.mjs"
+      ],
+      "verification": "tests/release-version.test.mjs",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-02",
+      "requirement": "Lockstep package preparation without source-version mutation",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-prepare.mjs"
+      ],
+      "verification": "tests/release-preparation.test.mjs; Release candidates",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-03",
+      "requirement": "Installed CLI and generated configuration use the prepared version",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "packages/cli/src/version.ts",
+        "packages/cli/src/templates.ts"
+      ],
+      "verification": "tests/release-preparation.test.mjs; prepared npm/pnpm consumers",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-04",
+      "requirement": "Exact final tarball npm/pnpm acceptance",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-engine.mjs",
+        "tests/consumers/packed.mjs"
+      ],
+      "verification": "Release candidates prepared-acceptance.json",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-05",
+      "requirement": "Real npm protocol interruption and lost-acknowledgement recovery",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-registry.mjs",
+        "tests/fixtures/release-registry-server.mjs"
+      ],
+      "verification": "tests/release-registry.test.mjs; registry-acceptance.json",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-06",
+      "requirement": "Prepared package registry-installed consumer acceptance",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-engine.mjs",
+        "tests/consumers/packed.mjs"
+      ],
+      "verification": "Release candidates registry-consumers receipts",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-07",
+      "requirement": "Fail-closed explicit public candidate publication path",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-engine.mjs",
+        ".github/workflows/release.yml"
+      ],
+      "verification": "tests/release-preparation.test.mjs; future authorized public acceptance",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    },
+    {
+      "id": "P12A-08",
+      "requirement": "Stable promotion remains separate and blocked by incomplete evidence",
+      "status": "PARTIAL",
+      "implementationPaths": [
+        "scripts/release-state.mjs"
+      ],
+      "verification": "tests/release-state.test.mjs; tests/release-state-boundaries.test.mjs",
+      "actualResult": "Implementation and focused local regression checks are present; exact-source hosted prepared-package acceptance remains pending."
+    }
+  ]
+}

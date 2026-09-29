@@ -10,10 +10,12 @@ async function owned(path){
   assert(rel!==''&&rel!=='..'&&!rel.startsWith('../')&&!rel.startsWith('..\\')&&!isAbsolute(rel),'Public package must resolve inside the independent consumer.');
   return canonical;
 }
-const entries={};
+const entries={},versions={};
 for(const name of process.argv.slice(2)){
   const url=import.meta.resolve(name);
   entries[name]=await owned(fileURLToPath(url));
+  const manifest=JSON.parse(await readFile(resolve(dirname(dirname(entries[name])),'package.json'),'utf8'));
+  assert.equal(manifest.name,name);versions[name]=manifest.version;
   const module=await import(name);
   assert(Object.keys(module).length>0,`${name} must expose a usable public API.`);
 }
@@ -21,4 +23,4 @@ const cliRoot=dirname(dirname(entries['@azerish25-ux/forgeqa-cli']));
 const metadata=JSON.parse(await readFile(resolve(cliRoot,'package.json'),'utf8'));
 assert.equal(typeof metadata.bin?.forgeqa,'string','Published CLI must declare its executable.');
 const cli=await owned(resolve(cliRoot,metadata.bin.forgeqa));
-process.stdout.write(JSON.stringify({entries,cli})+'\n');
+process.stdout.write(JSON.stringify({entries,cli,versions})+'\n');

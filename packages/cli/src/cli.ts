@@ -37,7 +37,7 @@ import {
 } from './reliability-commands.js';
 import { initCommand } from './init.js';
 
-const VERSION = '0.1.0';
+import { VERSION } from './version.js';
 
 function jsonMode(parsed: Parsed): boolean {
   return parsed.options.get('json') === true;

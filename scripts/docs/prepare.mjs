@@ -23,6 +23,7 @@ export const pages = [
   ['Consumers and CI', 'LedgerGuard', 'docs/ledgerguard-consumer.md', 'ledgerguard.md'],
   ['Consumers and CI', 'GitHub Action', 'docs/github-action.md', 'github-action.md'],
   ['Maintenance', 'Security', 'docs/security.md', 'security.md'],
+  ['Maintenance', 'Coordinated release engine', 'docs/guide/release-engine.md', 'release-engine.md'],
   ['Maintenance', 'Releases and versions', 'docs/guide/releases.md', 'releases.md'],
   ['Maintenance', 'Troubleshooting', 'docs/guide/troubleshooting.md', 'troubleshooting.md'],
   ['Maintenance', 'Delivery checkpoint', 'docs/delivery/STATUS.md', 'evidence/status.md'],

@@ -2,8 +2,21 @@ name: Release candidates
 on:
   push:
     branches: [main]
-    paths: ['packages/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', '.github/workflows/release.yml']
+    paths: ['packages/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'release.config.mjs', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', 'tests/consumers/**', 'tests/fixtures/release-registry-server.mjs', '.github/workflows/release.yml']
   workflow_dispatch:
+    inputs:
+      publish_candidate:
+        description: Publish the verified set to forgeqa-candidate only; never promote latest
+        type: boolean
+        default: false
+      confirm_source_sha:
+        description: Exact current source SHA authorized for candidate publication
+        type: string
+        default: ''
+      confirm_npm_scope:
+        description: Confirm npm scope ownership and all eight trusted-publisher associations
+        type: boolean
+        default: false
 permissions: { contents: read, actions: read }
 concurrency:
   group: forgeqa-release-candidates-${{ github.ref }}
@@ -13,30 +26,84 @@ env:
 jobs:
   verify-artifacts:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
+    outputs:
+      release_planned: ${{ steps.prepared.outputs.release_planned }}
+      manifest_sha256: ${{ steps.prepared.outputs.manifest_sha256 }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with: { persist-credentials: false }
+        with: { fetch-depth: 0, persist-credentials: false }
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with: { node-version: 24, package-manager-cache: false }
       - run: npm ci --ignore-scripts
       - run: npm run verify
       - run: npm run hardening
-      - name: Retain only complete tarballs matching the tested artifacts
+      - name: Retain only complete tarballs matching the tested source artifacts
         run: node scripts/release-manifest.mjs --dry-run
-      - name: Verify all retained artifact checksums
+      - name: Verify all retained source artifact checksums
         working-directory: evidence/release-candidate
         run: sha256sum --check SHA256SUMS
       - name: Require complete exact-source CI and Documentation acceptance
         run: node scripts/release-evidence.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      - name: Install the matching browser for independent prepared consumers
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Calculate shared version and verify the final prepared artifacts
+        id: prepared
+        run: node scripts/release-engine.mjs prepare
+      - name: Exercise actual registry publication, interruption recovery and npm/pnpm consumers
+        run: node scripts/release-engine.mjs registry-test
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: release-candidates-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             evidence/release-candidate/
+            evidence/release-prepared/
             evidence/hardening/
           if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: success() && steps.prepared.outputs.release_planned == 'true'
+        with:
+          name: prepared-release-${{ github.sha }}-${{ github.run_attempt }}
+          path: evidence/release-prepared/
+          if-no-files-found: error
+          retention-days: 30
+  publish-candidate:
+    needs: verify-artifacts
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate && needs.verify-artifacts.outputs.release_planned == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions: { contents: read, actions: read, id-token: write }
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npx --no-install playwright install --with-deps chromium
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: prepared-release-${{ github.sha }}-${{ github.run_attempt }}
+          path: evidence/release-prepared/
+      - name: Publish only the verified candidate and recheck actual registry consumers
+        run: node scripts/release-engine.mjs publish-candidate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FORGEQA_CONFIRM_SOURCE: ${{ inputs.confirm_source_sha }}
+          FORGEQA_CONFIRM_NPM_SCOPE: ${{ inputs.confirm_npm_scope }}
+          FORGEQA_PREPARED_DIGEST: ${{ needs.verify-artifacts.outputs.manifest_sha256 }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: candidate-publication-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            evidence/release-publication/
+            evidence/release-prepared/registry-consumers/
+          if-no-files-found: warn
           retention-days: 30
