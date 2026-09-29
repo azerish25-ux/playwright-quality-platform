@@ -1,0 +1,85 @@
+name: Apply Deadpan branding
+on:
+  push:
+    branches: [main]
+    paths: ['.github/apply-deadpan-brand.py', '.github/deadpan-branding-test.mjs', '.github/workflows/deadpan-rebrand.yml']
+permissions:
+  contents: write
+concurrency:
+  group: deadpan-branding-migration
+  cancel-in-progress: false
+jobs:
+  rebrand:
+    if: github.repository_id == '1389104452' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Apply requested display-brand changes without changing public interfaces
+        env:
+          BASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/deadpan-brand
+          python3 .github/apply-deadpan-brand.py > evidence/deadpan-brand/changes.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -u
+          git add tests/docs-branding.test.mjs
+          git commit -m 'docs: rebrand project and all maintained documentation as Deadpan'
+          git rev-parse HEAD > evidence/deadpan-brand/source-sha.txt
+          echo "FORGEQA_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git diff --stat "$BASE_SHA" HEAD > evidence/deadpan-brand/change-summary.txt
+          git diff --binary "$BASE_SHA" HEAD > evidence/deadpan-brand/changes.patch
+          git archive --format=tar --output=evidence/deadpan-brand/source.tar HEAD
+      - run: npm ci --ignore-scripts
+      - run: npm run verify
+      - run: npm run hardening
+      - name: Verify documentation contracts and website
+        run: |
+          set -euo pipefail
+          npm run test:docs
+          python3 -m unittest discover -s scripts/docs -p 'test_*.py' -v
+          npx --no-install playwright install --with-deps chromium
+          npm run docs:onboarding
+          npm run docs:prepare
+          python3 -m venv .tmp/deadpan-docs-venv
+          .tmp/deadpan-docs-venv/bin/pip install --no-deps -r docs/site/requirements.txt
+          .tmp/deadpan-docs-venv/bin/pip check
+          .tmp/deadpan-docs-venv/bin/mkdocs build --strict --config-file docs/site/generated/mkdocs.yml
+          python3 scripts/docs/check_site.py --site evidence/docs/site --base /playwright-quality-platform/
+          node scripts/docs/browser-check.mjs
+          git diff --exit-code
+      - name: Fast-forward the verified rebrand to main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          head=$(git rev-parse HEAD)
+          remote=$(git -c credential.helper= -c 'credential.helper=!gh auth git-credential' ls-remote origin refs/heads/main | cut -f1)
+          if [ "$remote" != "$BASE_SHA" ]; then
+            echo 'Main changed during verification; refusing to overwrite concurrent work.' >&2
+            exit 1
+          fi
+          git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin HEAD:refs/heads/main
+          remote=$(git -c credential.helper= -c 'credential.helper=!gh auth git-credential' ls-remote origin refs/heads/main | cut -f1)
+          test "$remote" = "$head"
+          printf 'Published verified Deadpan rebrand: %s\n' "$head"
+          printf 'Published verified Deadpan rebrand: `%s`\n' "$head" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: deadpan-branding-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            evidence/deadpan-brand/
+            evidence/docs/browser*.json
+          if-no-files-found: error
+          retention-days: 14
