@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-crash-recovery-hosted-acceptance",
+  "status": "PASS",
+  "scope": "Same-host process-crash recovery with a surviving private journal, not lost-runner or distributed lease recovery",
+  "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+  "sourceTree": "c9444e8200bf452bb5d9ef4068b29f16184b12cd",
+  "baselineSha": "543791767b8d5ec0f118b5e3e6919019dfed039d",
+  "workflows": [
+    {
+      "name": "CI",
+      "runId": 36560725309,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "requiredJobs": 14,
+      "aggregateJobId": 109382599268
+    },
+    {
+      "name": "Documentation",
+      "runId": 36560725349,
+      "runAttempt": 1,
+      "conclusion": "success",
+      "jobId": 109380673795
+    }
+  ],
+  "localFocusedTests": {
+    "passed": 58,
+    "failed": 0,
+    "skipped": 0
+  },
+  "hostedMatrix": {
+    "operatingSystems": [
+      "Linux",
+      "macOS",
+      "Windows"
+    ],
+    "nodeVersions": [
+      22,
+      24
+    ],
+    "installedManagers": [
+      "npm",
+      "pnpm"
+    ],
+    "installedRecoveryCasesPerManager": 8,
+    "basis": "All six verify jobs, all three consumer jobs and the required aggregate succeeded. Linux installed receipts independently downloaded and inspected."
+  },
+  "coverage": {
+    "includedModules": [
+      "packages/core/dist/lifecycle.js",
+      "packages/core/dist/recovery.js",
+      "packages/playwright/dist/authentication.js",
+      "packages/playwright/dist/owned-files.js",
+      "packages/playwright/dist/overrides.js",
+      "packages/core/dist/stable.js",
+      "packages/core/dist/redaction.js",
+      "packages/core/dist/identity.js",
+      "packages/core/dist/gates.js",
+      "packages/core/dist/selection.js",
+      "packages/test-data/dist/factory.js",
+      "packages/test-data/dist/namespace.js",
+      "packages/test-data/dist/cleanup.js",
+      "packages/reporter/dist/merge.js",
+      "packages/flake-analysis/dist/quarantine.js"
+    ],
+    "thresholds": {
+      "lines": 90,
+      "branches": 85,
+      "functions": 85
+    },
+    "totals": {
+      "lines": {
+        "found": 1594,
+        "hit": 1568
+      },
+      "branches": {
+        "found": 913,
+        "hit": 869
+      },
+      "functions": {
+        "found": 204,
+        "hit": 201
+      }
+    },
+    "actual": {
+      "lines": 98.37,
+      "branches": 95.18,
+      "functions": 98.53
+    }
+  },
+  "downloadedArtifacts": [
+    {
+      "id": 11028534752,
+      "kind": "candidate",
+      "sha256": "c3e1ec21697e49a667d04cd462f76789c9af9235068b9783b62d8caf008c1dba"
+    },
+    {
+      "id": 11029591413,
+      "kind": "hardening",
+      "sha256": "d146c11b2e1b65e39b4a92f782ab8f129edc26257981450ae3a30b3e1c9804fc"
+    },
+    {
+      "id": 11029686400,
+      "kind": "linux-consumers",
+      "sha256": "df14654084323015e37ceca053af25f5ee0dbff3e97e3165a2f90fd2305ddc7d"
+    },
+    {
+      "id": 11029671795,
+      "kind": "teamboard",
+      "sha256": "2f17bb719e4d920a93cea1f06b6325710ce47b832e06433ecaea3b27cb74217a"
+    }
+  ],
+  "independentVerification": {
+    "archiveDigests": "PASS",
+    "sourceFilesMatchingLocalAndRemoteTree": 338,
+    "sourceTarballChecksumsVerified": 8,
+    "sourceArchiveChecksum": "8f3f5ff4818c0bc1bcb6b70f01668083a680117756b5681ec1b70807058685a6",
+    "hardeningPackageChecksumsMatchCandidates": true,
+    "lcovTotalsRecomputed": true,
+    "installedLinuxRecoveryReceipts": 2,
+    "installedTeamBoardRecoveryReceipts": 2
+  },
+  "postgresAcceptance": {
+    "schemaVersion": 1,
+    "kind": "forgeqa-real-postgres-adapter",
+    "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+    "status": "PASS",
+    "cases": [
+      "actual database identity",
+      "idempotent real provisioning",
+      "idempotent cleanup preserves another namespace",
+      "provision collision rejects foreign ownership",
+      "literal underscore prefix and age boundary",
+      "unsafe reclamation arguments refused",
+      "durable PostgreSQL recovery preserves active same-label owner and unrelated tenant",
+      "owned temporary table removed"
+    ]
+  },
+  "consumerRegression": {
+    "teamboard": {
+      "requiredJobId": 109380674233,
+      "conclusion": "success",
+      "modes": [
+        "workspace",
+        "npm",
+        "pnpm"
+      ],
+      "executionsPerMode": 20,
+      "remainingOwnedNamespaces": 0,
+      "remainingOwnedTenants": 0,
+      "remainingOwnedAccounts": 0
+    },
+    "ledgerguard": {
+      "requiredJobId": 109380674116,
+      "conclusion": "success",
+      "scope": "Existing genuine API-first consumer regression; no lost-runner infrastructure recovery or UI acceptance claim."
+    }
+  },
+  "authenticationCrashTestScope": "Real loopback HTTP account provisioning with exact persisted owner IDs, response-loss and forced termination; not a claim that arbitrary application accounts are reclaimable without a consumer adapter.",
+  "remainingBoundaries": [
+    "Ephemeral-runner loss and cross-host owner/claim liveness need an external durable ownership/liveness authority.",
+    "No remote account deletion for borrowed users; full consumer infrastructure lost-runner recovery is not claimed.",
+    "No hostile same-OS-user or network-filesystem race guarantees; no guarantee against power/storage loss.",
+    "Public publication, stable promotion, released Action tags and public docs deployment are not claimed."
+  ],
+  "publicationClaimed": false
+}

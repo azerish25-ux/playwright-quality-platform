@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "forgeqa-crash-recovery-requirements",
   "baselineSha": "543791767b8d5ec0f118b5e3e6919019dfed039d",
-  "status": "IMPLEMENTED",
+  "status": "PASS",
   "scope": "Same-host process-crash recovery with a surviving private journal, not lost-runner or distributed lease recovery",
   "localEvidence": {
     "coreAndTestDataTypecheck": "PASS",
@@ -17,45 +17,60 @@
     "coverage": "New module included in unchanged 90/85/85 gates; local instrumentation passed thresholds but full local coverage command failed its CLI compatibility test because jiti is unavailable. Hosted coverage required."
   },
   "hostedAcceptance": {
-    "status": "NOT_RUN",
-    "required": "Exact-source CI, Documentation, installed npm/pnpm recovery receipts and real PostgreSQL acceptance"
+    "status": "PASS",
+    "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+    "ci": 36560725309,
+    "documentation": 36560725349,
+    "evidenceRecord": "crash-recovery-acceptance.json"
   },
   "requirements": [
     {
       "id": "RC-01",
       "requirement": "Durable intent before acquisition, normal acknowledgments and interrupted acquisition",
-      "status": "IMPLEMENTED",
-      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs"
+      "status": "PASS",
+      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     },
     {
       "id": "RC-02",
       "requirement": "Dead-owner verification, active and same-label ownership protection, exact filters",
-      "status": "IMPLEMENTED",
-      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs"
+      "status": "PASS",
+      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     },
     {
       "id": "RC-03",
       "requirement": "Non-stealable live claims, resumable dead claimants and timeout safety",
-      "status": "IMPLEMENTED",
-      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs"
+      "status": "PASS",
+      "verification": "tests/recovery.test.mjs; tests/recovery-process.test.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     },
     {
       "id": "RC-04",
       "requirement": "Private stamped files and optional owned authentication adapter integration",
-      "status": "IMPLEMENTED",
-      "verification": "tests/fixture-lifecycle.test.mjs; tests/recovery-process.test.mjs"
+      "status": "PASS",
+      "verification": "tests/fixture-lifecycle.test.mjs; tests/recovery-process.test.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     },
     {
       "id": "RC-05",
       "requirement": "Public dry-run/apply CLI and isolated installed npm/pnpm adoption",
-      "status": "IMPLEMENTED",
-      "verification": "tests/recovery-cli.test.mjs; tests/consumers/recovery-acceptance.mjs"
+      "status": "PASS",
+      "verification": "tests/recovery-cli.test.mjs; tests/consumers/recovery-acceptance.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     },
     {
       "id": "RC-06",
       "requirement": "Exact journal-bound PostgreSQL ownership and real SQL replay",
-      "status": "IMPLEMENTED",
-      "verification": "tests/recovery.test.mjs; scripts/postgres-adapter-acceptance.mjs"
+      "status": "PASS",
+      "verification": "tests/recovery.test.mjs; scripts/postgres-adapter-acceptance.mjs",
+      "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee",
+      "evidenceRecord": "crash-recovery-acceptance.json"
     }
   ],
   "remainingBoundaries": [
@@ -64,5 +79,6 @@
     "No hostile same-OS-user or network-filesystem race guarantees; no guarantee against power/storage loss.",
     "Public publication, stable promotion, released Action tags and public docs deployment are not claimed."
   ],
-  "publicationClaimed": false
+  "publicationClaimed": false,
+  "sourceSha": "b6939e5b4bd620fc283337b37de0bb258db598ee"
 }
