@@ -67,7 +67,6 @@ const reportContext = {
 test('the eight public package boundaries remain frozen and independently publishable', async () => {
   assert.equal(fixture.schemaVersion, 1);
   assert.equal(fixture.kind, 'forgeqa-pre-release-contracts');
-  const rootPackage = await readJson('package.json');
   const actualDirectories = (await Promise.all(fixture.packages.map(async (contract) => {
     const pkg = await readJson(`packages/${contract.directory}/package.json`);
     assert.equal(pkg.name, contract.name);
@@ -77,7 +76,7 @@ test('the eight public package boundaries remain frozen and independently publis
     assert.equal(pkg.types, contract.types);
     assert.equal(pkg.exports['.'].import, contract.main);
     assert.equal(pkg.exports['.'].types, contract.types);
-    assert.equal(pkg.engines.node, rootPackage.engines.node);
+    assert.equal(pkg.engines.node, fixture.packageNodeEngine);
     assert.equal(pkg.license, 'MIT');
     assert.equal(pkg.publishConfig?.access, 'public');
     assert.ok(pkg.files.includes('dist'));
@@ -92,6 +91,18 @@ test('the eight public package boundaries remain frozen and independently publis
     return contract.directory;
   }))).sort();
   assert.deepEqual(actualDirectories, fixture.packages.map((entry) => entry.directory).sort());
+});
+
+test('private maintainer tooling cannot silently narrow the frozen public runtime', async () => {
+  const rootPackage = await readJson('package.json');
+  assert.equal(rootPackage.private, true);
+  assert.equal(fixture.packageNodeEngine, '>=22');
+  assert.equal(rootPackage.engines.node, '^22.14.0 || >=24.10.0');
+  assert.notEqual(rootPackage.engines.node, fixture.packageNodeEngine);
+  for (const contract of fixture.packages) {
+    const pkg = await readJson(`packages/${contract.directory}/package.json`);
+    assert.equal(pkg.engines.node, fixture.packageNodeEngine, `${pkg.name} must retain consumer support independently of release tooling.`);
+  }
 });
 
 test('root scripts expose the frozen verification and hardening entrypoints', async () => {

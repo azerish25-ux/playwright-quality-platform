@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "kind": "forgeqa-pre-release-contracts",
   "packageVersion": "0.1.0",
+  "packageNodeEngine": ">=22",
   "packages": [
     { "directory": "core", "name": "@azerish25-ux/forgeqa-core", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
     { "directory": "playwright", "name": "@azerish25-ux/forgeqa-playwright", "main": "./dist/index.js", "types": "./dist/index.d.ts" },
