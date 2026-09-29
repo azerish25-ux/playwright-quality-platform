@@ -8,6 +8,10 @@ const lcovPath = resolve(evidenceDirectory, 'policy-kernel.lcov');
 await mkdir(evidenceDirectory, { recursive: true, mode: 0o700 });
 
 const includedModules = [
+  'packages/core/dist/lifecycle.js',
+  'packages/playwright/dist/authentication.js',
+  'packages/playwright/dist/owned-files.js',
+  'packages/playwright/dist/overrides.js',
   'packages/core/dist/stable.js',
   'packages/core/dist/redaction.js',
   'packages/core/dist/identity.js',
@@ -20,6 +24,7 @@ const includedModules = [
   'packages/flake-analysis/dist/quarantine.js',
 ];
 const testFiles = [
+  'tests/fixture-lifecycle.test.mjs',
   'tests/core.test.mjs',
   'tests/data.test.mjs',
   'tests/reporter.test.mjs',

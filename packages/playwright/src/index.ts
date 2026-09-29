@@ -1,5 +1,9 @@
 import type { Fixtures, Page, TestInfo, TestType } from '@playwright/test';
-import { stableHash, redactValue, type ResolvedForgeConfig } from '@azerish25-ux/forgeqa-core';
+import { stableHash, redactValue, ResourceScope, withResourceScope, type ResolvedForgeConfig } from '@azerish25-ux/forgeqa-core';
+import { OwnedFiles } from './owned-files.js';
+export * from './authentication.js';
+export * from './owned-files.js';
+export * from './overrides.js';
 export { defineForgePlaywrightConfig } from './config.js';
 export interface ForgeWorkerContext { runId: string; namespace: string; config: ResolvedForgeConfig; }
 export interface ForgeTestOptions {
@@ -7,7 +11,7 @@ export interface ForgeTestOptions {
   namespaceFactory?: (info: { project: {name: string}; parallelIndex: number; workerIndex: number }) => string;
 }
 export interface ForgeWorkerFixtures { forge: ForgeWorkerContext; }
-export interface ForgeTestFixtures { forgeDiagnosticsEnabled: boolean; }
+export interface ForgeTestFixtures { forgeDiagnosticsEnabled: boolean; forgeScope: ResourceScope; forgeFiles: OwnedFiles; }
 export async function withBrowserDiagnostics(page: Page, info: TestInfo, use: (page: Page) => Promise<void>): Promise<void> {
   const events: Array<Record<string, unknown>> = [];
   let bytes = 0, dropped = 0;
@@ -32,6 +36,14 @@ export async function withBrowserDiagnostics(page: Page, info: TestInfo, use: (p
 export function createForgeTest<T extends {page: Page}, W extends object>(base: TestType<T,W>, options: ForgeTestOptions = {}): TestType<T & ForgeTestFixtures,W & ForgeWorkerFixtures> {
   const fixtures = {
     forgeDiagnosticsEnabled: [true, {option:true}],
+    forgeScope: async ({forge}: {forge:ForgeWorkerContext}, use:(scope:ResourceScope)=>Promise<void>, info:TestInfo) => {
+      await withResourceScope(new ResourceScope(`${forge.namespace}-${stableHash({testId:info.testId,retry:info.retry,repeat:info.repeatEachIndex}).slice(0,16)}`), use);
+    },
+    forgeFiles: async ({forgeScope}: {forgeScope:ResourceScope}, use:(files:OwnedFiles)=>Promise<void>) => {
+      const files = await OwnedFiles.create();
+      forgeScope.defer({id:'owned-files',cleanup:()=>files.close()});
+      await use(files);
+    },
     forge: [async ({}: object, use: (context: ForgeWorkerContext)=>Promise<void>, info: import('@playwright/test').WorkerInfo) => {
       const metadata = info.config.metadata['forgeqa'];
       const config = options.config ?? metadata?.config as ResolvedForgeConfig | undefined;

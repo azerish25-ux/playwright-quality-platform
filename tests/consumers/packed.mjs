@@ -100,6 +100,12 @@ try{
     }
     await cp(summary.runDir,join(evidence,manager),{recursive:true});await writeFile(join(evidence,`${manager}.json`),JSON.stringify({manager,mode,independentConsumer:true,...summary},null,2));
     if(mode==='template'||mode==='docs')await run([require.resolve('@playwright/test/cli'),'test'],consumer);
+    await cp(join(root,'tests/consumers/fixture-acceptance'),join(consumer,'fixture-acceptance'),{recursive:true});
+    await run([require.resolve('typescript/bin/tsc'),'--noEmit','--strict','--skipLibCheck','--module','NodeNext','--moduleResolution','NodeNext','--target','ES2022','fixture-acceptance/lifecycle.spec.ts','fixture-acceptance/playwright.config.ts'],consumer);
+    await run([require.resolve('@playwright/test/cli'),'test','--config','fixture-acceptance/playwright.config.ts'],consumer);
+    const lifecycle=JSON.parse(await readFile(join(consumer,'fixture-acceptance/result.json'),'utf8'));
+    assert.equal(lifecycle.stats.expected,6);assert.equal(lifecycle.stats.unexpected,0);assert.equal(lifecycle.stats.flaky,0);assert.equal(lifecycle.stats.skipped,0);
+    await writeFile(join(evidence,`${manager}-fixture-lifecycle.json`),JSON.stringify({schemaVersion:1,status:'PASS',manager,sourceSha:process.env.FORGEQA_SOURCE_SHA??null,versions:resolved.versions,installedPublicPackages:true,tests:6,unexpected:0,flaky:0,skipped:0},null,2));
     if(mode==='docs')await writeFile(join(evidence,`${manager}-onboarding.json`),JSON.stringify({schemaVersion:1,status:'PASS',sourceSha:process.env.FORGEQA_SOURCE_SHA??null,manager,initializer:'installed-tarball-cli',commands:['init','doctor','plan','run','native'],snippetsCompiled:['forgeqa.config.ts','fixtures.ts','public-api.ts'],identities:docsIdentitySet,publicationClaimed:false},null,2));
     if(preparedManifest)await writeFile(join(evidence,`${manager}-release.json`),JSON.stringify({schemaVersion:1,status:'PASS',sourceSha:preparedManifest.sourceSha,version:preparedManifest.version,manager,distribution:registry?(process.env.FORGEQA_TEST_REGISTRY==='true'?'loopback-registry':'public-npm'):'prepared-tarballs',initializer:'installed-cli',packageChecksums:checksums,versions:resolved.versions,tests:summary.tests,attempts:summary.attempts},null,2));
     console.log(JSON.stringify({manager,mode,tests:summary.tests,attempts:summary.attempts,gate:summary.gate.outcome,independentConsumer:true}));

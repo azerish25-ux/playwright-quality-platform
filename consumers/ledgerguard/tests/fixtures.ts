@@ -1,14 +1,14 @@
 import {
   expect,
-  request as requests,
   test as base,
   type APIRequestContext,
   type TestInfo
 } from '@playwright/test';
 import { stableHash } from '@azerish25-ux/forgeqa-core';
-import { createForgeTest } from '@azerish25-ux/forgeqa-playwright';
+import { createForgeTest, withAuthentication } from '@azerish25-ux/forgeqa-playwright';
 import { defineDataFactory } from '@azerish25-ux/forgeqa-test-data';
-import { LedgerGuardClient } from '../src/client.js';
+import type { LedgerGuardClient } from '../src/client.js';
+import { ledgerguardAuthentication, ledgerguardIdentity } from './authentication.js';
 import { LedgerGuardLab } from '../src/lab.js';
 import type { Account, RegisteredIdentity, Session } from '../src/types.js';
 
@@ -57,39 +57,18 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
   }, { scope: 'worker' }],
 
   customer: async ({ forge, baseURL }, use, testInfo) => {
-    const actor = await registeredActor(requiredBaseURL(baseURL), forge.runId, forge.namespace, testInfo, 1);
-    try {
-      await use(actor);
-    } finally {
-      await actor.context.dispose();
-    }
+    const seed = identityFactory.build({ seed: forge.runId, logicalTestId: testInfo.testId, namespace: forge.namespace, sequence: 1 });
+    await withAuthentication(ledgerguardAuthentication(requiredBaseURL(baseURL), seed), ledgerguardIdentity(forge, testInfo, 'CUSTOMER', 1), use);
   },
 
   otherCustomer: async ({ forge, baseURL }, use, testInfo) => {
-    const actor = await registeredActor(requiredBaseURL(baseURL), forge.runId, forge.namespace, testInfo, 2);
-    try {
-      await use(actor);
-    } finally {
-      await actor.context.dispose();
-    }
+    const seed = identityFactory.build({ seed: forge.runId, logicalTestId: testInfo.testId, namespace: forge.namespace, sequence: 2 });
+    await withAuthentication(ledgerguardAuthentication(requiredBaseURL(baseURL), seed), ledgerguardIdentity(forge, testInfo, 'CUSTOMER', 2), use);
   },
 
-  admin: async ({ baseURL }, use) => {
-    const context = await requests.newContext({ baseURL: requiredBaseURL(baseURL) });
-    const client = new LedgerGuardClient(context);
-    await client.refreshCsrf();
-    const result = await client.login(
-      process.env.LEDGERGUARD_ADMIN_EMAIL ?? 'admin@example.test',
-      required('LEDGER_DEMO_PASSWORD')
-    );
-    expect(result.status, 'seeded LedgerGuard administrator login').toBe(200);
-    expect(result.body.role).toBe('ADMIN');
-    const actor: Actor = { context, client, identity: result.body };
-    try {
-      await use(actor);
-    } finally {
-      await context.dispose();
-    }
+  admin: async ({ forge, baseURL }, use, testInfo) => {
+    const credentials = { email: process.env.LEDGERGUARD_ADMIN_EMAIL ?? 'admin@example.test', password: required('LEDGER_DEMO_PASSWORD') };
+    await withAuthentication(ledgerguardAuthentication(requiredBaseURL(baseURL), credentials), ledgerguardIdentity(forge, testInfo, 'ADMIN', 0), use);
   },
 
   fundedPair: async ({ customer, otherCustomer, lab }, use) => {
@@ -109,25 +88,6 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
     });
   }
 });
-
-async function registeredActor(
-  baseURL: string,
-  runId: string,
-  namespace: string,
-  testInfo: TestInfo,
-  sequence: number
-): Promise<Actor> {
-  const context = await requests.newContext({ baseURL });
-  const client = new LedgerGuardClient(context);
-  const seed = identityFactory.build({
-    seed: runId,
-    logicalTestId: testInfo.testId,
-    namespace,
-    sequence
-  });
-  const identity = await client.registerAndLogin(seed);
-  return { context, client, identity };
-}
 
 export function commandKey(testInfo: TestInfo, prefix: string, sequence = 0): string {
   const suffix = stableHash({

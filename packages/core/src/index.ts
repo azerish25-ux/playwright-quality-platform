@@ -6,3 +6,4 @@ export * from './identity.js';
 export * from './config.js';
 export * from './gates.js';
 export * from './selection.js';
+export * from './lifecycle.js';
