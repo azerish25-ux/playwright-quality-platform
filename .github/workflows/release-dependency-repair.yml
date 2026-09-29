@@ -1,0 +1,70 @@
+name: Release dependency verification
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release-dependency-repair.yml']
+permissions: { contents: read }
+concurrency:
+  group: forgeqa-release-dependency-verification
+  cancel-in-progress: false
+jobs:
+  verify-dependencies:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { fetch-depth: 0, persist-credentials: false }
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - name: Resolve the patched toolchain without changing published package runtimes
+        run: |
+          npm ci --ignore-scripts
+          npm pkg set 'engines.node=^22.14.0 || >=24.10.0'
+          npm install --save-dev --save-exact --ignore-scripts --no-audit --no-fund semantic-release@25.0.9
+          node node_modules/pnpm/bin/pnpm.cjs install --lockfile-only --ignore-scripts
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+          npm ls semantic-release @semantic-release/npm npm
+      - name: Verify the upgraded semantic API and registry recovery tests
+        run: npm run test:release
+      - name: Retain verified sources and tooling
+        run: |
+          mkdir -p evidence/dependency-repair
+          git bundle create evidence/dependency-repair/source.bundle HEAD --tags
+          tar --exclude='./.git' --exclude='./evidence' -czf evidence/dependency-repair/workspace.tgz .
+          cd evidence/dependency-repair
+          sha256sum source.bundle workspace.tgz > SHA256SUMS
+          cat SHA256SUMS
+      - name: Store only reviewed dependency manifests as immutable Git objects
+        env:
+          GH_BLOB_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile, writeFile } from 'node:fs/promises';
+          import { createHash } from 'node:crypto';
+          const records = [];
+          for (const path of ['package.json', 'package-lock.json', 'pnpm-lock.yaml']) {
+            const bytes = await readFile(path);
+            const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, {
+              method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000),
+              headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${process.env.GH_BLOB_TOKEN}`, 'Content-Type': 'application/json', 'X-GitHub-Api-Version': '2022-11-28' },
+              body: JSON.stringify({ encoding: 'base64', content: bytes.toString('base64') })
+            });
+            if (!response.ok) throw new Error(`Dependency blob storage failed: HTTP ${response.status}`);
+            const { sha } = await response.json();
+            const expected = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+            if (sha !== expected) throw new Error('Dependency Git blob integrity mismatch.');
+            records.push({ path, sha, sha256: createHash('sha256').update(bytes).digest('hex') });
+          }
+          console.log(JSON.stringify({ dependencyBlobs: records }));
+          await writeFile('evidence/dependency-repair/dependency-blobs.json', JSON.stringify(records, null, 2));
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-dependency-repair-${{ github.sha }}
+          path: evidence/dependency-repair/
+          compression-level: 0
+          if-no-files-found: warn
+          retention-days: 3
