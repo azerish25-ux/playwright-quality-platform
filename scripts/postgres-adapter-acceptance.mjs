@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { RecoveryJournal, recoverResources } from '@azerish25-ux/forgeqa-core';
 import pg from 'pg';
 import { GuardedPostgresAdapter } from '@azerish25-ux/forgeqa-test-data';
 
@@ -51,6 +53,24 @@ try {
   for (const prefix of ['forgeqa-', 'forgeqa-%']) await assert.rejects(adapter.reclaimStale('2001-01-01T00:00:00Z', prefix));
   for (const cutoff of ['invalid', '9999-01-01T00:00:00Z']) await assert.rejects(adapter.reclaimStale(cutoff, 'forgeqa-owner_one-'));
   evidence.cases.push('unsafe reclamation arguments refused');
+  const recoveryRoot = await mkdtemp(join(await realpath(tmpdir()), 'forgeqa-pg-recovery-'));
+  try {
+    const identity = { runId: 'pg-acceptance', consumer: 'teamboard-postgres', namespace: 'same-logical-name' };
+    const abandoned = await RecoveryJournal.create(identity, { root: recoveryRoot });
+    const active = await RecoveryJournal.create(identity, { root: recoveryRoot });
+    const a = await adapter.provisionRecoverable(abandoned), b = await adapter.provisionRecoverable(active);
+    assert.notEqual(a.provision.tenantId, b.provision.tenantId, 'journal ownership cannot collide even with identical logical names');
+    await abandoned.close();
+    const dryRun = await recoverResources({ root: recoveryRoot, adapters: [adapter.recoveryAdapter()] });
+    assert.equal(dryRun.reclaimed, 0);
+    const recovered = await recoverResources({ root: recoveryRoot, apply: true, adapters: [adapter.recoveryAdapter()] });
+    assert.equal(recovered.incomplete, false); assert.equal(recovered.reclaimed, 1);
+    const retained = (await connection.query('SELECT id FROM forgeqa_test_tenants WHERE id = ANY($1::text[]) ORDER BY id', [[a.provision.tenantId, b.provision.tenantId, other.tenantId]])).rows.map(row => row.id);
+    assert.deepEqual(retained, [b.provision.tenantId, other.tenantId].sort());
+    assert.equal((await recoverResources({ root: recoveryRoot, apply: true, adapters: [adapter.recoveryAdapter()] })).reclaimed, 0);
+    await active.dispose(b.record, adapter.recoveryAdapter(), new AbortController().signal); await active.close();
+    evidence.cases.push('durable PostgreSQL recovery preserves active same-label owner and unrelated tenant');
+  } finally { await rm(recoveryRoot, { recursive: true, force: true }); }
   await connection.query('DROP TABLE pg_temp.forgeqa_test_tenants');
   assert.equal((await connection.query("SELECT to_regclass('pg_temp.forgeqa_test_tenants') AS remaining")).rows[0].remaining, null);
   evidence.cases.push('owned temporary table removed');

@@ -13,6 +13,7 @@ export const pages = [
   ['Reference', 'Configuration', 'docs/configuration.md', 'configuration.md'],
   ['Reference', 'CLI commands', 'docs/cli.md', 'cli.md'],
   ['Reference', 'Fixtures and adapters', 'docs/guide/fixtures.md', 'fixtures.md'],
+  ['Reference', 'Crash recovery', 'docs/guide/recovery.md', 'recovery.md'],
   ['Execution and evidence', 'Distributed execution', 'docs/distributed-evidence.md', 'distributed.md'],
   ['Execution and evidence', 'Report interpretation', 'docs/guide/reports.md', 'reports.md'],
   ['Execution and evidence', 'History', 'docs/history.md', 'history.md'],

@@ -27,3 +27,7 @@ Exit codes: 0 compliant success; 1 quality/test/policy failure; 2 invalid config
 `forgeqa repeat --test-id STABLE_ID [COUNT] [MAX_FAILURES] [TIME_BUDGET_MS]` resolves the stable ID to one exact source declaration. Unknown, ambiguous, locationless, manifest-backed, or distributed targets fail closed.
 
 `forgeqa flakes --report FILE --history HISTORY_DIR --render DIR` emits JSON analysis and history-aware HTML, JUnit, and Markdown. `forgeqa report merge ... --history HISTORY_DIR` embeds the same bounded analysis in distributed reports.
+
+## Guarded resource recovery
+
+`forgeqa recovery --root DIR [--dry-run|--apply] [--adapter-module FILE] [--consumer NAME] [--namespace NAME] [--max-owners N] [--timeout-ms N] [--budget-ms N] [--json]` reclaims only verified abandoned ownership. Dry-run is the default; filters are exact, never deletion prefixes. It preserves active owners, refuses unknown adapters and unsafe metadata, and returns exit 3 when recovery is incomplete. See [the recovery guide](guide/recovery.md) for the same-host/PID-namespace boundary, private journal storage, trusted module contract and process-crash tests.

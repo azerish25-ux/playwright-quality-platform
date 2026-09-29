@@ -55,3 +55,7 @@ Concrete adapters are in [TeamBoard](../../examples/demo-saas/tests/adapters.ts)
 Run `npm test` for focused unit failures and `npm run test:integration` for native worker restart and failure propagation. The existing `npm run test:consumers -- template` path compiles and executes six additional fixture-contract browser cases through clean npm and pnpm installations. These cases are separate from the established demo/TeamBoard product inventories. The TeamBoard product suite uses the actual authentication/flag/file/clock adapters; LedgerGuard uses the actual session adapter in its independent consumers.
 
 The [scoped requirements](../delivery/fixture-lifecycle-requirements.json) distinguish local implementation evidence from exact-source hosted acceptance. No npm publication, release promotion, or complete hard-termination acceptance is implied.
+
+## Post-crash recovery
+
+Private files and exported authentication state now have durable pre-acquisition ownership journals. See [crash recovery](recovery.md) for same-host recovery, explicit trusted adapters, dry-run/apply commands, active-run protection and the lost-runner boundary. Existing normal teardown remains mandatory.

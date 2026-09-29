@@ -106,6 +106,10 @@ try{
     const lifecycle=JSON.parse(await readFile(join(consumer,'fixture-acceptance/result.json'),'utf8'));
     assert.equal(lifecycle.stats.expected,6);assert.equal(lifecycle.stats.unexpected,0);assert.equal(lifecycle.stats.flaky,0);assert.equal(lifecycle.stats.skipped,0);
     await writeFile(join(evidence,`${manager}-fixture-lifecycle.json`),JSON.stringify({schemaVersion:1,status:'PASS',manager,sourceSha:process.env.FORGEQA_SOURCE_SHA??null,versions:resolved.versions,installedPublicPackages:true,tests:6,unexpected:0,flaky:0,skipped:0},null,2));
+    await cp(join(root,'tests/consumers/recovery-acceptance.mjs'),join(consumer,'recovery-acceptance.mjs'));
+    const recovery=JSON.parse(await run([join(consumer,'recovery-acceptance.mjs'),cli],consumer));
+    assert.equal(recovery.status,'PASS');assert.equal(recovery.cases,8);
+    await writeFile(join(evidence,`${manager}-crash-recovery.json`),JSON.stringify({...recovery,manager,sourceSha:process.env.FORGEQA_SOURCE_SHA??null,versions:resolved.versions},null,2));
     if(mode==='docs')await writeFile(join(evidence,`${manager}-onboarding.json`),JSON.stringify({schemaVersion:1,status:'PASS',sourceSha:process.env.FORGEQA_SOURCE_SHA??null,manager,initializer:'installed-tarball-cli',commands:['init','doctor','plan','run','native'],snippetsCompiled:['forgeqa.config.ts','fixtures.ts','public-api.ts'],identities:docsIdentitySet,publicationClaimed:false},null,2));
     if(preparedManifest)await writeFile(join(evidence,`${manager}-release.json`),JSON.stringify({schemaVersion:1,status:'PASS',sourceSha:preparedManifest.sourceSha,version:preparedManifest.version,manager,distribution:registry?(process.env.FORGEQA_TEST_REGISTRY==='true'?'loopback-registry':'public-npm'):'prepared-tarballs',initializer:'installed-cli',packageChecksums:checksums,versions:resolved.versions,tests:summary.tests,attempts:summary.attempts},null,2));
     console.log(JSON.stringify({manager,mode,tests:summary.tests,attempts:summary.attempts,gate:summary.gate.outcome,independentConsumer:true}));

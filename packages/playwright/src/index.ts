@@ -39,8 +39,8 @@ export function createForgeTest<T extends {page: Page}, W extends object>(base: 
     forgeScope: async ({forge}: {forge:ForgeWorkerContext}, use:(scope:ResourceScope)=>Promise<void>, info:TestInfo) => {
       await withResourceScope(new ResourceScope(`${forge.namespace}-${stableHash({testId:info.testId,retry:info.retry,repeat:info.repeatEachIndex}).slice(0,16)}`), use);
     },
-    forgeFiles: async ({forgeScope}: {forgeScope:ResourceScope}, use:(files:OwnedFiles)=>Promise<void>) => {
-      const files = await OwnedFiles.create();
+    forgeFiles: async ({forgeScope,forge}: {forgeScope:ResourceScope;forge:ForgeWorkerContext}, use:(files:OwnedFiles)=>Promise<void>) => {
+      const files = await OwnedFiles.create(10 * 1024 * 1024, { identity: { runId: forge.runId, consumer: forge.config.consumer ?? forge.config.project, namespace: forgeScope.namespace } });
       forgeScope.defer({id:'owned-files',cleanup:()=>files.close()});
       await use(files);
     },

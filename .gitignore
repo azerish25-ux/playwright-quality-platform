@@ -35,3 +35,6 @@ benchmarks/results/
 # Generated documentation; maintained sources and version receipts stay tracked.
 docs/site/generated/
 **/__pycache__/
+
+# Recovery journals may contain private authentication files. Never publish them.
+**/.forgeqa/recovery/

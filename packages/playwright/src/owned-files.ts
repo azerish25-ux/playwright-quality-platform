@@ -1,14 +1,17 @@
 import { constants } from 'node:fs';
-import { lstat, mkdtemp, open, realpath, rm, link, unlink } from 'node:fs/promises';
+import { lstat, open, rm, link, unlink } from 'node:fs/promises';
 import { join, basename } from 'node:path';
-import { tmpdir } from 'node:os';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { randomUUID } from 'node:crypto';
-import { runBounded } from '@azerish25-ux/forgeqa-core';
+import { runBounded, RecoveryJournal, type RecoveryIdentity, type RecoveryOptions, type RecoveryRecord } from '@azerish25-ux/forgeqa-core';
 import type { Download } from '@playwright/test';
 
-/** Private temporary files, never an arbitrary caller-selected directory. */
+export interface OwnedFileRecoveryOptions extends RecoveryOptions {
+  identity?: RecoveryIdentity;
+  journal?: RecoveryJournal;
+}
+/** Private recoverable files, never an arbitrary caller-selected deletion directory. */
 export class OwnedFiles {
   readonly directory: string;
   readonly maxBytes: number;
@@ -17,20 +20,27 @@ export class OwnedFiles {
   #closed = false;
   #pending = new Set<Promise<unknown>>();
   #closing?: Promise<void>;
+  #journal: RecoveryJournal;
+  #record: Readonly<RecoveryRecord>;
+  #ownsJournal: boolean;
 
-  private constructor(directory: string, device: number, inode: number, maxBytes: number) {
+  private constructor(directory: string, device: number, inode: number, maxBytes: number, journal: RecoveryJournal, record: Readonly<RecoveryRecord>, ownsJournal: boolean) {
     this.directory = directory; this.#device = device; this.#inode = inode; this.maxBytes = maxBytes;
+    this.#journal = journal; this.#record = record; this.#ownsJournal = ownsJournal;
   }
 
-  static async create(maxBytes = 10 * 1024 * 1024): Promise<OwnedFiles> {
+  static async create(maxBytes = 10 * 1024 * 1024, recovery: OwnedFileRecoveryOptions = {}): Promise<OwnedFiles> {
     if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 64 * 1024 * 1024) throw new RangeError('Invalid owned-file size limit.');
-    const directory = await mkdtemp(join(await realpath(tmpdir()), 'forgeqa-owned-'));
-    // mkdtemp uses 0700; Windows permissions follow the user's temporary-directory ACL.
+    const journal = recovery.journal ?? await RecoveryJournal.create(recovery.identity ?? {
+      runId: randomUUID(), consumer: 'owned-files', namespace: `files-${randomUUID()}`,
+    }, recovery);
+    const { directory, record } = await journal.createDirectory();
     const metadata = await lstat(directory);
-    return new OwnedFiles(directory, metadata.dev, metadata.ino, maxBytes);
+    return new OwnedFiles(directory, metadata.dev, metadata.ino, maxBytes, journal, record, !recovery.journal);
   }
 
   async #check(): Promise<void> {
+    await this.#journal.verify();
     const metadata = await lstat(this.directory);
     if (!metadata.isDirectory() || metadata.isSymbolicLink() || metadata.dev !== this.#device || metadata.ino !== this.#inode) {
       throw new Error('Owned temporary directory was replaced; refusing filesystem access.');
@@ -132,6 +142,8 @@ export class OwnedFiles {
       await this.#check();
       // rm does not follow child symlinks; the private root identity was checked above.
       await rm(this.directory, { recursive: true, force: false });
+      await this.#journal.complete(this.#record);
+      if (this.#ownsJournal) await this.#journal.close();
     })();
     return this.#closing;
   }

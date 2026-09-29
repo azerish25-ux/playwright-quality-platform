@@ -36,6 +36,7 @@ import {
   repeatCommand
 } from './reliability-commands.js';
 import { initCommand } from './init.js';
+import { parseRecovery, recoveryCommand } from './recovery-command.js';
 
 import { VERSION } from './version.js';
 
@@ -166,6 +167,7 @@ Commands:
   forgeqa quarantine add TEST_ID OWNER REASON ISSUE EXPIRES_AT [PROJECTS] [--file FILE] [--report FILE|--known-tests IDS]
   forgeqa quarantine remove TEST_ID [PROJECTS] [--file FILE]
   forgeqa gate --report FILE
+  forgeqa recovery [--root DIR] [--dry-run|--apply] [--adapter-module FILE] [--consumer NAME] [--namespace NAME] [--json]
   forgeqa migrate
 
 repeat resolves one stable ForgeQA ID to its exact source declaration, emits one result per bounded diagnostic iteration, and writes repeat-summary.json. Diagnostic records remain non-authoritative.
@@ -175,7 +177,7 @@ Exit codes: 0 compliant success, 1 quality failure, 2 usage/configuration, 3 inf
 }
 
 export async function main(argv = process.argv.slice(2)): Promise<void> {
-  const parsed = parse(argv);
+  const parsed = argv[0] === 'recovery' ? parseRecovery(argv.slice(1)) : parse(argv);
   const key = parsed.command.join(' ');
   if (parsed.options.has('version') || key === 'version') {
     process.stdout.write(`${VERSION}\n`);
@@ -187,6 +189,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   }
   switch (key) {
     case 'init': await initCommand(parsed); break;
+    case 'recovery': await recoveryCommand(parsed); break;
     case 'doctor': await doctorCommand(parsed); break;
     case 'plan': await planCommand(parsed); break;
     case 'run': await runCommand(parsed); break;

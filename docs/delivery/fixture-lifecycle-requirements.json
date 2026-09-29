@@ -98,7 +98,15 @@
       "id": "FL-07",
       "requirement": "Generic hard-termination authentication reclamation and cross-process recovery",
       "status": "PARTIAL",
-      "actualResult": "No shared cross-process state is reused; worker identity changes and recoverable teardown have tests. Forced termination cannot run disposers. A generic stale authentication/file reclamation protocol is not implemented or accepted."
+      "actualResult": "Same-host, same-PID-namespace recovery with durable pre-acquisition descriptors, active-owner protection, append-only recovery claims, authentication/private-file integration, exact PostgreSQL ownership, CLI dry-run/apply and real process-kill tests is implemented. Current-source hosted acceptance is tracked separately. Lost-runner/cross-host remote-resource recovery remains incomplete; no mutable cross-process login sharing is introduced.",
+      "implementationPaths": [
+        "packages/core/src/recovery.ts",
+        "packages/playwright/src/authentication.ts",
+        "packages/playwright/src/owned-files.ts",
+        "packages/test-data/src/postgres.ts",
+        "packages/cli/src/recovery-command.ts"
+      ],
+      "verification": "tests/recovery*.test.mjs; tests/consumers/recovery-acceptance.mjs; scripts/postgres-adapter-acceptance.mjs; crash-recovery-requirements.json"
     }
   ],
   "publicationClaimed": false,

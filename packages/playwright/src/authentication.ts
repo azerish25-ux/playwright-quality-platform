@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { ResourceScope, runBounded, withResourceScope } from '@azerish25-ux/forgeqa-core';
+import { ResourceScope, runBounded, withResourceScope, RecoveryJournal, type RecoveryOptions, type RecoveryAdapter, type RecoveryOwner, type RecoveryRecord } from '@azerish25-ux/forgeqa-core';
 import type { APIRequestContext } from '@playwright/test';
 import { OwnedFiles } from './owned-files.js';
 
@@ -17,12 +17,15 @@ export interface AuthenticationIdentity {
   testId?: string;
   attempt?: number;
 }
+export interface AuthenticationRecoveryContext { owner: Readonly<RecoveryOwner>; record: Readonly<RecoveryRecord>; }
 export interface AuthenticationAdapter<Session> {
   id: string;
   /** Register acquired accounts/contexts immediately, before subsequent fallible setup. */
-  authenticate(identity: Readonly<AuthenticationIdentity>, scope: ResourceScope, signal: AbortSignal): Promise<Session>;
+  authenticate(identity: Readonly<AuthenticationIdentity>, scope: ResourceScope, signal: AbortSignal, recovery?: AuthenticationRecoveryContext): Promise<Session>;
   /** Must verify the actual session/role; a TTL alone is not authentication validation. */
   validate(session: Session, identity: Readonly<AuthenticationIdentity>, signal: AbortSignal): Promise<boolean>;
+  /** Only for genuinely owned remote resources; borrowed users must not implement this. */
+  recovery?: { adapter: RecoveryAdapter; key(identity: Readonly<AuthenticationIdentity>, owner: Readonly<RecoveryOwner>): string };
   storageState?(session: Session, signal: AbortSignal): Promise<Awaited<ReturnType<APIRequestContext['storageState']>>>;
 }
 export interface AuthenticationOptions {
@@ -31,6 +34,7 @@ export interface AuthenticationOptions {
   maxAgeMs?: number;
   timeoutMs?: number;
   cleanupTimeoutMs?: number;
+  recovery?: RecoveryOptions;
 }
 interface SessionRecord<Session> {
   scope: ResourceScope;
@@ -65,7 +69,7 @@ export class AuthenticationManager<Session> {
     if (!adapter.id.trim()) throw new Error('An authentication adapter ID is required.');
     this.#adapter = adapter;
     this.#options = { reuse: options.reuse ?? 'none', maxAgeMs: options.maxAgeMs ?? 300_000,
-      timeoutMs: options.timeoutMs ?? 30_000, cleanupTimeoutMs: options.cleanupTimeoutMs ?? 5_000 };
+      timeoutMs: options.timeoutMs ?? 30_000, cleanupTimeoutMs: options.cleanupTimeoutMs ?? 5_000, recovery: options.recovery ?? {} };
     if (!['none', 'worker'].includes(this.#options.reuse)) throw new Error('Invalid authentication reuse policy.');
     for (const value of [this.#options.maxAgeMs, this.#options.timeoutMs, this.#options.cleanupTimeoutMs]) {
       if (!Number.isSafeInteger(value) || value < 1 || value > 2_147_483_647) throw new RangeError('Invalid authentication deadline.');
@@ -106,12 +110,22 @@ export class AuthenticationManager<Session> {
   async #create(key: string, identity: Readonly<AuthenticationIdentity>): Promise<SessionRecord<Session>> {
     const scope = new ResourceScope(identity.namespace, this.#options.cleanupTimeoutMs);
     try {
-      const session = await runBounded(signal => this.#adapter.authenticate(identity, scope, signal), this.#options.timeoutMs, 'Authentication setup');
+      const recoveryIdentity = { runId: identity.runId, consumer: identity.application, namespace: identity.namespace };
+      const recovery = this.#adapter.recovery;
+      const journal = recovery ? await RecoveryJournal.create(recoveryIdentity, this.#options.recovery) : undefined;
+      if (journal) scope.defer({ id: 'recovery-journal', cleanup: () => journal.close() });
+      const recoveryRecord = journal && recovery ? await journal.reserve({ adapter: recovery.adapter.id, target: recovery.adapter.target, key: recovery.key(identity, journal.owner) }) : undefined;
+      if (journal && recoveryRecord && recovery) scope.defer({ id: 'recoverable-authentication', cleanup: signal => journal.dispose(recoveryRecord, recovery.adapter, signal) });
+      const session = await runBounded(signal => journal && recoveryRecord
+        ? journal.acquire(recoveryRecord, () => this.#adapter.authenticate(identity, scope, signal, { owner: journal.owner, record: recoveryRecord }))
+        : this.#adapter.authenticate(identity, scope, signal), this.#options.timeoutMs, 'Authentication setup');
       const valid = await runBounded(signal => this.#adapter.validate(session, identity, signal), this.#options.timeoutMs, 'Initial session validation');
       if (!valid) throw new Error('Authentication adapter returned an invalid session or role.');
       const record: SessionRecord<Session> = { scope, session, expiresAt: Date.now() + this.#options.maxAgeMs };
       if (this.#adapter.storageState) {
-        const files = await OwnedFiles.create();
+        const files = await OwnedFiles.create(10 * 1024 * 1024, {
+          ...this.#options.recovery, identity: recoveryIdentity, ...(journal ? { journal } : {}),
+        });
         scope.defer({ id: 'authentication-state-files', cleanup: () => files.close() });
         const state = await runBounded(signal => this.#adapter.storageState!(session, signal), this.#options.timeoutMs, 'Authentication state export');
         if (!state || !Array.isArray(state.cookies) || !Array.isArray(state.origins)) throw new Error('Invalid Playwright authentication storage state.');

@@ -9,6 +9,7 @@ await mkdir(evidenceDirectory, { recursive: true, mode: 0o700 });
 
 const includedModules = [
   'packages/core/dist/lifecycle.js',
+  'packages/core/dist/recovery.js',
   'packages/playwright/dist/authentication.js',
   'packages/playwright/dist/owned-files.js',
   'packages/playwright/dist/overrides.js',
@@ -25,6 +26,9 @@ const includedModules = [
 ];
 const testFiles = [
   'tests/fixture-lifecycle.test.mjs',
+  'tests/recovery.test.mjs',
+  'tests/recovery-cli.test.mjs',
+  'tests/recovery-process.test.mjs',
   'tests/core.test.mjs',
   'tests/data.test.mjs',
   'tests/reporter.test.mjs',

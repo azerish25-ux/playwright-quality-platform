@@ -1,4 +1,4 @@
-import { ConfigurationError } from '@azerish25-ux/forgeqa-core';
+import { ConfigurationError, type RecoveryAdapter, type RecoveryJournal, type RecoveryRecord } from '@azerish25-ux/forgeqa-core';
 
 export interface SqlExecutor { query<T = unknown>(text: string, values?: unknown[]): Promise<{ rows: T[]; rowCount?: number }>; }
 export interface PostgresProvision { namespace: string; tenantId: string; }
@@ -53,6 +53,30 @@ export class GuardedPostgresAdapter {
     await this.verifyTarget();
     const result = await this.executor.query('DELETE FROM forgeqa_test_tenants WHERE id = $1 AND owner_namespace = $2', [provision.tenantId, provision.namespace]);
     if (affectedRows(result.rowCount) > 1) throw new Error('Cleanup affected more than one owned tenant.');
+  }
+
+  /** Uses exact owned tenant identity; credentials are supplied by this trusted adapter, never the journal. */
+  recoveryAdapter(): RecoveryAdapter {
+    return {
+      id: 'forgeqa-postgres-tenant-v1', target: this.databaseName,
+      reclaim: async (record, owner, signal) => {
+        signal.throwIfAborted();
+        if (record.ownerId !== owner.id || record.adapter !== 'forgeqa-postgres-tenant-v1'
+          || record.target !== this.databaseName || record.key !== `forgeqa-${owner.id}-tenant`) {
+          throw new ConfigurationError('PostgreSQL recovery requires the exact owned tenant and authorized target.');
+        }
+        await this.cleanup({ namespace: `forgeqa-${owner.id}`, tenantId: record.key });
+      },
+    };
+  }
+
+  /** The durable intent precedes INSERT, including failures before the provisioning response arrives. */
+  async provisionRecoverable(journal: RecoveryJournal): Promise<{ provision: PostgresProvision; record: Readonly<RecoveryRecord> }> {
+    const namespace = `forgeqa-${journal.owner.id}`;
+    namespaceValue(namespace);
+    const record = await journal.reserve({ adapter: 'forgeqa-postgres-tenant-v1', target: this.databaseName, key: `${namespace}-tenant` });
+    const provision = await journal.acquire(record, () => this.provision(namespace));
+    return { provision, record };
   }
 
   async reclaimStale(beforeIso: string, expectedOwnerPrefix: string): Promise<number> {
