@@ -2,7 +2,7 @@ name: ForgeQA benchmarks
 on:
   push:
     branches: [main]
-    paths: ['benchmarks/**', '.github/workflows/benchmark*.yml', 'examples/demo-saas/*benchmark.config.ts']
+    paths: ['benchmarks/**', '.github/workflows/benchmark*.yml', 'examples/demo-saas/*benchmark.config.ts', 'packages/core/src/timing.ts', 'packages/playwright/src/reporter.ts', 'packages/playwright/src/base-reporter.ts']
   workflow_dispatch:
     inputs:
       repetitions:
@@ -38,7 +38,6 @@ jobs:
         env:
           BENCHMARK_REPETITIONS: ${{ inputs.repetitions || (github.event_name == 'push' && contains(github.event.head_commit.message, '[benchmark:5]') && '5') || '1' }}
         run: node benchmarks/workflow-matrix.mjs --repetitions "$BENCHMARK_REPETITIONS"
-
   plan:
     needs: setup
     strategy:
@@ -88,7 +87,6 @@ jobs:
           path: evidence/benchmarks/plans/${{ matrix.condition }}/
           if-no-files-found: error
           retention-days: 14
-
   shard:
     needs: [setup, plan]
     if: needs.setup.result == 'success' && needs.plan.result == 'success'
@@ -195,7 +193,6 @@ jobs:
           path: evidence/benchmarks/warmups/${{ matrix.condition }}/r${{ matrix.repetition }}/s${{ matrix.shard }}/
           if-no-files-found: error
           retention-days: 14
-
   merge:
     needs: [setup, plan, shard]
     if: always() && needs.setup.result == 'success'
@@ -282,13 +279,11 @@ jobs:
           path: evidence/benchmarks/merged/${{ matrix.condition }}/r${{ matrix.repetition }}/
           if-no-files-found: error
           retention-days: 30
-
   supplementary:
     needs: setup
     uses: ./.github/workflows/benchmark-secondary.yml
     with:
       repetitions: ${{ needs.setup.outputs.repetitions }}
-
   summarize:
     needs: [setup, merge, supplementary]
     if: always() && needs.setup.result == 'success'
@@ -299,6 +294,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with: { node-version: 22, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
       - name: Download benchmark records
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:

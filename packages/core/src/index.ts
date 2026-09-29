@@ -8,3 +8,4 @@ export * from './gates.js';
 export * from './selection.js';
 export * from './lifecycle.js';
 export * from './recovery.js';
+export * from './timing.js';

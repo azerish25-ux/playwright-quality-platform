@@ -2,7 +2,7 @@ name: Controlled local benchmarks
 on:
   push:
     branches: [main]
-    paths: ['benchmarks/controlled.mjs', 'benchmarks/lib/controlled.mjs', 'tests/benchmark-controlled.test.mjs', '.github/workflows/benchmark-controlled.yml']
+    paths: ['benchmarks/controlled.mjs', 'benchmarks/lib/controlled*.mjs', 'benchmarks/lib/profiling.mjs', 'benchmarks/profile-server.mjs', 'benchmarks/verify-controlled-timing.mjs', 'tests/benchmark-controlled.test.mjs', 'tests/benchmark-profiling.test.mjs', 'packages/core/src/timing.ts', 'packages/playwright/src/reporter.ts', 'packages/playwright/src/base-reporter.ts', 'examples/demo-saas/playwright.benchmark.config.ts', '.github/workflows/benchmark-controlled.yml']
   workflow_dispatch:
     inputs:
       repetitions:
@@ -45,7 +45,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build
       - run: npm run build --workspace examples/demo-saas
-      - run: node --test tests/benchmark-controlled.test.mjs
+      - run: node --test tests/benchmark-controlled.test.mjs tests/benchmark-profiling.test.mjs tests/execution-timing.test.mjs
       - run: node scripts/prepare-teamboard-db.mjs
         env:
           DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
@@ -55,6 +55,8 @@ jobs:
         env:
           REPETITIONS: ${{ inputs.repetitions || '5' }}
         run: node benchmarks/controlled.mjs --repetitions "$REPETITIONS"
+      - name: Recompute timing summaries and verify every retained cleanup receipt
+        run: node benchmarks/verify-controlled-timing.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

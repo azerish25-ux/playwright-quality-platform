@@ -5,6 +5,7 @@ import { cpus, totalmem } from 'node:os';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import pg from 'pg';
+import { readExecutionTiming } from '@azerish25-ux/forgeqa-core';
 import { controlledSchedule, summarizeControlled, validateCleanInventory } from './lib/controlled.mjs';
 import { protocolDigest } from './lib/measurement.mjs';
 
@@ -62,9 +63,7 @@ async function command(arguments_, cwd, logBase) {
   if (failure || status !== 0) throw new Error(failure ?? `Benchmark child exited ${status}; see ${relative(root, logBase)}.stderr`);
   return { status, durationMs, stdout: Buffer.concat(stdout).toString('utf8') };
 }
-
 async function assertCleanup(directory) {
-  // This query observes the isolated workflow database; it never deletes or repairs leaks.
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 10000, statement_timeout: 10000 });
   try {
     const result = await pool.query('SELECT (SELECT count(*) FROM teamboard_test_runs)::int AS namespaces,(SELECT count(*) FROM workspaces WHERE test_namespace IS NOT NULL)::int AS tenants,(SELECT count(*) FROM users WHERE test_namespace IS NOT NULL)::int AS accounts');
@@ -72,7 +71,6 @@ async function assertCleanup(directory) {
     if (Object.values(result.rows[0]).some(value => value !== 0)) throw new Error('Controlled benchmark leaked owned database resources.');
   } finally { await pool.end(); }
 }
-
 async function execute(plan, condition, repetition, phase) {
   const directory = resolve(output, condition.id, `r${repetition}`, phase);
   await mkdir(directory, { recursive: true });
@@ -90,11 +88,12 @@ async function execute(plan, condition, repetition, phase) {
   const identities = validateCleanInventory(manifest.expected, report, manifest.runId, await readFile(resolve(runDir, 'attempts.ndjson')));
   const merged = await command([cli, 'report', 'merge', '--manifest', manifestPath, '--output', resolve(directory, 'merged'), finalPath, '--json'], root, resolve(directory, 'merge'));
   await assertCleanup(directory);
-  const receipt = { status: 'PASS', runId: manifest.runId, identities, runMs: measured.durationMs, mergeMs: merged.durationMs, criticalPathMs: measured.durationMs + merged.durationMs, mergeStatus: merged.status };
+  const lifecycle = readExecutionTiming(resolve(runDir, 'timing'), { sourceSha, runId: manifest.runId, shardIndex: 1, shardTotal: 1 }, measured.durationMs);
+  if (lifecycle.attempts !== identities.length) throw new Error('Profiler lost or duplicated actual attempts.');
+  const receipt = { status: 'PASS', runId: manifest.runId, identities, runMs: measured.durationMs, mergeMs: merged.durationMs, criticalPathMs: measured.durationMs + merged.durationMs, mergeStatus: merged.status, lifecycle };
   await writeFile(resolve(directory, 'receipt.json'), JSON.stringify(receipt, null, 2));
   return receipt;
 }
-
 try {
   const plans = new Map();
   for (const condition of controlledSchedule(1)) {
@@ -110,9 +109,10 @@ try {
     records.push({ ...measured, condition: condition.id, workers: condition.workers, repetition: condition.repetition, sourceSha, runnerSession, hardware, protocolDigest: protocol, warmupStatus: warmup.status });
     await writeFile(resolve(output, 'records.json'), JSON.stringify(records, null, 2));
   }
-  const summary = summarizeControlled(records, repetitions);
+  const summary = summarizeControlled(records, repetitions, { requireTiming: true });
   await writeFile(resolve(output, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
-  await writeFile(resolve(output, 'observations.csv'), 'condition,repetition,workers,runMs,mergeMs,criticalPathMs\n' + records.map(r => [r.condition, r.repetition, r.workers, r.runMs, r.mergeMs, r.criticalPathMs].join(',')).join('\n') + '\n');
+  const stages = Object.keys(records[0].lifecycle.stages);
+  await writeFile(resolve(output, 'observations.csv'), ['condition,repetition,workers,runMs,mergeMs,criticalPathMs', ...stages, 'observedPhaseUnionMs,unattributedCliMs,attemptWorkMs'].join(',') + '\n' + records.map(r => [r.condition, r.repetition, r.workers, r.runMs, r.mergeMs, r.criticalPathMs, ...stages.map(s => r.lifecycle.stages[s]), r.lifecycle.observedPhaseUnionMs, r.lifecycle.unattributedCliMs, r.lifecycle.attemptWorkMs].join(',')).join('\n') + '\n');
   console.log(JSON.stringify(summary, null, 2));
 } catch (error) {
   await writeFile(resolve(output, 'failure.json'), JSON.stringify({ status: 'FAIL', sourceSha, completedMeasurements: records.length, message: error.message }, null, 2));
