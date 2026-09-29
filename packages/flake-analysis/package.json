@@ -1,7 +1,7 @@
 {
   "name": "@azerish25-ux/forgeqa-flake-analysis",
   "version": "0.1.0",
-  "description": "ForgeQA flake-analysis package",
+  "description": "Deadpan flake-analysis package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

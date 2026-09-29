@@ -4,7 +4,7 @@ The supported source-candidate runtime is Node 22/24. The tested Playwright vers
 
 ## Native integration
 
-Use `defineForgePlaywrightConfig(forgeConfig, nativeConfig)` and `createForgeTest(test)` from the public Playwright package. The helper retains native projects, webServer, project dependencies and assertions while adding strict focused/flaky safeguards and the ForgeQA reporter. The fixture extension preserves callable Playwright TestType and consumer fixture composition. The page fixture collects bounded console/page errors, transport failures and HTTP error responses separately. Browserless API tests do not request a page.
+Use `defineForgePlaywrightConfig(forgeConfig, nativeConfig)` and `createForgeTest(test)` from the public Playwright package. The helper retains native projects, webServer, project dependencies and assertions while adding strict focused/flaky safeguards and the Deadpan reporter. The fixture extension preserves callable Playwright TestType and consumer fixture composition. The page fixture collects bounded console/page errors, transport failures and HTTP error responses separately. Browserless API tests do not request a page.
 
 The reporter processes real public lifecycle callbacks. Every callback is guarded because exceptions thrown by a reporter can otherwise be swallowed by Playwright. A queue writes attempt journals incrementally; journal hashes and explicit finalization are checked. Missing or malformed evidence is not green. Native Playwright entrypoint failures/retry recovery are tested independently of the CLI.
 

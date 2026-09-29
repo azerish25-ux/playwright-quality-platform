@@ -9,7 +9,7 @@ import { execute, runNpm, atomicJson } from './release-process.mjs';
 export const packageDirectory = name => name.endsWith('-github') ? 'github-action' : name.slice('@azerish25-ux/forgeqa-'.length);
 const check = (condition, message) => { if (!condition) throw new Error(message); };
 export function rewritePackage(input, version) {
-  check(RELEASE_PACKAGES.includes(input?.name) && input.private !== true, 'Only the eight public ForgeQA packages may be prepared.');
+  check(RELEASE_PACKAGES.includes(input?.name) && input.private !== true, 'Only the eight public Deadpan packages may be prepared.');
   check(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version), 'Invalid prepared version.');
   const manifest = structuredClone(input);
   manifest.version = version;
@@ -22,7 +22,7 @@ export function rewritePackage(input, version) {
         const operator = range.replace(/^workspace:/, '').match(/^[~^]/)?.[0] ?? '';
         manifest[group][name] = `${operator}${version}`;
       } else {
-        check(!name.startsWith('@azerish25-ux/forgeqa-'), 'Unknown ForgeQA package dependency.');
+        check(!name.startsWith('@azerish25-ux/forgeqa-'), 'Unknown Deadpan package dependency.');
         check(!/^(?:workspace|file|link):/.test(range), 'External dependencies cannot use local protocols.');
       }
     }

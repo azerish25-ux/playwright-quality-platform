@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://forgeqa.dev/schemas/benchmark-summary-v1.json",
-  "title": "ForgeQA benchmark summary",
+  "title": "Deadpan benchmark summary",
   "type": "object",
   "additionalProperties": true,
   "required": [

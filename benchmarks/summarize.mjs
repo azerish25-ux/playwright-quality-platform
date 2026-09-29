@@ -55,7 +55,7 @@ function failureSummary(values, repetitionsValue, failure) {
   return { schemaVersion: 1, kind: 'forgeqa-benchmark-summary', status: 'FAIL', sourceSha: sourceShas.length === 1 ? sourceShas[0] : sourceShas.length ? sourceShas.join(',') : 'unknown', repetitions: Number.isSafeInteger(parsedRepetitions) && parsedRepetitions > 0 ? parsedRepetitions : 0, warmups: 0, generatedAt: new Date().toISOString(), recordCount: values.length, failure };
 }
 function renderMarkdown(value) {
-  const lines = ['# ForgeQA benchmark summary', '', `- Status: **${value.status}**`, `- Source SHA: \`${value.sourceSha}\``, `- Measured repetitions per condition: ${value.repetitions}`, `- Unmeasured warm-up executions per shard per repetition: ${value.warmups ?? 0}`, `- Generated: ${value.generatedAt}`];
+  const lines = ['# Deadpan benchmark summary', '', `- Status: **${value.status}**`, `- Source SHA: \`${value.sourceSha}\``, `- Measured repetitions per condition: ${value.repetitions}`, `- Unmeasured warm-up executions per shard per repetition: ${value.warmups ?? 0}`, `- Generated: ${value.generatedAt}`];
   if (value.failure) return `${lines.join('\n')}\n\n## Failure\n\n${value.failure}\n`;
   lines.push(`- Equivalent execution inventory: ${value.inventoryCount} executions, \`${value.inventoryDigest}\``);
   lines.push(`- Performance comparability: **${value.performanceStatus}**`);
@@ -64,12 +64,12 @@ function renderMarkdown(value) {
   lines.push('', '## Comparable conditions', '', '| Condition | Median execution + merge | Range | IQR | MAD | Instrumented runner time | Execution speedup | Efficiency |', '|---|---:|---:|---:|---:|---:|---:|---:|');
   for (const [id, condition] of Object.entries(value.conditions)) lines.push(`| ${condition.label} (\`${id}\`) | ${formatMs(condition.criticalPathMs.median)} | ${formatMs(condition.criticalPathMs.min)}–${formatMs(condition.criticalPathMs.max)} | ${formatMs(condition.criticalPathMs.iqr)} | ${formatMs(condition.criticalPathMs.mad)} | ${formatMs(condition.aggregateRunnerMs.median)} | ${formatRatio(condition.speedup)} | ${formatRatio(condition.parallelEfficiency)} |`);
   lines.push('', 'Queue-inclusive elapsed wall time is retained separately in raw data. Ratios use the measured critical-path execution duration, not shared matrix-barrier waiting. Failed or hardware-incomparable cohorts never receive speedup ratios.', '');
-  lines.push('## Observed lifecycle per shard', '', '| Condition | Readiness | Test window | ForgeQA finalization | All reporters | Shutdown | Unattributed CLI |', '|---|---:|---:|---:|---:|---:|---:|');
+  lines.push('## Observed lifecycle per shard', '', '| Condition | Readiness | Test window | Deadpan finalization | All reporters | Shutdown | Unattributed CLI |', '|---|---:|---:|---:|---:|---:|---:|');
   for (const [id, condition] of Object.entries(value.conditions)) {
     const timing = condition.lifecycle;
     lines.push(`| ${id} | ${TIMING_STAGES.map(stage => formatMs(timing.stages[stage].median)).join(' | ')} | ${formatMs(timing.unattributedCliMs.median)} |`);
   }
-  lines.push('', 'These are per-shard distributions, not a reconstructed distributed wall-time partition. All-reporters finalization contains ForgeQA finalization. Attempt work can exceed elapsed test-window time. lifecycle.csv retains every shard observation; raw.jsonl retains source-bound monotonic spans. Do not sum overlapping columns.', '');
+  lines.push('', 'These are per-shard distributions, not a reconstructed distributed wall-time partition. All-reporters finalization contains Deadpan finalization. Attempt work can exceed elapsed test-window time. lifecycle.csv retains every shard observation; raw.jsonl retains source-bound monotonic spans. Do not sum overlapping columns.', '');
   return `${lines.join('\n')}\n`;
 }
 function formatMs(value) { return `${Math.round(value)} ms`; }

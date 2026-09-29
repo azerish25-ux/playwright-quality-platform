@@ -31,7 +31,7 @@
       "id": "M4-03",
       "requirement": "Credential-minimized dependency, application and Playwright lifecycle",
       "status": "PASS",
-      "actualResult": "Dependency installation can receive registry authentication, while GitHub/Actions/registry credentials are stripped from application, ForgeQA and Playwright child processes. Owned application process groups have readiness deadlines and bounded teardown.",
+      "actualResult": "Dependency installation can receive registry authentication, while GitHub/Actions/registry credentials are stripped from application, Deadpan and Playwright child processes. Owned application process groups have readiness deadlines and bounded teardown.",
       "implementationPaths": [
         "packages/github-action/src/main.ts",
         "docs/github-action.md"
@@ -71,7 +71,7 @@
     },
     {
       "id": "M4-07",
-      "requirement": "Actual local action execution against a real ForgeQA consumer",
+      "requirement": "Actual local action execution against a real Deadpan consumer",
       "status": "PASS",
       "actualResult": "The repository executed its tracked action through uses: ./ against a real API-only consumer with two shards, merged canonical/native evidence, verified success/test/attempt outputs and uploaded the resulting evidence package.",
       "implementationPaths": [
@@ -84,7 +84,7 @@
       "id": "M4-08",
       "requirement": "Fork-safe pull-request reporting",
       "status": "PASS",
-      "actualResult": "The trusted default-branch workflow_run publisher authorizes metadata before download, refuses changed workflows, validates run-bound data-only evidence against GitHub API and job conclusions, prevents stale publication and mutates one bot-owned marker comment idempotently. Hosted PR #7 acceptance created comment 5856548977 after the first post-repair run and a later documentation-only revision updated that same comment in place with new run and head metadata while exactly one ForgeQA report comment remained. Pull-request code never executed with write credentials.",
+      "actualResult": "The trusted default-branch workflow_run publisher authorizes metadata before download, refuses changed workflows, validates run-bound data-only evidence against GitHub API and job conclusions, prevents stale publication and mutates one bot-owned marker comment idempotently. Hosted PR #7 acceptance created comment 5856548977 after the first post-repair run and a later documentation-only revision updated that same comment in place with new run and head metadata while exactly one Deadpan report comment remained. Pull-request code never executed with write credentials.",
       "implementationPaths": [
         ".github/workflows/ci.yml",
         ".github/workflows/forgeqa-pr-report.yml",

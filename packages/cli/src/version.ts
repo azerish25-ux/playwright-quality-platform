@@ -6,6 +6,6 @@ import { readFileSync } from 'node:fs';
 const metadata: unknown = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 if (!metadata || typeof metadata !== 'object' || !('name' in metadata) || metadata.name !== '@azerish25-ux/forgeqa-cli' ||
     !('version' in metadata) || typeof metadata.version !== 'string' || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(metadata.version)) {
-  throw new Error('Installed ForgeQA CLI package metadata is invalid.');
+  throw new Error('Installed Deadpan CLI package metadata is invalid.');
 }
 export const VERSION: string = metadata.version;

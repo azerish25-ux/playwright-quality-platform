@@ -1,3 +1,5 @@
-# @azerish25-ux/forgeqa-playwright
+# Deadpan Playwright Integration
 
-Part of [ForgeQA](../../README.md). See the root documentation for supported public APIs and release status.
+**Package:** `@azerish25-ux/forgeqa-playwright`
+
+Part of [Deadpan](../../README.md). See the root documentation for supported public APIs and release status.

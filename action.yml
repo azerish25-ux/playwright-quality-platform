@@ -1,24 +1,24 @@
-name: ForgeQA Quality Platform
-description: Plan, execute, merge, and report strict ForgeQA quality evidence.
-author: ForgeQA contributors
+name: Deadpan Quality Platform
+description: Plan, execute, merge, and report strict Deadpan quality evidence.
+author: Deadpan contributors
 inputs:
   mode:
     description: run, plan, or merge
     default: run
   suite:
-    description: Validated ForgeQA suite name
+    description: Validated Deadpan suite name
     default: smoke
   browsers:
     description: Comma-separated Playwright browser or project names
     default: chromium
   environment:
-    description: ForgeQA environment profile
+    description: Deadpan environment profile
     default: local
   working-directory:
     description: Consumer directory inside GITHUB_WORKSPACE
     default: .
   config:
-    description: ForgeQA configuration path relative to working-directory
+    description: Deadpan configuration path relative to working-directory
     default: forgeqa.config.ts
   playwright-config:
     description: Playwright configuration path relative to working-directory
@@ -66,7 +66,7 @@ inputs:
     description: Owned output path relative to working-directory
     default: .forgeqa/action
   cli-path:
-    description: Optional workspace-relative ForgeQA CLI path for source-repository verification
+    description: Optional workspace-relative Deadpan CLI path for source-repository verification
     required: false
   artifact-retention-days:
     description: Requested retention exposed to caller workflows
@@ -78,7 +78,7 @@ outputs:
   outcome:
     description: success, quality-failure, infrastructure-failure, or interrupted
   run-id:
-    description: ForgeQA run identity
+    description: Deadpan run identity
   test-count:
     description: Logical test executions in the final result
   attempt-count:
@@ -92,7 +92,7 @@ outputs:
   manifest-path:
     description: Immutable execution manifest path
   evidence-path:
-    description: Directory to upload as ForgeQA evidence
+    description: Directory to upload as Deadpan evidence
   report-path:
     description: Self-contained HTML report path when a merged report exists
   artifact-name:

@@ -1,4 +1,4 @@
-name: ForgeQA PR report publisher
+name: Deadpan PR report publisher
 on:
   workflow_run:
     workflows: [CI]
@@ -43,7 +43,7 @@ jobs:
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
-      - name: Publish or update the stable ForgeQA comment
+      - name: Publish or update the stable Deadpan comment
         if: always()
         env:
           GITHUB_EVENT_PATH: ${{ github.event_path }}

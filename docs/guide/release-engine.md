@@ -1,6 +1,6 @@
 # Coordinated release engine
 
-ForgeQA separates source candidates, semantically prepared artifacts, candidate
+Deadpan separates source candidates, semantically prepared artifacts, candidate
 publication, and stable promotion. A passing dry run is not a public npm release.
 The scoped acceptance ledger is [Phase 12A](../delivery/release-engine-requirements.json).
 
@@ -57,7 +57,7 @@ permission/network errors, origin escapes and stale consumer receipts.
 
 This is real npm protocol/CLI testing in an isolated registry. It does **not**
 prove npmjs.com publication or npm account ownership. The loopback registry has no
-upstream proxy and never accepts non-ForgeQA package writes. Normal package reads
+upstream proxy and never accepts non-Deadpan package writes. Normal package reads
 for external consumer dependencies still use the public npm registry.
 
 `evidence/release-prepared/` contains the plan and its digest, unreleased notes,

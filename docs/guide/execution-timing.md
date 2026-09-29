@@ -1,6 +1,6 @@
 # Execution-stage benchmark profiling
 
-Profiling is enabled by the TeamBoard benchmark configuration for actual ForgeQA runs, not discovery or the native-versus-ForgeQA reporter-overhead experiment. The canonical reporter implementation is unchanged in `packages/playwright/src/base-reporter.ts`; its optional subclass observes the public reporter callbacks. Native Playwright still owns scheduling, workers, webServer readiness, and teardown.
+Profiling is enabled by the TeamBoard benchmark configuration for actual Deadpan runs, not discovery or the native-versus-Deadpan reporter-overhead experiment. The canonical reporter implementation is unchanged in `packages/playwright/src/base-reporter.ts`; its optional subclass observes the public reporter callbacks. Native Playwright still owns scheduling, workers, webServer readiness, and teardown.
 
 ## What each measurement means
 
@@ -8,8 +8,8 @@ Profiling is enabled by the TeamBoard benchmark configuration for actual ForgeQA
 | --- | --- |
 | `applicationReadiness` | Immediately before spawning TeamBoard until the wrapper observes an HTTP 200 from its real `/ready` endpoint. |
 | `testWindow` | First `onTestBegin` to last `onTestEnd`, including intervening scheduling and fixture work. |
-| `forgeqaFinalization` | The existing ForgeQA `onEnd` call, including awaiting its journal queue and writing canonical evidence. |
-| `allReportersFinalization` | Start of ForgeQA `onEnd` to its `onExit`, after every reporter's `onEnd`, including native blob output. |
+| `forgeqaFinalization` | The existing Deadpan `onEnd` call, including awaiting its journal queue and writing canonical evidence. |
+| `allReportersFinalization` | Start of Deadpan `onEnd` to its `onExit`, after every reporter's `onEnd`, including native blob output. |
 | `applicationShutdown` | Wrapper receipt of the native shutdown signal to observed application process closure. |
 | `attemptWorkMs` | Sum of native attempt durations. Parallel work, not elapsed latency. |
 | `observedPhaseUnionMs` | Union of the observed intervals on one host clock. Nested and overlapping spans count once. |
@@ -25,7 +25,7 @@ Each run/shard creates a private, exclusive `timing/context.json`, with schema v
 
 Acceptance requires both complete records, all five spans, matching source/run/shard/clock, finite bounded durations, actual attempt counts, correct nesting and containment inside the measured CLI envelope. A missing record, interrupted application, failed reporter, forced shutdown, duplicate writer, future schema or conflicting derived value fails timing acceptance. Missing measurements are never replaced by zeros. These are process-crash boundaries, not power-loss or hostile same-OS-user guarantees.
 
-The profiling benchmark requires nonempty shards and clean first attempts. This is narrower than ForgeQA's general support for manifest-proven empty shards. Profiling errors cannot make an application failure green; an otherwise passing benchmark with incomplete required timing fails instead.
+The profiling benchmark requires nonempty shards and clean first attempts. This is narrower than Deadpan's general support for manifest-proven empty shards. Profiling errors cannot make an application failure green; an otherwise passing benchmark with incomplete required timing fails instead.
 
 ## Retained evidence and reproduction
 

@@ -6,7 +6,7 @@ A successful report must account for the immutable expected inventory. Missing e
 
 ## Understand attempt outcomes
 
-A passing retry does not erase the failed first attempt. ForgeQA retains all attempts and reports the recovered test as flaky under the default strict gate. Expected failures, skipped tests and unexpected skips are distinct. A quarantined test still executes and its failure still fails.
+A passing retry does not erase the failed first attempt. Deadpan retains all attempts and reports the recovered test as flaky under the default strict gate. Expected failures, skipped tests and unexpected skips are distinct. A quarantined test still executes and its failure still fails.
 
 ## Choose the right output
 

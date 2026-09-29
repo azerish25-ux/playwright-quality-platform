@@ -64,7 +64,7 @@ async function request(
 ): Promise<Response> {
   const headers: Record<string, string> = {
     Accept: accept,
-    'User-Agent': 'ForgeQA-history-import',
+    'User-Agent': 'Deadpan-history-import',
     'X-GitHub-Api-Version': '2022-11-28'
   };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -332,7 +332,7 @@ export async function importGitHubHistory(root: string, options: GitHubHistoryIm
       records.push(createHistoryRecord(result, provenanceFor(run, defaultBranch), options.now?.toISOString(), source));
     }
   }
-  if (!records.length) throw new IntegrityError('No complete ForgeQA history artifacts were available.', { coverageGaps });
+  if (!records.length) throw new IntegrityError('No complete Deadpan history artifacts were available.', { coverageGaps });
   const imported = await importHistoryRecords(root, records, {
     ...(options.now ? { now: options.now } : {}),
     ...(options.maxAgeDays !== undefined ? { maxAgeDays: options.maxAgeDays } : {}),

@@ -33,7 +33,7 @@ if (!npm) throw new Error('Run LedgerGuard acceptance through npm run test:ledge
 
 const ledgerRoot = resolve(process.env.LEDGERGUARD_ROOT ?? '.tmp/ledgerguard');
 const evidence = resolve('evidence/ledgerguard');
-const temporary = await mkdtemp(join(tmpdir(), 'ForgeQA LedgerGuard '));
+const temporary = await mkdtemp(join(tmpdir(), 'Deadpan LedgerGuard '));
 const startedAt = new Date().toISOString();
 const redactions = new Set();
 let primaryFailure;
@@ -228,8 +228,8 @@ async function runConsumerManager({ manager, consumer, resolved }) {
       runId: summary.runId,
       reconciliationDiscrepancies: reconciliation
     };
-    assert.equal(result.timedOut, false, `${manager} ForgeQA execution timed out.`);
-    assert.equal(result.code, summary.exitCode, `${manager} process and ForgeQA summary exit codes differ.`);
+    assert.equal(result.timedOut, false, `${manager} Deadpan execution timed out.`);
+    assert.equal(result.code, summary.exitCode, `${manager} process and Deadpan summary exit codes differ.`);
     assert.equal(summary.exitCode, 0);
     assert.equal(summary.tests, 12);
     assert.equal(summary.attempts, 12);

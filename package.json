@@ -1,8 +1,8 @@
 {
-  "name": "playwright-quality-platform",
+  "name": "deadpan",
   "version": "0.1.0",
   "private": true,
-  "description": "ForgeQA — reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
+  "description": "Deadpan — reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
   "type": "module",
   "engines": {
     "node": "^22.14.0 || >=24.10.0"

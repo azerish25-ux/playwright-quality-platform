@@ -10,7 +10,7 @@
 | Documentation | [36569710789](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569710789) | Passed at the implementation source. |
 | Release candidates | [36569710551](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569710551) | Prepared-artifact and isolated-registry checks passed; public publishing skipped. |
 | Controlled local benchmarks | [36569710704](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569710704) | Five repetitions per worker condition; all receipt and cleanup checks passed. |
-| ForgeQA benchmarks | [36569711293](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569711293) | Five repetitions per condition; actual independent shards and supplementary acceptance passed. |
+| Deadpan benchmarks | [36569711293](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36569711293) | Five repetitions per condition; actual independent shards and supplementary acceptance passed. |
 
 CI includes Linux/macOS/Windows with Node 22 and 24, three clean npm/pnpm consumer lanes, actual TeamBoard/PostgreSQL and LedgerGuard integration, hardening, callable source Action and `forgeqa-quality`. Portable timing validators run across the platform matrix; the POSIX application-wrapper child-process tests do not claim Windows signal equivalence. The real profiling benchmarks run on Linux with PostgreSQL and Chromium, Firefox and WebKit.
 
@@ -28,13 +28,13 @@ Every condition executed the same 20 identities, with five measured repetitions 
 
 Four workers were slower than serial for this workload. No universal worker-count recommendation follows from five samples on shared hosted hardware.
 
-| Workers | Readiness | Test window | ForgeQA finalization | All reporters | Shutdown | Unattributed CLI |
+| Workers | Readiness | Test window | Deadpan finalization | All reporters | Shutdown | Unattributed CLI |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 | 108.48 ms | 19,582.58 ms | 8.24 ms | 106.99 ms | 7.43 ms | 2,567.84 ms |
 | 2 | 107.93 ms | 16,077.80 ms | 8.45 ms | 108.69 ms | 8.71 ms | 2,760.51 ms |
 | 4 | 186.92 ms | 19,881.56 ms | 8.81 ms | 112.10 ms | 7.53 ms | 3,343.41 ms |
 
-These are independent per-stage medians, not an additive partition. All-reporters finalization contains ForgeQA finalization. Attempt work is summed separately; the CLI residual is explicit. See [timing semantics](../guide/execution-timing.md) and the actual [controlled observations](timing-local-observations.csv).
+These are independent per-stage medians, not an additive partition. All-reporters finalization contains Deadpan finalization. Attempt work is summed separately; the CLI residual is explicit. See [timing semantics](../guide/execution-timing.md) and the actual [controlled observations](timing-local-observations.csv).
 
 ## Distributed evidence without invented speedup
 

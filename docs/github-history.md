@@ -1,6 +1,6 @@
 # GitHub Actions history import
 
-ForgeQA can reconstruct a bounded reliability history from completed GitHub Actions workflow artifacts without treating runner caches or mutable workspaces as historical truth.
+Deadpan can reconstruct a bounded reliability history from completed GitHub Actions workflow artifacts without treating runner caches or mutable workspaces as historical truth.
 
 ```bash
 FORGEQA_GITHUB_TOKEN=... forgeqa history import-github \

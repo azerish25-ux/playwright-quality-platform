@@ -1,6 +1,6 @@
 # Reusable test infrastructure, not another test runner
 
-ForgeQA adds owned test data, stable identities, complete shard evidence, accountable quarantine and shared quality policy to **native Playwright Test**. Keep Playwright's locators, assertions, projects and browser tooling.
+Deadpan adds owned test data, stable identities, complete shard evidence, accountable quarantine and shared quality policy to **native Playwright Test**. Keep Playwright's locators, assertions, projects and browser tooling.
 
 ## Start with a clean consumer
 
@@ -14,7 +14,7 @@ The current channel is **next (unreleased)**. Version `0.1.0` in a package manif
 
 ## What this platform does not do
 
-ForgeQA is not a hosted dashboard, a proprietary browser engine, an authentication service or an AI test generator. It cannot infer a consumer's tenant ownership, authorization rules or rollback policy. A passing platform job does not certify an arbitrary production application.
+Deadpan is not a hosted dashboard, a proprietary browser engine, an authentication service or an AI test generator. It cannot infer a consumer's tenant ownership, authorization rules or rollback policy. A passing platform job does not certify an arbitrary production application.
 
 ## Choose a path
 

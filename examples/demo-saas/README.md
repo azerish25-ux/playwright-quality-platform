@@ -1,4 +1,4 @@
-# TeamBoard — real ForgeQA consumer
+# TeamBoard — real Deadpan consumer
 
 TeamBoard is a small React/TypeScript application with a TypeScript HTTP backend and PostgreSQL persistence. Its purpose is exercising the quality platform, not providing a production SaaS service. Use synthetic data only.
 
@@ -8,7 +8,7 @@ From the repository root, install the locked dependencies, run `npm run build`, 
 
 The CI `teamboard` job provisions PostgreSQL 17, creates separate migration-owner and runtime roles, applies the two migrations, checks that the runtime cannot create schema objects or alter migration history, and then runs `npm run test:teamboard`. This executes eight API scenarios plus four browser journeys in each of Chromium, Firefox and WebKit, with zero retries. The browserless API project is not multiplied by browser count.
 
-`npm run test:consumers -- teamboard` packs the public packages and copies this consumer to independent temporary directories for npm and pnpm. Each installation compiles public imports, builds this application, and executes the same 20-execution inventory. The consumer harness never imports private ForgeQA source paths or links back to the provider workspace.
+`npm run test:consumers -- teamboard` packs the public packages and copies this consumer to independent temporary directories for npm and pnpm. Each installation compiles public imports, builds this application, and executes the same 20-execution inventory. The consumer harness never imports private Deadpan source paths or links back to the provider workspace.
 
 ## Data lifecycle and security boundary
 

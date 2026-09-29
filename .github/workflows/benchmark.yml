@@ -1,4 +1,4 @@
-name: ForgeQA benchmarks
+name: Deadpan benchmarks
 on:
   push:
     branches: [main]

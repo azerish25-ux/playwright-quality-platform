@@ -16,7 +16,7 @@ const raw = [];
 const summary = {
   schemaVersion: 1, kind: 'forgeqa-reporter-overhead', status: 'FAIL', sourceSha: process.env.FORGEQA_SOURCE_SHA,
   repetitions, warmups: 1, node: process.version,
-  limitations: ['Same TeamBoard fixtures, browser matrix and JSON/blob reporters in both modes; only ForgeQA reporter inclusion differs.', 'This measures whole native process latency, not a pure isolated callback CPU cost.', ...(repetitions < 5 ? ['Smoke sample only; five repetitions required for release evidence.'] : [])]
+  limitations: ['Same TeamBoard fixtures, browser matrix and JSON/blob reporters in both modes; only Deadpan reporter inclusion differs.', 'This measures whole native process latency, not a pure isolated callback CPU cost.', ...(repetitions < 5 ? ['Smoke sample only; five repetitions required for release evidence.'] : [])]
 };
 try {
   let expectedDigest;
@@ -45,7 +45,7 @@ try {
       if (mode === 'forgeqa') {
         const run = resolve('examples/demo-saas/forgeqa-benchmark-results', runId);
         const report = JSON.parse(await readFile(resolve(run, 'report.json'), 'utf8'));
-        if (report.completion !== 'complete' || report.gate?.outcome !== 'pass' || report.attempts?.length !== 20) throw new Error('ForgeQA reporter acceptance failed.');
+        if (report.completion !== 'complete' || report.gate?.outcome !== 'pass' || report.attempts?.length !== 20) throw new Error('Deadpan reporter acceptance failed.');
         await rename(run, resolve(directory, 'forgeqa'));
       }
       raw.push({ repetition, warmup: repetition === 0, mode, wallMs, nativeDurationMs: native.stats.duration, inventoryDigest: inventory.digest, count: inventory.count });

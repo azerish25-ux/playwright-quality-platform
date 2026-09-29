@@ -122,7 +122,7 @@ export async function runPublisher({ env = process.env, fetchImpl = globalThis.f
   await publishComment(api, context, body, env.FORGEQA_BOT_LOGIN || DEFAULT_BOT_LOGIN);
 
   await appendSummary(env.GITHUB_STEP_SUMMARY, [
-    '## ForgeQA PR report publication',
+    '## Deadpan PR report publication',
     '',
     `- Pull request: #${context.prNumber}`,
     `- Run: ${context.runId} attempt ${context.runAttempt}`,
@@ -151,18 +151,18 @@ async function main() {
     } else if (preflight) {
       console.log(`Validated trusted workflow_run ${result.context.runId}.`);
     } else {
-      console.log(`Published ForgeQA report for PR #${result.context.prNumber}.`);
+      console.log(`Published Deadpan report for PR #${result.context.prNumber}.`);
     }
   } catch (error) {
     if (error instanceof SkipPublication) {
       if (authorizeDownload) await writeOutput('download-approved', 'false');
       console.log(error.message);
-      await appendSummary(process.env.GITHUB_STEP_SUMMARY, ['## ForgeQA PR report publication', '', `- Skipped: ${markdownEscape(error.message)}`]);
+      await appendSummary(process.env.GITHUB_STEP_SUMMARY, ['## Deadpan PR report publication', '', `- Skipped: ${markdownEscape(error.message)}`]);
       return;
     }
     const message = error instanceof Error ? error.message : String(error);
     console.error(message);
-    await appendSummary(process.env.GITHUB_STEP_SUMMARY, ['## ForgeQA PR report publication', '', `- Failed: ${markdownEscape(message)}`]);
+    await appendSummary(process.env.GITHUB_STEP_SUMMARY, ['## Deadpan PR report publication', '', `- Failed: ${markdownEscape(message)}`]);
     process.exitCode = 3;
   }
 }

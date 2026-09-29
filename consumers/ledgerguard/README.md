@@ -1,6 +1,6 @@
 # LedgerGuard external consumer
 
-This directory is ForgeQA's genuine second-consumer harness for the real [`azerish25-ux/transaction-reliability-lab`](https://github.com/azerish25-ux/transaction-reliability-lab) application. It is intentionally API-first because the verified LedgerGuard revision has no React product interface. No mock service, copied TeamBoard application, intercepted success response, invented endpoint, or permanent skip is used.
+This directory is Deadpan's genuine second-consumer harness for the real [`azerish25-ux/transaction-reliability-lab`](https://github.com/azerish25-ux/transaction-reliability-lab) application. It is intentionally API-first because the verified LedgerGuard revision has no React product interface. No mock service, copied TeamBoard application, intercepted success response, invented endpoint, or permanent skip is used.
 
 ## Pinned application boundary
 
@@ -10,11 +10,11 @@ The acceptance lane checks out LedgerGuard at exact verified P07A source:
 9478663f97f9dc65d0c85117f244e1b8b80c37cb
 ```
 
-That revision passed LedgerGuard workflow run `36319414655`. The ForgeQA harness refuses a different checkout rather than silently following LedgerGuard's moving `main` branch.
+That revision passed LedgerGuard workflow run `36319414655`. The Deadpan harness refuses a different checkout rather than silently following LedgerGuard's moving `main` branch.
 
 ## What the suite proves
 
-Twelve tagged release tests exercise the live Compose topology through public ForgeQA packages:
+Twelve tagged release tests exercise the live Compose topology through public Deadpan packages:
 
 - registration, CSRF-protected login/logout, session revocation, and customer/administrator separation;
 - customer account ownership and cross-customer denial;
@@ -30,7 +30,7 @@ The suite runs with one Playwright worker because several scenarios deliberately
 
 ## External-consumer acceptance
 
-Run from the ForgeQA repository root after checking out the pinned LedgerGuard revision at `.tmp/ledgerguard`:
+Run from the Deadpan repository root after checking out the pinned LedgerGuard revision at `.tmp/ledgerguard`:
 
 ```bash
 npm ci --ignore-scripts
@@ -42,9 +42,9 @@ The acceptance harness:
 
 1. creates private one-run credentials and starts PostgreSQL, RabbitMQ, the API, outbox publisher, two payment workers, and two schedule workers;
 2. seeds only the synthetic LedgerGuard fixtures;
-3. packs all eight ForgeQA packages from the tested source;
+3. packs all eight Deadpan packages from the tested source;
 4. installs and type-checks isolated npm and pnpm consumers without workspace links or private source imports;
-5. runs the same 12-test identity inventory through the public ForgeQA CLI;
+5. runs the same 12-test identity inventory through the public Deadpan CLI;
 6. validates canonical evidence and strict quality gates;
 7. reconciles every balance, journal, and active hold;
 8. captures logs and removes all test containers and volumes.

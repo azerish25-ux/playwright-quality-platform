@@ -1,7 +1,7 @@
 {
   "name": "@azerish25-ux/forgeqa-github",
   "version": "0.1.0",
-  "description": "ForgeQA github-action package",
+  "description": "Deadpan github-action package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -18,7 +18,7 @@ test('the public action ref carries its exact callable Node runtime', async () =
   assert.match(runtime, /evidence-directory escapes the workspace/);
 });
 
-test('the reusable workflow pins every ForgeQA action invocation and never masks shard failures', async () => {
+test('the reusable workflow pins every Deadpan action invocation and never masks shard failures', async () => {
   const workflow = await read('.github/workflows/forgeqa-reusable.yml');
   const references = [...workflow.matchAll(/uses:\s*azerish25-ux\/playwright-quality-platform@([^\s]+)/g)].map((match) => match[1]);
   assert.equal(references.length, 3);

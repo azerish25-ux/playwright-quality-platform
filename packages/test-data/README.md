@@ -1,3 +1,5 @@
-# @azerish25-ux/forgeqa-test-data
+# Deadpan Test Data
 
-Part of [ForgeQA](../../README.md). See the root documentation for supported public APIs and release status.
+**Package:** `@azerish25-ux/forgeqa-test-data`
+
+Part of [Deadpan](../../README.md). See the root documentation for supported public APIs and release status.

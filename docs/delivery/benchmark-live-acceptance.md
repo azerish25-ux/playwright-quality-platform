@@ -22,7 +22,7 @@ The comparison timer uses the longest measured shard duration plus merge/report 
 
 ## Supplementary verification
 
-The same source ran native JSON/blob reporting versus the ForgeQA reporter added to the identical real 20-execution TeamBoard suite, with one warm-up per mode and five measured runs per mode. Inventory equivalence and clean first attempts were checked. Median whole-process overhead was 94.49 ms (0.411%). This small sample is not a universal overhead guarantee and does not isolate every reporter callback from process startup.
+The same source ran native JSON/blob reporting versus the Deadpan reporter added to the identical real 20-execution TeamBoard suite, with one warm-up per mode and five measured runs per mode. Inventory equivalence and clean first attempts were checked. Median whole-process overhead was 94.49 ms (0.411%). This small sample is not a universal overhead guarantee and does not isolate every reporter callback from process startup.
 
 Synthetic scaling ran five fresh-process measurements each at 1,000, 10,000 and 100,000 attempts. It retained merge and JSON/JUnit/HTML rendering durations, output sizes/checksums and peak RSS. The workload is explicitly synthetic, not a customer suite or journal-filesystem measurement. An independent read-only cleanup check found zero remaining test namespaces, tenants and accounts.
 

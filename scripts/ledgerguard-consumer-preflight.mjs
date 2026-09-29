@@ -14,7 +14,7 @@ const npm = process.env.npm_execpath;
 if (!npm) throw new Error('Run LedgerGuard consumer preflight through npm run test:ledgerguard:consumer.');
 
 const evidence = resolve('evidence/ledgerguard-preflight');
-const temporary = await mkdtemp(join(tmpdir(), 'ForgeQA LedgerGuard preflight '));
+const temporary = await mkdtemp(join(tmpdir(), 'Deadpan LedgerGuard preflight '));
 const startedAt = new Date().toISOString();
 let sourceSha = process.env.FORGEQA_SOURCE_SHA ?? 'unknown';
 

@@ -71,7 +71,7 @@ export function renderComment({ context, jobs, evidence, evidenceError }) {
   const body = [
     REPORT_MARKER,
     `${META_PREFIX}${metadata} -->`,
-    '## ForgeQA quality',
+    '## Deadpan quality',
     '',
     `**${headline}** for pull request #${context.prNumber} at \`${context.headSha.slice(0, 12)}\`.`,
     `Upstream CI conclusion: **${displayConclusion(context.workflowConclusion)}**.`,
@@ -102,7 +102,7 @@ export async function publishComment(api, context, body, botLogin = DEFAULT_BOT_
   for (const comment of managed) {
     const metadata = parseCommentMetadata(comment.body);
     if (metadata && compareOrder(metadata, currentMetadata) > 0) {
-      throw new SkipPublication(`A newer ForgeQA comment already exists for pull request #${context.prNumber}.`);
+      throw new SkipPublication(`A newer Deadpan comment already exists for pull request #${context.prNumber}.`);
     }
   }
   let primary;

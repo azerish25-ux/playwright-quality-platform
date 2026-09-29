@@ -163,7 +163,7 @@ export function reconcileNativeJson(run: MergedRunResult, nativeJson: unknown): 
   const nativeAttempts = native.reduce((total, execution) => total + execution.outcomes.length, 0);
   const difference = firstDifference(forgeSignatures, nativeSignatures);
   if (difference || native.length !== run.inventory.length || nativeAttempts !== forgeAttempts || sortedRecord(nativeOutcomes) !== sortedRecord(forgeOutcomes) || sortedRecord(nativeProjects) !== sortedRecord(forgeProjects)) {
-    throw new IntegrityError('Native Playwright report disagrees with the canonical ForgeQA result.', {
+    throw new IntegrityError('Native Playwright report disagrees with the canonical Deadpan result.', {
       nativeTests: native.length,
       forgeTests: run.inventory.length,
       nativeAttempts,

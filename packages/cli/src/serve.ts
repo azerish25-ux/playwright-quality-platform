@@ -93,7 +93,7 @@ export async function serveReport(options: ServeReportOptions): Promise<void> {
   if (!address || typeof address === 'string') { server.close(); throw new IntegrityError('Report server did not expose a TCP address.'); }
   const displayHost = options.host === '::1' ? '[::1]' : options.host;
   const url = `http://${displayHost}:${address.port}/`;
-  process.stdout.write(options.json ? `${JSON.stringify({ root, host: options.host, port: address.port, url })}\n` : `ForgeQA report: ${url}\nServing ${root}\n`);
+  process.stdout.write(options.json ? `${JSON.stringify({ root, host: options.host, port: address.port, url })}\n` : `Deadpan report: ${url}\nServing ${root}\n`);
 
   await new Promise<void>((done) => {
     let closing = false;

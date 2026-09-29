@@ -12,7 +12,7 @@
     },
     {
       "id": "M5-02",
-      "requirement": "Executable external consumer using public ForgeQA packages",
+      "requirement": "Executable external consumer using public Deadpan packages",
       "status": "IMPLEMENTED",
       "implementationPaths": ["consumers/ledgerguard"]
     },

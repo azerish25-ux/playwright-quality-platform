@@ -251,7 +251,7 @@ export function reconcileNativeJson(run: MergedRunResult, nativeJson: unknown): 
   const forgeTests = executions.size;
   const forgeAttempts = run.attempts.length;
   if (nativeTests !== forgeTests || nativeAttempts !== forgeAttempts || sortedRecord(nativeOutcomes) !== sortedRecord(forgeOutcomes) || sortedRecord(nativeProjects) !== sortedRecord(forgeProjects)) {
-    throw new IntegrityError('Native Playwright report disagrees with the canonical ForgeQA result.', { nativeTests, forgeTests, nativeAttempts, forgeAttempts, nativeOutcomes, forgeOutcomes, nativeProjects, forgeProjects });
+    throw new IntegrityError('Native Playwright report disagrees with the canonical Deadpan result.', { nativeTests, forgeTests, nativeAttempts, forgeAttempts, nativeOutcomes, forgeOutcomes, nativeProjects, forgeProjects });
   }
   return { status: 'MATCHED', forgeqaTests: forgeTests, nativeTests, forgeqaAttempts: forgeAttempts, nativeAttempts, outcomes: forgeOutcomes, projects: forgeProjects };
 }

@@ -13,7 +13,7 @@ const mode=process.argv[2]??'template';if(!['template','teamboard','docs'].inclu
 const prepared=process.env.FORGEQA_PREPARED_DIRECTORY?resolve(process.env.FORGEQA_PREPARED_DIRECTORY):null;
 const registry=process.env.FORGEQA_CONSUMER_REGISTRY?registryAddress(process.env.FORGEQA_CONSUMER_REGISTRY,process.env.FORGEQA_TEST_REGISTRY==='true').href:null;
 if(registry&&!prepared)throw new Error('Registry consumers require a verified prepared manifest.');
-const temp=await mkdtemp(join(tmpdir(),'ForgeQA packed Ω ')),artifacts=join(temp,'packages'),evidence=prepared?join(prepared,registry?'registry-consumers':'prepared-consumers'):resolve('evidence',`packed-${mode}`);await mkdir(artifacts);await mkdir(evidence,{recursive:true});
+const temp=await mkdtemp(join(tmpdir(),'Deadpan packed Ω ')),artifacts=join(temp,'packages'),evidence=prepared?join(prepared,registry?'registry-consumers':'prepared-consumers'):resolve('evidence',`packed-${mode}`);await mkdir(artifacts);await mkdir(evidence,{recursive:true});
 let docsIdentitySet;
 const packages=['core','api','test-data','reporter','flake-analysis','playwright','github-action','cli'];
 async function run(args,cwd=root,env=process.env){return await new Promise((done,reject)=>{const child=spawn(process.execPath,args,{cwd,env,stdio:['ignore','pipe','pipe']});let out='',err='';const timer=setTimeout(()=>{child.kill();reject(new Error('Consumer command exceeded five minutes.'));},300000);child.stdout.on('data',d=>out+=d);child.stderr.on('data',d=>err+=d);child.once('error',e=>{clearTimeout(timer);reject(e);});child.once('close',code=>{clearTimeout(timer);if(code!==0)reject(new Error(`Command failed (${code}): ${args.slice(1,3).join(' ')}\n${out}\n${err}`));else done(out);});});}

@@ -114,7 +114,7 @@
         "benchmarks/verify-controlled-timing.mjs"
       ],
       "evidence": "docs/delivery/timing-profiling-live-acceptance.md",
-      "actualResult": "Exact-source controlled and distributed acceptance now retains separate real readiness, test-window, ForgeQA finalization, all-reporters finalization and shutdown spans, plus setup/execution/merge/wall/aggregate intervals and an explicit unattributed CLI residual. Overlapping spans and different host clocks are not added or subtracted incorrectly. Instrumented runner intervals are not billed time; distributed comparability remains partial.",
+      "actualResult": "Exact-source controlled and distributed acceptance now retains separate real readiness, test-window, Deadpan finalization, all-reporters finalization and shutdown spans, plus setup/execution/merge/wall/aggregate intervals and an explicit unattributed CLI residual. Overlapping spans and different host clocks are not added or subtracted incorrectly. Instrumented runner intervals are not billed time; distributed comparability remains partial.",
       "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3"
     },
     {

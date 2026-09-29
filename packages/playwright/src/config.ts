@@ -11,7 +11,7 @@ export function readRunRequest(): RunRequest | undefined {
   const path = process.env.FORGEQA_RUN_REQUEST;
   if (!path) return undefined;
   const value = JSON.parse(readFileSync(path, 'utf8')) as RunRequest;
-  if (!value.runId || !value.runDir || !['discover','run'].includes(value.mode)) throw new ConfigurationError('Invalid ForgeQA run request.');
+  if (!value.runId || !value.runDir || !['discover','run'].includes(value.mode)) throw new ConfigurationError('Invalid Deadpan run request.');
   return value;
 }
 /** Preserve native projects, dependencies, fixtures, webServer, and assertions. */

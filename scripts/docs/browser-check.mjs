@@ -30,7 +30,7 @@ try {
   page.on('pageerror', (error) => failures.push(error.message));
   page.on('response', (response) => { if (response.url().startsWith(origin) && response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   await page.goto(`${origin}${base}`, { waitUntil: 'networkidle' });
-  await expect(page.getByRole('heading', { name: 'ForgeQA', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Deadpan', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Start with the quickstart', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Source-candidate quickstart', exact: true })).toBeVisible();
   assert(page.url().startsWith(`${origin}${base}next/quickstart/`));

@@ -1,6 +1,6 @@
-# ForgeQA — Reusable Test Infrastructure for SaaS Teams
+# Deadpan — Reusable Test Infrastructure for SaaS Teams
 
-ForgeQA is an open-source TypeScript quality platform built around Playwright Test rather than replacing it. It provides validated configuration, deterministic identities and data, guarded API/database helpers, normalized shard evidence, strict report merging, transparent flake statistics, accountable quarantine metadata, centralized quality gates, a scaffolding CLI, and a GitHub Action entrypoint.
+Deadpan is an open-source TypeScript quality platform built around Playwright Test rather than replacing it. It provides validated configuration, deterministic identities and data, guarded API/database helpers, normalized shard evidence, strict report merging, transparent flake statistics, accountable quarantine metadata, centralized quality gates, a scaffolding CLI, and a GitHub Action entrypoint.
 
 > **First consumer:** the PostgreSQL-backed TeamBoard application runs eight API cases and four UI journeys across Chromium, Firefox, and WebKit, including workspace and isolated npm/pnpm package adoption.
 
@@ -18,13 +18,15 @@ ForgeQA is an open-source TypeScript quality platform built around Playwright Te
 
 ## Documentation and onboarding
 
+> **Naming and compatibility:** Deadpan is the project name. The existing `forgeqa` executable, `@azerish25-ux/forgeqa-*` package names, configuration keys, and on-disk formats remain unchanged so current integrations continue to work. Commands and imports below use those actual interfaces; historical artifact names, source revisions, and evidence receipts retain their original identifiers.
+
 **Phase 11B hosted acceptance passed** at `54f25b2a865b8b90c7fe00b34142cbb282d99a57`: Documentation run `36468235212` and full CI `36468235190` succeeded. The version-aware site contains 46 documentation pages, generated references for all eight public packages, 15 substantive ADRs and exact tested snippets. All 3,543 local references passed; installed-tarball onboarding succeeded independently with npm and pnpm; Chromium verified navigation, search and mobile layout. [Acceptance receipt](docs/delivery/documentation-live-acceptance.md). `next` remains unreleased: no public website or registry publication is claimed. Subsequent source commits must pass both workflows again.
 
 Start with [the source-candidate quickstart](docs/guide/quickstart.md), [documentation build/version maintenance](docs/guide/releases.md), and [the acceptance ledger](docs/delivery/documentation-requirements.json).
 
 ## Why it exists
 
-SaaS teams frequently have Playwright suites but lack safe test-data ownership, deterministic execution identity, complete distributed-shard reconciliation, stable result contracts, honest retry metrics, and one policy engine shared by local and CI workflows. ForgeQA makes those concerns explicit while preserving native Playwright locators, assertions, projects, traces, reporters, and scheduling.
+SaaS teams frequently have Playwright suites but lack safe test-data ownership, deterministic execution identity, complete distributed-shard reconciliation, stable result contracts, honest retry metrics, and one policy engine shared by local and CI workflows. Deadpan makes those concerns explicit while preserving native Playwright locators, assertions, projects, traces, reporters, and scheduling.
 
 ## Packages
 
@@ -100,4 +102,4 @@ export default defineForgeConfig({
 
 ## Current limitations
 
-ForgeQA is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; same-runner lifecycle profiling is accepted, while comparable distributed hardware remains incomplete. ForgeQA does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, public-registry publication-recovery acceptance, or a completed final delivery audit.
+Deadpan is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; same-runner lifecycle profiling is accepted, while comparable distributed hardware remains incomplete. Deadpan does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, public-registry publication-recovery acceptance, or a completed final delivery audit.

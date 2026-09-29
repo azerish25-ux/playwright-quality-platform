@@ -45,11 +45,11 @@ async function boundedJson(path:string):Promise<any> {
 }
 async function configuration(parsed: Parsed): Promise<{config:ResolvedForgeConfig;options:ResolveConfigOptions;shard:ShardSpec}> {
   const configPath=resolve(opt(parsed,'config','forgeqa.config.ts'));
-  try {await access(configPath);} catch {throw new ConfigurationError(`Missing ForgeQA configuration: ${configPath}`);}
+  try {await access(configPath);} catch {throw new ConfigurationError(`Missing Deadpan configuration: ${configPath}`);}
   const jiti=createJiti(pathToFileURL(resolve('package.json')).href,{moduleCache:false,fsCache:false});
   let input: ForgeConfigInput;
-  try {input=await jiti.import(configPath,{default:true}) as ForgeConfigInput;} catch(error) {throw new ConfigurationError(`Cannot load ForgeQA configuration: ${redactText(error instanceof Error?error.message:String(error))}`);}
-  if(!input || typeof input!=='object')throw new ConfigurationError('ForgeQA configuration must export an object.');
+  try {input=await jiti.import(configPath,{default:true}) as ForgeConfigInput;} catch(error) {throw new ConfigurationError(`Cannot load Deadpan configuration: ${redactText(error instanceof Error?error.message:String(error))}`);}
+  if(!input || typeof input!=='object')throw new ConfigurationError('Deadpan configuration must export an object.');
   const cli: NonNullable<ResolveConfigOptions['cli']>={};
   for(const key of ['workers','retries'] as const)if(parsed.options.has(key))cli[key]=Number(parsed.options.get(key));
   if(parsed.options.has('browsers'))cli.browsers=opt(parsed,'browsers','').split(',') as NonNullable<ForgeConfigInput['browsers']>;
@@ -208,7 +208,7 @@ export async function runCommand(parsed: Parsed): Promise<void> {
     } catch(error) {exitCode=3;failures.push({code:'FORGEQA_INTEGRITY',message:error instanceof Error?error.message:String(error)});}
     if(runner.interrupted)exitCode=130;
     if(runner.code!==0)failures.push({code:'NATIVE_RUNNER',exitCode:runner.code,diagnostics:runner.stderr||runner.stdout});
-    emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,shardReport:shardReport?shardReportPath:undefined,shardIndex:value.shard.index,shardCount:value.shard.total,exitCode,runnerExitCode:runner.code,completion:shardReport?.completion ?? 'incomplete',tests:new Set(shardReport?.attempts.map(a=>a.executionId)).size,attempts:shardReport?.attempts.length ?? 0,failures},`ForgeQA shard ${value.shard.index}/${value.shard.total} ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nShard evidence: ${shardReportPath}${failures.length?'\n'+JSON.stringify(failures):''}`);
+    emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,shardReport:shardReport?shardReportPath:undefined,shardIndex:value.shard.index,shardCount:value.shard.total,exitCode,runnerExitCode:runner.code,completion:shardReport?.completion ?? 'incomplete',tests:new Set(shardReport?.attempts.map(a=>a.executionId)).size,attempts:shardReport?.attempts.length ?? 0,failures},`Deadpan shard ${value.shard.index}/${value.shard.total} ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nShard evidence: ${shardReportPath}${failures.length?'\n'+JSON.stringify(failures):''}`);
     process.exitCode=exitCode;
     return;
   }
@@ -225,7 +225,7 @@ export async function runCommand(parsed: Parsed): Promise<void> {
   if(runner.interrupted)exitCode=130;
   if(runner.code!==0)failures.push({code:'NATIVE_RUNNER',exitCode:runner.code,diagnostics:runner.stderr||runner.stdout});
   const shardReportPath=resolve(executionDir,'attempts.ndjson.final.json');
-  emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,...(existsSync(shardReportPath)?{shardReport:shardReportPath}:{}),exitCode,runnerExitCode:runner.code,completion:report?.completion ?? 'incomplete',tests:new Set(report?.attempts.map(a=>a.executionId)).size,attempts:report?.attempts.length ?? 0,gate:report?.gate,failures},`ForgeQA ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nReport: ${resolve(executionDir,'index.html')}\n${report?.gate?.violations.map(v=>`${v.id}: ${v.message}`).join('\n') ?? ''}${failures.length?'\n'+JSON.stringify(failures):''}`);
+  emit(parsed,{runId:value.runId,runDir:executionDir,manifestPath:value.manifestPath,...(existsSync(shardReportPath)?{shardReport:shardReportPath}:{}),exitCode,runnerExitCode:runner.code,completion:report?.completion ?? 'incomplete',tests:new Set(report?.attempts.map(a=>a.executionId)).size,attempts:report?.attempts.length ?? 0,gate:report?.gate,failures},`Deadpan ${exitCode===0?'passed':'failed'} (exit ${exitCode}).\nReport: ${resolve(executionDir,'index.html')}\n${report?.gate?.violations.map(v=>`${v.id}: ${v.message}`).join('\n') ?? ''}${failures.length?'\n'+JSON.stringify(failures):''}`);
   process.exitCode=exitCode;
 }
 export async function doctorCommand(parsed:Parsed):Promise<void> {

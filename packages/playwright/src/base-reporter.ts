@@ -66,7 +66,7 @@ export default class ForgeReporter implements Reporter {
   onBegin(config: FullConfig, suite: Suite): void {
     this.guard(()=>{
       const m = config.metadata['forgeqa'] as Metadata | undefined;
-      if (!m || m.schemaVersion!==1) throw new ConfigurationError('Use defineForgePlaywrightConfig to connect native Playwright to ForgeQA.');
+      if (!m || m.schemaVersion!==1) throw new ConfigurationError('Use defineForgePlaywrightConfig to connect native Playwright to Deadpan.');
       this.metadata=m; this.native=config;
       mkdirSync(m.runDir,{recursive:true,mode:0o700});
       const explicit = new Map<string,string>();

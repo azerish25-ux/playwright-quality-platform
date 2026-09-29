@@ -137,7 +137,7 @@ async function reportMerge(parsed: Parsed): Promise<void> {
   emit(
     parsed,
     { runId: merged.runId, output, completion: merged.completion, tests: new Set(merged.attempts.map(attempt => attempt.executionId)).size, attempts: merged.attempts.length, gate: merged.gate, evidence: merged.evidence, history: history ?? { status: 'NO_BASELINE' }, historyRecord: resolve(output, 'history-record.json') },
-    `Merged ${shards.length} shards into ${output}. Native and ForgeQA evidence matched. ${merged.gate.outcome === 'pass' ? 'Quality gates passed.' : 'Quality gates failed.'}`
+    `Merged ${shards.length} shards into ${output}. Native and Deadpan evidence matched. ${merged.gate.outcome === 'pass' ? 'Quality gates passed.' : 'Quality gates failed.'}`
   );
   if (merged.completion !== 'complete') process.exitCode = 3;
   else if (merged.gate.outcome === 'fail') process.exitCode = 1;
@@ -150,7 +150,7 @@ async function reportServe(parsed: Parsed): Promise<void> {
 }
 
 function help(): string {
-  return `ForgeQA ${VERSION}
+  return `Deadpan ${VERSION}
 
 Commands:
   forgeqa init [--destination DIR] [--package-manager npm|pnpm] [--dry-run] [--json]
@@ -170,7 +170,7 @@ Commands:
   forgeqa recovery [--root DIR] [--dry-run|--apply] [--adapter-module FILE] [--consumer NAME] [--namespace NAME] [--json]
   forgeqa migrate
 
-repeat resolves one stable ForgeQA ID to its exact source declaration, emits one result per bounded diagnostic iteration, and writes repeat-summary.json. Diagnostic records remain non-authoritative.
+repeat resolves one stable Deadpan ID to its exact source declaration, emits one result per bounded diagnostic iteration, and writes repeat-summary.json. Diagnostic records remain non-authoritative.
 
 Exit codes: 0 compliant success, 1 quality failure, 2 usage/configuration, 3 infrastructure/report integrity, 130 interruption.
 `;

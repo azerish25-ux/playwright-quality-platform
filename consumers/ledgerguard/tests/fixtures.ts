@@ -36,7 +36,7 @@ const identityFactory = defineDataFactory<IdentitySeed>('ledgerguard-identity', 
   return {
     email: `forgeqa-${context.sequence}-${discriminator}@example.test`,
     password: `Fq!${discriminator}Aa9-${context.integer(100000, 999999)}`,
-    displayName: `ForgeQA ${context.sequence}-${discriminator}`
+    displayName: `Deadpan ${context.sequence}-${discriminator}`
   };
 });
 
@@ -72,8 +72,8 @@ export const test = createForgeTest(base).extend<TestFixtures, WorkerFixtures>({
   },
 
   fundedPair: async ({ customer, otherCustomer, lab }, use) => {
-    const sourceResult = await customer.client.createAccount('ForgeQA payer wallet');
-    const destinationResult = await otherCustomer.client.createAccount('ForgeQA recipient wallet');
+    const sourceResult = await customer.client.createAccount('Deadpan payer wallet');
+    const destinationResult = await otherCustomer.client.createAccount('Deadpan recipient wallet');
     expect(sourceResult.status).toBe(201);
     expect(destinationResult.status).toBe(201);
     lab.fundAccount(sourceResult.body.id, 50_000n);
@@ -103,7 +103,7 @@ export function commandKey(testInfo: TestInfo, prefix: string, sequence = 0): st
 function forgeRunId(testInfo: TestInfo): string {
   const metadata = testInfo.config.metadata['forgeqa'] as { runId?: unknown } | undefined;
   if (!metadata || typeof metadata.runId !== 'string' || metadata.runId.length === 0) {
-    throw new Error('ForgeQA run metadata is required for LedgerGuard durable command identity.');
+    throw new Error('Deadpan run metadata is required for LedgerGuard durable command identity.');
   }
   return metadata.runId;
 }

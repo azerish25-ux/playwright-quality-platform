@@ -47,7 +47,7 @@ if(command==='plan'){
   const quality=values.some(value=>value.quality);
   const attempts=values.flatMap(value=>quality&&value.shardIndex===1?[{executionId:'e1',retry:0,outcome:'failed'},{executionId:'e1',retry:1,outcome:'passed'}]:[{executionId:'e'+value.shardIndex,retry:0,outcome:'passed'}]);
   await writeFile(join(output,'report.json'),JSON.stringify({attempts}));
-  await writeFile(join(output,'index.html'),'<h1>ForgeQA</h1>');
+  await writeFile(join(output,'index.html'),'<h1>Deadpan</h1>');
   console.log(JSON.stringify({runId:'fake-run',output,tests:values.length,attempts:attempts.length}));
   if(quality)process.exitCode=1;
 }else{

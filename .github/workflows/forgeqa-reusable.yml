@@ -1,9 +1,9 @@
-name: ForgeQA reusable
+name: Deadpan reusable
 on:
   workflow_call:
     inputs:
       suite:
-        description: ForgeQA suite name
+        description: Deadpan suite name
         required: false
         type: string
         default: regression
@@ -13,7 +13,7 @@ on:
         type: string
         default: chromium
       environment:
-        description: ForgeQA environment profile
+        description: Deadpan environment profile
         required: false
         type: string
         default: local
@@ -23,7 +23,7 @@ on:
         type: string
         default: .
       config:
-        description: ForgeQA configuration path relative to working-directory
+        description: Deadpan configuration path relative to working-directory
         required: false
         type: string
         default: forgeqa.config.ts
@@ -89,10 +89,10 @@ on:
         default: summary
     outputs:
       outcome:
-        description: Final ForgeQA outcome
+        description: Final Deadpan outcome
         value: ${{ jobs.forgeqa-quality.outputs.outcome }}
       run-id:
-        description: Final ForgeQA run identity
+        description: Final Deadpan run identity
         value: ${{ jobs.forgeqa-quality.outputs.run-id }}
       test-count:
         description: Final logical test count
@@ -130,7 +130,7 @@ jobs:
           SHARD_COUNT: ${{ inputs.shard-count }}
         run: node -e "const fs=require('fs');const n=Number(process.env.SHARD_COUNT);if(!Number.isInteger(n)||n<1||n>256)process.exit(2);fs.appendFileSync(process.env.GITHUB_OUTPUT,'matrix='+JSON.stringify({include:Array.from({length:n},(_,i)=>({shard:i+1}))})+'\n')"
       - id: plan
-        name: Create immutable ForgeQA execution manifest
+        name: Create immutable Deadpan execution manifest
         uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: plan
@@ -177,7 +177,7 @@ jobs:
           name: forgeqa-plan-${{ github.run_id }}-${{ github.run_attempt }}
           path: .forgeqa-plan
       - id: execute
-        name: Execute ForgeQA shard ${{ matrix.shard }}/${{ inputs.shard-count }}
+        name: Execute Deadpan shard ${{ matrix.shard }}/${{ inputs.shard-count }}
         uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: run
@@ -241,7 +241,7 @@ jobs:
           pattern: forgeqa-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: .forgeqa-shards
       - id: merge
-        name: Merge and enforce canonical ForgeQA evidence
+        name: Merge and enforce canonical Deadpan evidence
         uses: azerish25-ux/playwright-quality-platform@82d583b8b1b44623643304e24def0ef9c45653bd
         with:
           mode: merge

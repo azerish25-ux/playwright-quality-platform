@@ -62,7 +62,7 @@ export function parseActionInputs(env = process.env) {
         throw new Error('Explicit distributed shard execution requires a manifest input produced by plan mode.');
     }
     if (values.applicationCommand && !values.readinessUrl) {
-        throw new Error('application-command requires readiness-url so ForgeQA never races an unready application.');
+        throw new Error('application-command requires readiness-url so Deadpan never races an unready application.');
     }
     if (values.installDependencies && values.packageManager === 'none') {
         throw new Error('package-manager none requires install-dependencies false.');
@@ -355,7 +355,7 @@ async function resolveConsumerModule(cwd, specifier) {
         return require.resolve(specifier);
     }
     catch {
-        throw new ActionFailure(`Cannot resolve ${specifier} from the consumer. Install the documented ForgeQA dependencies first.`, 2);
+        throw new ActionFailure(`Cannot resolve ${specifier} from the consumer. Install the documented Deadpan dependencies first.`, 2);
     }
 }
 async function resolveCliPath(inputs, workspace, cwd) {
@@ -375,7 +375,7 @@ async function resolveCliPath(inputs, workspace, cwd) {
     const development = resolve(cwd, 'packages/cli/dist/cli.js');
     if (existsSync(development) && (await lstat(development)).isFile())
         return development;
-    throw new ActionFailure('ForgeQA CLI is unavailable. Install @azerish25-ux/forgeqa-cli or provide cli-path.', 2);
+    throw new ActionFailure('Deadpan CLI is unavailable. Install @azerish25-ux/forgeqa-cli or provide cli-path.', 2);
 }
 async function installBrowsers(inputs, cwd, env) {
     if (inputs.browserInstall === 'none')
@@ -419,7 +419,7 @@ async function invokeCli(context, args, timeoutMs = 15 * 60_000) {
     });
     const value = parseJsonOutput(result.stdout);
     if (!value && result.code <= 1) {
-        throw new ActionFailure(`ForgeQA CLI returned non-JSON output. ${result.stderr || result.stdout}`.trim(), 3);
+        throw new ActionFailure(`Deadpan CLI returned non-JSON output. ${result.stderr || result.stdout}`.trim(), 3);
     }
     if (result.stderr)
         process.stderr.write(`${result.stderr.trim()}\n`);
@@ -451,11 +451,11 @@ async function plan(context, workers) {
         '--json',
     ]);
     if (result.code !== 0)
-        throw new ActionFailure(`ForgeQA planning failed with exit code ${result.code}.`, result.code === 1 ? 1 : 3);
+        throw new ActionFailure(`Deadpan planning failed with exit code ${result.code}.`, result.code === 1 ? 1 : 3);
     const manifestPath = stringField(result.value, 'manifestPath');
     const runId = stringField(result.value, 'runId');
     if (!manifestPath || !runId)
-        throw new ActionFailure('ForgeQA plan did not return a runId and manifestPath.', 3);
+        throw new ActionFailure('Deadpan plan did not return a runId and manifestPath.', 3);
     const manifest = await requireRegularFileWithin(context.workspace, manifestPath, 'Generated manifest');
     return { ...result, manifestPath: manifest, runId };
 }
@@ -566,7 +566,7 @@ async function prepareContext(inputs, env) {
     const outputDirectory = await ensureDirectoryWithin(workingDirectory, inputs.outputDirectory);
     const configPath = inputs.mode === 'merge'
         ? resolve(workingDirectory, inputs.config)
-        : await requireRegularFileWithin(workspace, resolve(workingDirectory, inputs.config), 'ForgeQA config');
+        : await requireRegularFileWithin(workspace, resolve(workingDirectory, inputs.config), 'Deadpan config');
     const playwrightConfigPath = inputs.mode === 'merge'
         ? resolve(workingDirectory, inputs.playwrightConfig)
         : await requireRegularFileWithin(workspace, resolve(workingDirectory, inputs.playwrightConfig), 'Playwright config');
@@ -738,7 +738,7 @@ async function publishResult(result, inputs, env) {
     if (inputs.reportingMode === 'none')
         return;
     const summary = [
-        '# ForgeQA',
+        '# Deadpan',
         '',
         `- Outcome: **${inline(result.outcome)}**`,
         `- Mode: \`${inline(result.mode)}\``,
@@ -817,7 +817,7 @@ export async function executeAction(env = process.env) {
 export async function main() {
     const result = await executeAction(process.env);
     if (result.error)
-        process.stderr.write(`ForgeQA action: ${result.error}\n`);
+        process.stderr.write(`Deadpan action: ${result.error}\n`);
     if (result.exitCode !== 0)
         process.exitCode = result.exitCode;
 }

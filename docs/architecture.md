@@ -2,14 +2,14 @@
 
 ## Preserve the native runner
 
-ForgeQA is a library and CLI platform around Playwright Test. Applications keep their native locators, assertions, project configuration, traces and scheduling. The CLI discovers an expected inventory before execution; native reporter callbacks emit evidence that the policy layer can reconcile against that inventory. ForgeQA is not a replacement browser engine or hosted dashboard service.
+Deadpan is a library and CLI platform around Playwright Test. Applications keep their native locators, assertions, project configuration, traces and scheduling. The CLI discovers an expected inventory before execution; native reporter callbacks emit evidence that the policy layer can reconcile against that inventory. Deadpan is not a replacement browser engine or hosted dashboard service.
 
 ```text
 Application: configuration + native Playwright tests
     |
     +-- forgeqa CLI ---- plan / validate / execute / merge
     |                         |
-    +-- Playwright Test ------+-- typed ForgeQA fixtures
+    +-- Playwright Test ------+-- typed Deadpan fixtures
                               |      +-- HTTP client
                               |      +-- deterministic data / owned cleanup
                               |

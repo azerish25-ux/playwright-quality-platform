@@ -31,7 +31,7 @@
       "status": "PASS",
       "implementationPaths": ["packages/cli/src/version.ts", "packages/cli/src/templates.ts"],
       "verification": "tests/release-preparation.test.mjs; prepared and loopback-registry npm/pnpm consumers",
-      "actualResult": "Installed CLI output and generated ForgeQA dependencies used 1.0.0, not a compiled 0.1.0 constant. All eight installed public packages matched the prepared version in every consumer receipt."
+      "actualResult": "Installed CLI output and generated Deadpan dependencies used 1.0.0, not a compiled 0.1.0 constant. All eight installed public packages matched the prepared version in every consumer receipt."
     },
     {
       "id": "P12A-04",

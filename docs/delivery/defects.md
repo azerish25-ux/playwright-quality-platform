@@ -1,4 +1,4 @@
-# ForgeQA defect and verification ledger
+# Deadpan defect and verification ledger
 
 All entries distinguish an implementation repair from the later exact-SHA CI proof. No retry count, required browser, expected inventory or strict gate was relaxed.
 

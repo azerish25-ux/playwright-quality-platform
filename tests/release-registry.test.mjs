@@ -15,7 +15,7 @@ async function fixture() {
   const entries = [];
   for (const [i, name] of RELEASE_PACKAGES.entries()) {
     const packageRoot = join(directory, `fixture-${i}`); await mkdir(packageRoot);
-    await writeFile(join(packageRoot, 'package.json'), JSON.stringify({ name, version: '1.0.0', description: 'Isolated protocol test fixture; not a ForgeQA product release.', files: ['index.js'] }));
+    await writeFile(join(packageRoot, 'package.json'), JSON.stringify({ name, version: '1.0.0', description: 'Isolated protocol test fixture; not a Deadpan product release.', files: ['index.js'] }));
     await writeFile(join(packageRoot, 'index.js'), 'module.exports = "fixture";\n');
     const [packed] = JSON.parse(await runNpm(['pack', packageRoot, '--json', '--ignore-scripts', '--pack-destination', tarballs], { cwd: directory }));
     entries.push({ name, version: '1.0.0', filename: packed.filename, status: 'staged', ...artifactDigests(await readFile(join(tarballs, packed.filename))) });

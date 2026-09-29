@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://forgeqa.dev/schemas/benchmark-run-v1.json",
-  "title": "ForgeQA benchmark run",
+  "title": "Deadpan benchmark run",
   "type": "object",
   "additionalProperties": true,
   "required": [

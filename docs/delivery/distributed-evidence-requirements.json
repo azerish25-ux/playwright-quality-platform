@@ -8,7 +8,7 @@
   "requirements": [
     {
       "id": "M2-01",
-      "requirement": "Every native shard emits a finalized ForgeQA journal and exactly one Playwright blob report",
+      "requirement": "Every native shard emits a finalized Deadpan journal and exactly one Playwright blob report",
       "status": "PASS",
       "implementationPaths": ["packages/playwright/src/config.ts", "packages/cli/src/runner.ts", "packages/reporter/src/evidence.ts"],
       "verification": "tests/integration/distributed-runner.test.mjs"
@@ -43,7 +43,7 @@
     },
     {
       "id": "M2-06",
-      "requirement": "Static report can be inspected locally without a hosted ForgeQA service",
+      "requirement": "Static report can be inspected locally without a hosted Deadpan service",
       "status": "PASS",
       "implementationPaths": ["packages/cli/src/serve.ts"],
       "verification": "tests/report-serve.test.mjs"

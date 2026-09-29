@@ -1,7 +1,7 @@
 {
   "name": "@azerish25-ux/forgeqa-reporter",
   "version": "0.1.0",
-  "description": "ForgeQA reporter package",
+  "description": "Deadpan reporter package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

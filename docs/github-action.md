@@ -1,12 +1,12 @@
 # GitHub Action and distributed workflow
 
-ForgeQA separates a JavaScript action from a reusable distributed workflow.
+Deadpan separates a JavaScript action from a reusable distributed workflow.
 
 ## Trust model
 
-The action runs inside the caller's checkout. `working-directory`, configuration, manifest, CLI, evidence and output paths are confined to `GITHUB_WORKSPACE`, including real-path checks that reject symlink escapes. ForgeQA/package-manager commands use argument arrays. `build-command` and `application-command` are the only explicit shell inputs and are treated as trusted workflow configuration, never as values derived from PR titles, branch names or test output.
+The action runs inside the caller's checkout. `working-directory`, configuration, manifest, CLI, evidence and output paths are confined to `GITHUB_WORKSPACE`, including real-path checks that reject symlink escapes. Deadpan/package-manager commands use argument arrays. `build-command` and `application-command` are the only explicit shell inputs and are treated as trusted workflow configuration, never as values derived from PR titles, branch names or test output.
 
-GitHub, Actions and registry tokens are removed before application, Playwright and ForgeQA child execution. Dependency installation may receive registry authentication, but the application process does not. Readiness URLs must use HTTP(S) and cannot contain credentials.
+GitHub, Actions and registry tokens are removed before application, Playwright and Deadpan child execution. Dependency installation may receive registry authentication, but the application process does not. Readiness URLs must use HTTP(S) and cannot contain credentials.
 
 ## Modes
 
@@ -35,7 +35,7 @@ The ordinary `CI` workflow continues to use read-only repository permissions. It
 
 The publisher resolves the pull request through the originating source commit when GitHub omits `workflow_run.pull_requests`. Before mutation it verifies the base repository, workflow name/path, source SHA, current PR head, head repository/branch and absence of a newer CI run. It repeats freshness checks immediately before writing. A pull request that modifies the trusted originating CI workflow is reported as an infrastructure failure rather than being allowed to certify its own privileged output.
 
-Before extraction, the trusted publisher authorizes exactly one unexpired run-bound artifact and enforces its compressed-size limit through the GitHub API. Downloaded evidence is placed under `runner.temp`. The publisher then revalidates artifact metadata, archive and extracted-size limits, file/entry/depth limits, regular-file/real-path boundaries, exact schema fields, run/attempt/PR identities, source/base/tested revisions, timestamps, required job inventory, report-to-job consistency and aggregate conclusion. Invalid or missing evidence produces an explicit reporting-infrastructure warning and a nonzero publisher result; it cannot be rendered as a clean ForgeQA result.
+Before extraction, the trusted publisher authorizes exactly one unexpired run-bound artifact and enforces its compressed-size limit through the GitHub API. Downloaded evidence is placed under `runner.temp`. The publisher then revalidates artifact metadata, archive and extracted-size limits, file/entry/depth limits, regular-file/real-path boundaries, exact schema fields, run/attempt/PR identities, source/base/tested revisions, timestamps, required job inventory, report-to-job consistency and aggregate conclusion. Invalid or missing evidence produces an explicit reporting-infrastructure warning and a nonzero publisher result; it cannot be rendered as a clean Deadpan result.
 
 The bot owns one comment marked with `<!-- forgeqa-quality-report:v1 -->`. Comment lookup is paginated, reruns update the existing bot comment, duplicate bot comments are removed, attacker-authored marker comments are ignored, and comment metadata prevents an older run from replacing a newer one. Permission denial remains a reporting failure and never changes the originating CI conclusion.
 

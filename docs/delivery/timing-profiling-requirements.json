@@ -40,7 +40,7 @@
       "id": "TP-02",
       "requirement": "Public reporter callbacks and real application readiness/shutdown measurements",
       "status": "PASS",
-      "verification": "Controlled local benchmarks; ForgeQA benchmarks; tests/benchmark-profile-server.test.mjs",
+      "verification": "Controlled local benchmarks; Deadpan benchmarks; tests/benchmark-profile-server.test.mjs",
       "sourceSha": "470843e48b5f9eb19c8f75c439eb5e19f88de5e3",
       "evidenceRecord": "timing-profiling-acceptance.json"
     },

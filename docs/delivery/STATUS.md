@@ -30,7 +30,7 @@ The retained hardening artifact is `10944475111`, named `hardening-evidence-b679
 - Typed composable Playwright fixtures, strict native and CLI gates, journal/finalization integrity, and canonical JSON, JUnit, Markdown, and static HTML reports.
 - Native distributed Playwright execution with independent shard dimensions and stable execution identities.
 - Strict validation of finalized journals, completion markers, checksums, captured attachments, and Playwright blob reports before merge.
-- Exact reconciliation between native Playwright counts, outcomes, projects, and canonical ForgeQA results.
+- Exact reconciliation between native Playwright counts, outcomes, projects, and canonical Deadpan results.
 - Canonical merge ordering remains independent of shard arrival order even when timestamps and retry indexes tie.
 - PostgreSQL-backed TeamBoard executes eight API cases and four UI journeys across Chromium, Firefox, and WebKit, including workspace and isolated npm/pnpm consumers.
 - Genuine API-first LedgerGuard adoption executes twelve authentication, authorization, ownership, transfer, payment, adjustment, and scheduling journeys against pinned P07A application source, followed by financial reconciliation and owned-infrastructure cleanup.
@@ -56,7 +56,7 @@ The hardening lane audits all eight package tarballs, rejects private-source or 
 
 The system compares serial execution, two local worker counts and two true independent-runner shard counts. It verifies one separately retained warm-up per shard/repetition, immutable inventory, exact software/policy contracts, native/canonical report integrity and complete evidence. Raw JSONL/CSV, summaries, checksums, CPU/memory/version metadata and separate execution, merge, queue-inclusive wall and aggregate runner durations are retained.
 
-Five native-versus-ForgeQA reporter-overhead repetitions per mode and five synthetic scaling repetitions at each of 1,000/10,000/100,000 attempts passed. Independent database cleanup found zero remaining owned namespaces, tenants or accounts. Twenty-two focused benchmark regressions pass.
+Five native-versus-Deadpan reporter-overhead repetitions per mode and five synthetic scaling repetitions at each of 1,000/10,000/100,000 attempts passed. Independent database cleanup found zero remaining owned namespaces, tenants or accounts. Twenty-two focused benchmark regressions pass.
 
 Hardware fingerprints are not identical: `performanceStatus` is `NOT_COMPARABLE` and controlled-hardware `releaseEvidenceEligible` is `false`. The system withholds speedup and efficiency claims, rather than rounding away hardware differences. Readiness, in-process reporting and shutdown within each shard remain combined; finer lifecycle instrumentation is unfinished. The monthly one-repetition run remains a smoke test, not release-quality performance evidence.
 
@@ -66,7 +66,7 @@ See [benchmark-live-acceptance.md](benchmark-live-acceptance.md), [benchmark-req
 
 A version-aware MkDocs build now assembles maintained guides, 15 substantive ADRs and generated declarations for all eight public package APIs. `next` is explicitly unreleased. Future frozen versions require an exact source SHA, manifest hash and complete checked file inventory; no fictitious release snapshot is created.
 
-Documentation acceptance bootstraps through installed package tarballs in separate npm and pnpm consumers, compiles the exact embedded snippets, exercises doctor/plan/ForgeQA/native execution and compares identities. The separate read-only `Documentation` workflow also builds strictly, checks local links/anchors/assets, and exercises desktop/mobile navigation and local search in Chromium. It preserves evidence on failure and does not deploy Pages or publish packages.
+Documentation acceptance bootstraps through installed package tarballs in separate npm and pnpm consumers, compiles the exact embedded snippets, exercises doctor/plan/Deadpan/native execution and compares identities. The separate read-only `Documentation` workflow also builds strictly, checks local links/anchors/assets, and exercises desktop/mobile navigation and local search in Chromium. It preserves evidence on failure and does not deploy Pages or publish packages.
 
 Documentation job `109083620021` passed at `54f25b2a865b8b90c7fe00b34142cbb282d99a57`. Its retained artifact `10990396723` contains the strict site build, toolchain receipts, source and snippet hashes, npm/pnpm onboarding records and desktop/mobile/search screenshots. The build contains 46 documentation pages plus the generated 404 page; all 3,543 local references passed. Thirteen Node and seven Python documentation checks passed, and Chromium opened a real search result without page or asset errors. The full platform CI also succeeded at this exact source. P11B-01 through P11B-06 are `PASS`; see [documentation-live-acceptance.md](documentation-live-acceptance.md) and [documentation-requirements.json](documentation-requirements.json).
 

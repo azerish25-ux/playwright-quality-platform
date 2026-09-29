@@ -1,7 +1,7 @@
 {
   "name": "@azerish25-ux/forgeqa-api",
   "version": "0.1.0",
-  "description": "ForgeQA api package",
+  "description": "Deadpan api package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

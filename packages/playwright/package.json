@@ -1,7 +1,7 @@
 {
   "name": "@azerish25-ux/forgeqa-playwright",
   "version": "0.1.0",
-  "description": "ForgeQA playwright package",
+  "description": "Deadpan playwright package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,6 +1,6 @@
 # Recovering after a worker crash
 
-ForgeQA records ownership before acquiring a recoverable resource. Normal fixture teardown still runs first. After forced process termination, a separate `forgeqa recovery` process can reclaim abandoned private files and resources managed by explicitly registered adapters. Recovery never changes a failed or interrupted test result into a passing result and never reuses recovered login credentials.
+Deadpan records ownership before acquiring a recoverable resource. Normal fixture teardown still runs first. After forced process termination, a separate `forgeqa recovery` process can reclaim abandoned private files and resources managed by explicitly registered adapters. Recovery never changes a failed or interrupted test result into a passing result and never reuses recovered login credentials.
 
 ## Scope and safe defaults
 

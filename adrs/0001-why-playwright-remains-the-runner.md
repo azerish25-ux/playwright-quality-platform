@@ -6,7 +6,7 @@ Teams already rely on Playwright projects, locators, assertions, retries and tra
 
 ## Decision
 
-Compose native Playwright configuration and fixtures, and consume supported reporter/blob interfaces. ForgeQA owns policy, identity and evidence validation; Playwright owns browser execution.
+Compose native Playwright configuration and fixtures, and consume supported reporter/blob interfaces. Deadpan owns policy, identity and evidence validation; Playwright owns browser execution.
 
 ## Alternatives
 

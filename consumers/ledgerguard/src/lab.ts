@@ -41,7 +41,7 @@ export class LedgerGuardLab {
     const operation = randomUUID();
     this.sql(
       `BEGIN; `
-      + `INSERT INTO ledger.accounts(id,label,currency,kind) VALUES('${asset}','ForgeQA synthetic asset','CAD','SANDBOX_FUNDING_ASSET'); `
+      + `INSERT INTO ledger.accounts(id,label,currency,kind) VALUES('${asset}','Deadpan synthetic asset','CAD','SANDBOX_FUNDING_ASSET'); `
       + `INSERT INTO ledger.account_balances(account_id) VALUES('${asset}'); `
       + `SELECT ledger._post('${operation}','FUNDING','${asset}','${account}',${amountMinor},'CAD'); `
       + 'COMMIT;'

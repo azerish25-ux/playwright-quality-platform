@@ -26,7 +26,7 @@ function latestAttemptTime(result: MergedRunResult): string | undefined {
 
 export function validateHistoryResult(value: unknown): MergedRunResult {
   if (!isObject(value) || value.schemaVersion !== 1 || typeof value.runId !== 'string' || !value.runId) {
-    throw new IntegrityError('History source is not a supported ForgeQA result.');
+    throw new IntegrityError('History source is not a supported Deadpan result.');
   }
   if (!isObject(value.revision) || typeof value.revision.repository !== 'string' || typeof value.revision.testedCommit !== 'string') {
     throw new IntegrityError('History source is missing revision identity.');

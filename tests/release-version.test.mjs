@@ -7,10 +7,10 @@ import { execute } from '../scripts/release-process.mjs';
 import { calculateRelease, validatePlan } from '../scripts/release-version.mjs';
 
 async function fixture(messages, previous) {
-  const root = await mkdtemp(join(tmpdir(), 'ForgeQA semantic Ω '));
+  const root = await mkdtemp(join(tmpdir(), 'Deadpan semantic Ω '));
   const git = args => execute('git', args, { cwd: root });
   await git(['init', '-b', 'main']);
-  await git(['config', 'user.name', 'ForgeQA test fixture']);
+  await git(['config', 'user.name', 'Deadpan test fixture']);
   await git(['config', 'user.email', 'fixture@example.invalid']);
   await writeFile(join(root, 'package.json'), '{"name":"semantic-fixture","private":true}\n');
   await git(['add', '.']); await git(['commit', '-m', 'chore: initial fixture']);

@@ -42,7 +42,7 @@ async function atomicWrite(path: string, content: string): Promise<void> {
 async function loadRun(path: string): Promise<MergedRunResult> {
   const value = JSON.parse(await readFile(resolve(path), 'utf8')) as MergedRunResult;
   if (value.schemaVersion !== 1 || !value.runId || !value.revision?.repository || !Array.isArray(value.attempts)) {
-    throw new IntegrityError(`Invalid ForgeQA report: ${path}`);
+    throw new IntegrityError(`Invalid Deadpan report: ${path}`);
   }
   return value;
 }

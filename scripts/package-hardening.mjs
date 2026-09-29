@@ -197,7 +197,7 @@ try {
     const cliExecutable = resolve(consumer, 'node_modules', '.bin', process.platform === 'win32' ? 'forgeqa.cmd' : 'forgeqa');
     const cli = run(cliExecutable, ['--help'], { cwd: consumer });
     const cliOutput = `${cli.stdout}\n${cli.stderr}`.trim();
-    assert(/ForgeQA|forgeqa/i.test(cliOutput), `${manager}: packaged CLI help is unavailable.`);
+    assert(/Deadpan|forgeqa/i.test(cliOutput), `${manager}: packaged CLI help is unavailable.`);
     consumers.push({ manager, imports: JSON.parse(imported.stdout), cliHelp: cliOutput.split(/\r?\n/)[0] });
   }
 

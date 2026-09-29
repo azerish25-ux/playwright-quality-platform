@@ -111,7 +111,7 @@ export async function prepare() {
     }
     releasedNav.push({ [release.version]: links });
   }
-  output['index.md'] = '# ForgeQA\n\n## Reusable test infrastructure for SaaS teams\n\nKeep native Playwright. Add owned data, strict evidence and accountable quality policy.\n\n[Start with the quickstart](next/quickstart.md) · [Read the architecture](next/architecture.md) · [Inspect delivery evidence](next/evidence/status.md)\n\n## Documentation channels\n\n[next — unreleased](next/index.md) documents maintained source. It is not a registry publication. [Version history](versions.md) contains only verified frozen snapshots.\n\n## Evidence over a badge\n\nTwo real consumers exercise public package boundaries. Failed first attempts remain visible; incomplete shards cannot merge to green; missing history is never presented as zero flakiness. Read each receipt and its limitations.\n';
+  output['index.md'] = '# Deadpan\n\n## Reusable test infrastructure for SaaS teams\n\nKeep native Playwright. Add owned data, strict evidence and accountable quality policy.\n\n[Start with the quickstart](next/quickstart.md) · [Read the architecture](next/architecture.md) · [Inspect delivery evidence](next/evidence/status.md)\n\n## Documentation channels\n\n[next — unreleased](next/index.md) documents maintained source. It is not a registry publication. [Version history](versions.md) contains only verified frozen snapshots.\n\n## Evidence over a badge\n\nTwo real consumers exercise public package boundaries. Failed first attempts remain visible; incomplete shards cannot merge to green; missing history is never presented as zero flakiness. Read each receipt and its limitations.\n';
   output['versions.md'] = `# Documentation versions\n\n[next (unreleased)](next/index.md) follows maintained source.\n\n${versions.releases.length ? versions.releases.map((release) => `- [${release.version}](${release.version}/index.md) — source \`${release.sourceSha}\``).join('\n') : 'No released documentation snapshots exist yet. The source-candidate package version is not a public release.'}\n\nFrozen files, inventories and source bindings are checked before every build. Deployment and registry acceptance are separate release gates.\n`;
   output['assets/theme.css'] = await readOwned(root, 'docs/site/theme.css');
   const manifest = { schemaVersion: 1, kind: 'forgeqa-documentation-build', sourceSha, base, publicationClaimed: false,
@@ -127,7 +127,7 @@ export async function prepare() {
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, text);
   }
-  const config = { site_name: 'ForgeQA', site_description: 'Reusable test infrastructure for SaaS teams. Unreleased source documentation.',
+  const config = { site_name: 'Deadpan', site_description: 'Reusable test infrastructure for SaaS teams. Unreleased source documentation.',
     site_url: `https://azerish25-ux.github.io${base}`, repo_url: repository, edit_uri: '', docs_dir: 'content',
     site_dir: '../../../evidence/docs/site', use_directory_urls: true,
     theme: { name: 'mkdocs', highlightjs: false, navigation_depth: 3 },

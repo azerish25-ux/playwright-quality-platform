@@ -1,5 +1,7 @@
 # Source-candidate quickstart
 
+> Deadpan currently ships the compatibility executable `forgeqa` and packages named `@azerish25-ux/forgeqa-*`. Use the command and package names shown here; this branding change does not rename executable interfaces.
+
 ## Prerequisites and publication boundary
 
 Use Node 22 or 24 and the exact Playwright version in the candidate (`1.58.2`). The package manifests currently identify `0.1.0`, but **the packages are not represented as published to npm**. Do not substitute an unverified `npm install @azerish25-ux/forgeqa-cli` command.
@@ -17,7 +19,7 @@ npx --no-install playwright install --with-deps chromium
 npm run docs:onboarding
 ```
 
-This is a **maintainer acceptance command**, not a requirement to copy ForgeQA into an adopting application. It packs the built source, creates disposable consumers outside the monorepo, and performs the following procedure independently with npm and pnpm. Its receipts appear in `evidence/packed-docs/`.
+This is a **maintainer acceptance command**, not a requirement to copy Deadpan into an adopting application. It packs the built source, creates disposable consumers outside the monorepo, and performs the following procedure independently with npm and pnpm. Its receipts appear in `evidence/packed-docs/`.
 
 ## Adopt a candidate in your own directory
 
@@ -29,7 +31,7 @@ Use the installed `forgeqa` binary to scaffold another new directory:
 forgeqa init --template demo --destination ../my-forgeqa-consumer --package-manager npm --json
 ```
 
-Use `--package-manager pnpm` for the pnpm variant. Initialization does not install dependencies and will not overwrite conflicting files. In the generated package manifest, replace the generated ForgeQA dependency versions with the absolute `file:` references to your candidate tarballs, including the internal dependency overrides for pnpm. Keep the generated Playwright and TypeScript versions. Install explicitly, retain the generated lockfile, and prove a clean reinstall (`npm ci --ignore-scripts` or `pnpm install --frozen-lockfile --ignore-scripts`). Install matching Chromium through the consumer's own Playwright CLI.
+Use `--package-manager pnpm` for the pnpm variant. Initialization does not install dependencies and will not overwrite conflicting files. In the generated package manifest, replace the generated Deadpan dependency versions with the absolute `file:` references to your candidate tarballs, including the internal dependency overrides for pnpm. Keep the generated Playwright and TypeScript versions. Install explicitly, retain the generated lockfile, and prove a clean reinstall (`npm ci --ignore-scripts` or `pnpm install --frozen-lockfile --ignore-scripts`). Install matching Chromium through the consumer's own Playwright CLI.
 
 Run these commands with the **consumer's installed binary** on PATH, not the provider's source CLI:
 
@@ -53,4 +55,4 @@ The generated native Playwright configuration imports this file and declares an 
 
 ## What documentation CI verifies
 
-The docs consumer mode uses the same installed tarballs for npm and pnpm; compiles the **exact snippet files embedded above and in the fixtures guide**; verifies all public exports resolve inside each consumer; runs doctor, plan, ForgeQA and native Playwright; and compares the resulting identities between package managers. A clean-install failure or a retry-recovered result fails documentation acceptance. No private application source imports or workspace symlinks are accepted.
+The docs consumer mode uses the same installed tarballs for npm and pnpm; compiles the **exact snippet files embedded above and in the fixtures guide**; verifies all public exports resolve inside each consumer; runs doctor, plan, Deadpan and native Playwright; and compares the resulting identities between package managers. A clean-install failure or a retry-recovered result fails documentation acceptance. No private application source imports or workspace symlinks are accepted.

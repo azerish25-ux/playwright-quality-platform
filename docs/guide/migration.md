@@ -18,8 +18,8 @@ Exercise both `playwright test` and `forgeqa run`. Their policy evaluation must 
 
 ## Separate adoption from application implementation
 
-ForgeQA may add owned fixtures, tests, dependencies and workflow integration. It must not silently change business rules or replace a missing interface with a test-only mock. LedgerGuard's current integration remains [explicitly API-first](../ledgerguard-consumer.md).
+Deadpan may add owned fixtures, tests, dependencies and workflow integration. It must not silently change business rules or replace a missing interface with a test-only mock. LedgerGuard's current integration remains [explicitly API-first](../ledgerguard-consumer.md).
 
 ## Rollback and diagnosis
 
-Keep the original command available while reviewing the migration. A rollback restores only the ForgeQA adoption changes, not application history or data. Preserve failed reports and exact package checksums so a maintainer can reproduce the discrepancy. See [troubleshooting](troubleshooting.md).
+Keep the original command available while reviewing the migration. A rollback restores only the Deadpan adoption changes, not application history or data. Preserve failed reports and exact package checksums so a maintainer can reproduce the discrepancy. See [troubleshooting](troubleshooting.md).

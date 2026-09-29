@@ -10,7 +10,7 @@ export function teamboardIdentity(forge: ForgeWorkerContext, info: TestInfo, ten
     testId: info.testId, attempt: info.retry };
 }
 
-/** The application owns provisioning; ForgeQA owns the request/state-file lifecycle. */
+/** The application owns provisioning; Deadpan owns the request/state-file lifecycle. */
 export function teamboardAuthentication(baseURL: string, tenant: Tenant): AuthenticationAdapter<APIRequestContext> {
   return {
     id: 'teamboard-password-v1',

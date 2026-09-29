@@ -2,7 +2,7 @@
 
 ## Observed execution
 
-The [accepted benchmark receipt](../delivery/benchmark-live-acceptance.md) records five repetitions of serial, two local-parallel and two distributed conditions. Every condition checks the same 20 TeamBoard execution identities. Supplementary runs measure native-versus-ForgeQA reporting and explicitly synthetic large-result scaling.
+The [accepted benchmark receipt](../delivery/benchmark-live-acceptance.md) records five repetitions of serial, two local-parallel and two distributed conditions. Every condition checks the same 20 TeamBoard execution identities. Supplementary runs measure native-versus-Deadpan reporting and explicitly synthetic large-result scaling.
 
 ## Why no distributed comparative speedup is published
 

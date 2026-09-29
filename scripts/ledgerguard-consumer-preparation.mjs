@@ -81,7 +81,7 @@ export async function prepareLedgerGuardConsumers({
       timeoutMs: 60_000
     }));
     assert.equal(Object.keys(resolved.entries).length, LEDGERGUARD_PACKAGE_DIRECTORIES.length);
-    assert.equal(typeof resolved.cli, 'string', 'The isolated consumer must resolve the ForgeQA CLI executable.');
+    assert.equal(typeof resolved.cli, 'string', 'The isolated consumer must resolve the Deadpan CLI executable.');
 
     await node([require.resolve('typescript/bin/tsc'), '--noEmit'], {
       cwd: consumer,

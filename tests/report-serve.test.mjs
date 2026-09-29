@@ -45,7 +45,7 @@ test('report serve exposes only owned evidence on loopback with hardened headers
   const dir=await mkdtemp(join(tmpdir(),'forgeqa-serve-'));
   t.after(()=>rm(dir,{recursive:true,force:true}));
   await mkdir(resolve(dir,'artifacts'),{recursive:true});
-  await writeFile(resolve(dir,'index.html'),'<!doctype html><title>ForgeQA evidence</title><h1>ready</h1>');
+  await writeFile(resolve(dir,'index.html'),'<!doctype html><title>Deadpan evidence</title><h1>ready</h1>');
   await writeFile(resolve(dir,'artifacts','proof.txt'),'verified evidence\n');
   const {child,announcement,stderr}=await startServer(dir);
   t.after(()=>stop(child));
@@ -54,7 +54,7 @@ test('report serve exposes only owned evidence on loopback with hardened headers
 
   const home=await fetch(announcement.url);
   assert.equal(home.status,200);
-  assert.match(await home.text(),/ForgeQA evidence/);
+  assert.match(await home.text(),/Deadpan evidence/);
   assert.equal(home.headers.get('cache-control'),'no-store');
   assert.equal(home.headers.get('x-content-type-options'),'nosniff');
   assert.match(home.headers.get('content-security-policy')??'',/frame-ancestors 'none'/);

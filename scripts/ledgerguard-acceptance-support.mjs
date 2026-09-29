@@ -3,24 +3,24 @@ import { isAbsolute, join, relative, resolve } from 'node:path';
 
 export function parseForgeQaSummary(stdout) {
   const value = stdout.trim();
-  if (!value) throw new Error('ForgeQA consumer produced no JSON summary on stdout.');
+  if (!value) throw new Error('Deadpan consumer produced no JSON summary on stdout.');
 
   let summary;
   try {
     summary = JSON.parse(value);
   } catch (failure) {
     const detail = failure instanceof Error ? failure.message : String(failure);
-    throw new Error(`ForgeQA consumer summary was not valid JSON: ${detail}`);
+    throw new Error(`Deadpan consumer summary was not valid JSON: ${detail}`);
   }
 
   if (summary === null || typeof summary !== 'object' || Array.isArray(summary)) {
-    throw new Error('ForgeQA consumer summary must be a JSON object.');
+    throw new Error('Deadpan consumer summary must be a JSON object.');
   }
   if (typeof summary.runDir !== 'string' || summary.runDir.length === 0) {
-    throw new Error('ForgeQA consumer summary did not include a run directory.');
+    throw new Error('Deadpan consumer summary did not include a run directory.');
   }
   if (!Number.isInteger(summary.exitCode)) {
-    throw new Error('ForgeQA consumer summary did not include an integer exit code.');
+    throw new Error('Deadpan consumer summary did not include an integer exit code.');
   }
   return summary;
 }
@@ -71,7 +71,7 @@ export async function retainConsumerRun({
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
   await writeCommandEvidence(destination, result, sanitize);
-  throw new Error(`ForgeQA consumer run directory escaped its owned results root: ${summary.runDir}`);
+  throw new Error(`Deadpan consumer run directory escaped its owned results root: ${summary.runDir}`);
 }
 
 async function writeCommandEvidence(destination, result, sanitize) {

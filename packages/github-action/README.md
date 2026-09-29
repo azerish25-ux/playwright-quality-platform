@@ -1,6 +1,8 @@
-# @azerish25-ux/forgeqa-github
+# Deadpan GitHub Action
 
-The maintained JavaScript action runtime for [ForgeQA](../../README.md). It executes in the consumer checkout and resolves the consumer's installed `@azerish25-ux/forgeqa-cli`; it does not assume the ForgeQA monorepo exists in that checkout.
+**Package:** `@azerish25-ux/forgeqa-github`
+
+The maintained JavaScript action runtime for [Deadpan](../../README.md). It executes in the consumer checkout and resolves the consumer's installed `@azerish25-ux/forgeqa-cli`; it does not assume the Deadpan monorepo exists in that checkout.
 
 ## Execution modes
 
@@ -9,7 +11,7 @@ The maintained JavaScript action runtime for [ForgeQA](../../README.md). It exec
 - `mode: run` with `shard-index` executes exactly one manifest-bound matrix shard.
 - `mode: merge` validates the downloaded shard tree, refuses symbolic links or contradictory shard dimensions, and publishes the canonical merged report.
 
-The runtime confines paths to `GITHUB_WORKSPACE`, strips GitHub and registry credentials from application and test child processes, uses argument arrays for ForgeQA and package-manager commands, and treats `build-command` and `application-command` as explicit trusted workflow code. An application command requires a credential-free HTTP(S) readiness URL.
+The runtime confines paths to `GITHUB_WORKSPACE`, strips GitHub and registry credentials from application and test child processes, uses argument arrays for Deadpan and package-manager commands, and treats `build-command` and `application-command` as explicit trusted workflow code. An application command requires a credential-free HTTP(S) readiness URL.
 
 ## Single-runner source example
 

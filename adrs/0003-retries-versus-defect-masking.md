@@ -14,7 +14,7 @@ Best-of-N success masks defects. Globally disabling all retry diagnostics loses 
 
 ## Consequences
 
-A green native final attempt does not guarantee a green ForgeQA policy result. Teams must investigate flaky behavior or document a deliberate policy change.
+A green native final attempt does not guarantee a green Deadpan policy result. Teams must investigate flaky behavior or document a deliberate policy change.
 
 ## Validation
 

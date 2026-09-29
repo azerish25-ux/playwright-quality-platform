@@ -11,7 +11,7 @@ const planPath = resolve(required(args, 'plan'));
 const output = resolve(required(args, 'output'));
 const plan = JSON.parse(await readFile(planPath, 'utf8'));
 if (!plan.manifest || plan.manifest.schemaVersion !== 1 || !Array.isArray(plan.manifest.expected) || !plan.manifest.expected.length) {
-  throw new Error('ForgeQA plan output does not contain a valid non-empty manifest.');
+  throw new Error('Deadpan plan output does not contain a valid non-empty manifest.');
 }
 if ((plan.shardCount ?? plan.shardTotal) !== condition.shards) throw new Error('Plan shard count does not match the benchmark condition.');
 if (plan.workers !== condition.workers) throw new Error('Plan worker count does not match the benchmark condition.');

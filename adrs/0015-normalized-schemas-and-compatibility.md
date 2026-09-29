@@ -2,7 +2,7 @@
 
 ## Context
 
-Native Playwright blobs and ForgeQA journals have different shapes. Counts alone cannot prove that they describe the same tests, projects or attempts.
+Native Playwright blobs and Deadpan journals have different shapes. Counts alone cannot prove that they describe the same tests, projects or attempts.
 
 ## Decision
 

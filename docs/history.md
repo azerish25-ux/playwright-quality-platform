@@ -1,6 +1,6 @@
 # History and reliability
 
-ForgeQA stores immutable, checksummed per-run history records under a manifest-controlled directory. Imports accept either `history-record.json`, `report.json`, or a directory containing one of those files. A stable identity derived from repository, run ID, tested commit and provenance makes identical re-imports idempotent; the same identity with different result bytes is an integrity failure.
+Deadpan stores immutable, checksummed per-run history records under a manifest-controlled directory. Imports accept either `history-record.json`, `report.json`, or a directory containing one of those files. A stable identity derived from repository, run ID, tested commit and provenance makes identical re-imports idempotent; the same identity with different result bytes is an integrity failure.
 
 History is divided into four provenance classes:
 
@@ -11,7 +11,7 @@ History is divided into four provenance classes:
 
 Only trusted default-branch records enter the authoritative baseline unless the caller explicitly requests another provenance. Pull-request, synthetic and diagnostic observations are retained as evidence but cannot silently contaminate the default baseline.
 
-For eligible logical executions, `N` is the completed population expected to pass, `F` is initial failure followed by retry pass, `I` is initial failure, and `P` is persistent final failure. ForgeQA reports `F/N`, `I/N`, `P/N`, and `F/I`, plus observation timestamps, failed-attempt duration, affected browsers/environments, owners and per-test metrics. Missing denominators are `null`; low sample counts remain explicitly insufficient.
+For eligible logical executions, `N` is the completed population expected to pass, `F` is initial failure followed by retry pass, `I` is initial failure, and `P` is persistent final failure. Deadpan reports `F/N`, `I/N`, `P/N`, and `F/I`, plus observation timestamps, failed-attempt duration, affected browsers/environments, owners and per-test metrics. Missing denominators are `null`; low sample counts remain explicitly insufficient.
 
 Comparable history requires matching result schema, repository, resolved configuration and execution dimensions. The default analysis window is 30 days, at most 50 comparable runs, with 20 eligible executions required before the aggregate rate is marked sufficiently sampled. Incomplete, incompatible, expired-window and untrusted records are counted as rejected observations rather than converted into a zero flake rate.
 

@@ -140,6 +140,6 @@ test('the packed CLI entrypoint remains executable with documented exit semantic
     env: { ...process.env, NO_COLOR: '1' },
   });
   assert.equal(execution.status, 0, execution.stderr);
-  assert.match(execution.stdout, /ForgeQA|forgeqa/i);
+  assert.match(execution.stdout, /Deadpan|forgeqa/i);
   assert.match(execution.stdout, /init|plan|run|report/i);
 });

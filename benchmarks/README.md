@@ -1,6 +1,6 @@
-# ForgeQA benchmarks
+# Deadpan benchmarks
 
-ForgeQA benchmarks are evidence-producing acceptance workflows, not marketing fixtures. The authoritative end-to-end benchmark runs the real PostgreSQL-backed TeamBoard inventory under five execution conditions while keeping source revision, test inventory, browser projects, retry policy, artifact policy, package versions, and application behavior fixed.
+Deadpan benchmarks are evidence-producing acceptance workflows, not marketing fixtures. The authoritative end-to-end benchmark runs the real PostgreSQL-backed TeamBoard inventory under five execution conditions while keeping source revision, test inventory, browser projects, retry policy, artifact policy, package versions, and application behavior fixed.
 
 ## Comparable conditions
 
@@ -12,7 +12,7 @@ ForgeQA benchmarks are evidence-producing acceptance workflows, not marketing fi
 | `distributed-2x1` | 2 | 1 | two independent GitHub runners |
 | `distributed-4x1` | 4 | 1 | four independent GitHub runners |
 
-One immutable ForgeQA discovery inventory is created per condition. Each measured repetition receives a distinct run identity while retaining the same expected executions. Every distributed shard uploads finalized journal evidence and a Playwright blob report. The merge job refuses missing, duplicate, incompatible, corrupt, or inventory-divergent evidence.
+One immutable Deadpan discovery inventory is created per condition. Each measured repetition receives a distinct run identity while retaining the same expected executions. Every distributed shard uploads finalized journal evidence and a Playwright blob report. The merge job refuses missing, duplicate, incompatible, corrupt, or inventory-divergent evidence.
 
 ## Running the benchmark
 
@@ -34,7 +34,7 @@ For every condition and repetition the workflow retains:
 - the immutable selection manifest and its execution-identity digest;
 - per-shard setup, test, and total runner timings;
 - runner operating system, CPU, memory, Node, Playwright, package-manager, and runner-image metadata;
-- finalized ForgeQA journals and native Playwright blob evidence;
+- finalized Deadpan journals and native Playwright blob evidence;
 - merged canonical reports and gate outcome;
 - a schema-versioned benchmark record.
 
@@ -63,7 +63,7 @@ Measurement version 3 compares `max(shard.runMs) + mergeMs`, not queue-inclusive
 
 ## Supplementary measurements and execution requests
 
-The same workflow runs `reporter-overhead.mjs` against all 20 real TeamBoard executions with native JSON/blob reporters, then with the ForgeQA reporter added. One warm-up per mode is excluded; measured mode order alternates. Whole-process overhead can be negative for a small/noisy sample; no improvement is required. `synthetic/result-scaling.mjs` measures 1,000, 10,000 and 100,000 synthetic attempts in fresh processes, retaining merge/render durations, output sizes/checksums and peak RSS. These are not customer suites. A read-only database scan verifies zero owned test resources after execution.
+The same workflow runs `reporter-overhead.mjs` against all 20 real TeamBoard executions with native JSON/blob reporters, then with the Deadpan reporter added. One warm-up per mode is excluded; measured mode order alternates. Whole-process overhead can be negative for a small/noisy sample; no improvement is required. `synthetic/result-scaling.mjs` measures 1,000, 10,000 and 100,000 synthetic attempts in fresh processes, retaining merge/render durations, output sizes/checksums and peak RSS. These are not customer suites. A read-only database scan verifies zero owned test resources after execution.
 
 Manual execution supports five repetitions. A trusted main-branch benchmark commit explicitly containing `[benchmark:5]` requests the same five-repetition acceptance run; other relevant pushes and scheduled runs use one. The parser bounds repetitions to 1–5. Condition submission order rotates between repetitions; hosted runner scheduling is outside the harness's control.
 
