@@ -1,0 +1,3 @@
+# Preserve the exact upstream bytes verified by the private runtime provenance gate.
+# In particular, Windows checkout must not rewrite the MIT license or JS to CRLF.
+tools/semantic-release/** -text
