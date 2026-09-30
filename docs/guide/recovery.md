@@ -64,6 +64,12 @@ the adapter never installs schema or grants permissions. Keep database
 credentials out of lease identities and evidence. Use a dedicated test database,
 not production data. Example after the authorized migration:
 
+The grant recipe is SELECT, INSERT and UPDATE on `forgeqa_test_lease_owners`;
+SELECT, INSERT and DELETE on `forgeqa_test_leased_tenants`; and column-level
+UPDATE(id) on the tenant table for its idempotent upsert. It does not need schema
+CREATE or UPDATE(owner_id). The acceptance lane verifies this restricted role,
+including refusal before the required column grant is present.
+
 ```ts
 import { DurablePostgresAdapter } from '@azerish25-ux/forgeqa-test-data';
 

@@ -3,7 +3,8 @@ import { ConfigurationError, IntegrityError } from '@azerish25-ux/forgeqa-core';
 import type { SqlExecutor } from './postgres.js';
 
 /** Apply explicitly with a migration role in an authorized disposable database.
- * Runtime roles need SELECT/INSERT/UPDATE on owners and SELECT/INSERT/DELETE on tenants.
+ * Runtime roles need SELECT/INSERT/UPDATE on owners, SELECT/INSERT/DELETE on tenants,
+ * and column-level UPDATE(id) on tenants for the idempotent upsert.
  * Tombstones are retained deliberately: a sealed owner must never be resurrected.
  */
 export const DURABLE_POSTGRES_SCHEMA = `

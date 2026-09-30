@@ -12,26 +12,41 @@ import { DurablePostgresAdapter, DURABLE_POSTGRES_SCHEMA } from '@azerish25-ux/f
 export async function acceptDurablePostgres(url) {
   if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || !/^\/forgeqa_test(?:_[a-z0-9_]+)?$/.test(url.pathname)) throw new Error('Durable acceptance requires an authorized laboratory database.');
   const schema = `forgeqa_durable_${randomUUID().replaceAll('-', '')}`;
+  const role = `forgeqa_durable_role_${randomUUID().replaceAll('-', '')}`;
   const clients = [0, 1, 2].map(() => new pg.Client({ connectionString: url.href, connectionTimeoutMillis: 10000, statement_timeout: 10000 }));
   const [admin, left, right] = clients;
   const cases = [];
-  let created = false, child;
+  let created = false, roleCreated = false, child;
   try {
     await Promise.all(clients.map(client => client.connect()));
     await admin.query(`CREATE SCHEMA ${schema}`); created = true;
     await Promise.all(clients.map(client => client.query(`SET search_path TO ${schema}`)));
     await admin.query(DURABLE_POSTGRES_SCHEMA);
+    await admin.query(`CREATE ROLE ${role} NOLOGIN`); roleCreated = true;
+    await admin.query(`GRANT USAGE ON SCHEMA ${schema} TO ${role}`);
+    await admin.query(`GRANT SELECT, INSERT, UPDATE ON forgeqa_test_lease_owners TO ${role}`);
+    await admin.query(`GRANT SELECT, INSERT, DELETE ON forgeqa_test_leased_tenants TO ${role}`);
+    await Promise.all([left, right].map(client => client.query(`SET ROLE ${role}`)));
     const a = new DurablePostgresAdapter(left, url.pathname.slice(1));
     const b = new DurablePostgresAdapter(right, url.pathname.slice(1));
     const identity = { consumer: 'durable-acceptance', namespace: 'lost-runner', runId: 'surviving' };
     const live = await a.createOwner(identity);
+    // ON CONFLICT DO UPDATE needs this column privilege even for a fresh insert.
+    // A superuser-only acceptance would conceal an unusable runtime grant recipe.
+    await assert.rejects(a.provision(live), error => error.code === '42501');
+    await admin.query(`GRANT UPDATE(id) ON forgeqa_test_leased_tenants TO ${role}`);
+    const privileges = (await left.query(`SELECT
+      has_schema_privilege(current_user, $1, 'CREATE') AS can_create,
+      has_column_privilege(current_user, 'forgeqa_test_leased_tenants', 'owner_id', 'UPDATE') AS can_change_owner`, [schema])).rows[0];
+    assert.equal(privileges.can_create, false); assert.equal(privileges.can_change_owner, false);
+    cases.push('minimal runtime grants permit idempotent use without schema creation or tenant-owner mutation');
     const tenant = await a.provision(live);
     assert.deepEqual(await b.provision(live), tenant);
     assert.deepEqual(await Promise.all([a.provision(live), b.provision(live)]), [tenant, tenant]);
     cases.push('independent connections serialize idempotent tenant provisioning');
 
     child = fork(fileURLToPath(new URL('../tests/fixtures/durable-postgres-owner.mjs', import.meta.url)), [], {
-      env: { ...process.env, DATABASE_URL: url.href, FORGEQA_DURABLE_SCHEMA: schema }, silent: true, execArgv: []
+      env: { ...process.env, DATABASE_URL: url.href, FORGEQA_DURABLE_SCHEMA: schema, FORGEQA_DURABLE_ROLE: role }, silent: true, execArgv: []
     });
     let errorOutput = ''; child.stderr.on('data', chunk => { errorOutput += chunk; }); child.stdout.resume();
     const exited = new Promise(resolve => child.once('exit', resolve));
@@ -89,9 +104,14 @@ export async function acceptDurablePostgres(url) {
       await admin.query(`DROP SCHEMA ${schema} CASCADE`);
       assert.equal((await admin.query('SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = $1) AS present', [schema])).rows[0].present, false);
     }
-    await Promise.all(clients.map(client => client.end()));
+    await Promise.all([left, right].map(client => client.end()));
+    if (roleCreated) {
+      await admin.query(`DROP ROLE ${role}`);
+      assert.equal((await admin.query('SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname = $1) AS present', [role])).rows[0].present, false);
+    }
+    await admin.end();
   }
-  cases.push('owned durable schema and all acceptance resources removed');
+  cases.push('owned durable schema, runtime role and all acceptance resources removed');
   return { status: 'PASS', authority: 'PostgreSQL server clock and row locks', processLoss: 'SIGKILL', localJournalRequired: false, cases };
 }
 
