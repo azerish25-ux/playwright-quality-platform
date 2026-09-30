@@ -3,7 +3,12 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 const directory = resolve('tools/semantic-release');
+test('upstream bytes are exempt from checkout newline conversion on every platform', () => {
+  const output = execFileSync('git', ['check-attr', 'text', '--', 'tools/semantic-release/LICENSE', 'tools/semantic-release/index.js'], { encoding: 'utf8' });
+  assert.deepEqual(output.trim().split(/\r?\n/), ['tools/semantic-release/LICENSE: text: unset', 'tools/semantic-release/index.js: text: unset']);
+});
 test('private semantic-release retains every upstream runtime byte and the MIT license', async () => {
   const provenance = JSON.parse(await readFile(join(directory, 'UPSTREAM.json'), 'utf8'));
   assert.equal(provenance.version, '25.0.9'); assert.equal(provenance.runtimeModification, 'none');

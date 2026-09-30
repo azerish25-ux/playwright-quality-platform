@@ -1,5 +1,15 @@
 # Delivery checkpoint — Phase 12A release engine accepted
 
+## September 30 continuation
+
+Database-authoritative lost-runner tenant recovery, concrete existing-suite
+migration acceptance and a vulnerability-free analyzer-only maintainer toolchain
+have been added on `main`. The [source continuation audit](continuation-audit.md)
+records exact commit/evidence boundaries, independent documentation archive and
+visual review, repaired failures and the remaining public-distribution approvals.
+The historical accepted sources below remain unchanged; later source revisions
+must pass their own CI and release-candidate gates.
+
 **Phase 12A semantic preparation and isolated-registry recovery passed hosted acceptance at `eab1c4fb105de7def46de0511b0af8c16763db44`. All 14 required CI jobs, Documentation and Release candidates passed. The complete public product is not released.**
 
 ## Phase 12A coordinated release acceptance
