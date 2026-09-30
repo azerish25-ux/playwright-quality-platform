@@ -8,49 +8,68 @@
       "id": "M5-01",
       "requirement": "Exact verified LedgerGuard revision pin",
       "status": "IMPLEMENTED",
-      "implementationPaths": [".github/workflows/ci.yml", "scripts/ledgerguard-acceptance.mjs"]
+      "implementationPaths": [
+        ".github/workflows/ci.yml",
+        "scripts/ledgerguard-acceptance.mjs"
+      ]
     },
     {
       "id": "M5-02",
       "requirement": "Executable external consumer using public Deadpan packages",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["consumers/ledgerguard"]
+      "implementationPaths": [
+        "consumers/ledgerguard"
+      ]
     },
     {
       "id": "M5-03",
       "requirement": "Authentication, authorization, ownership, transfer and idempotency coverage",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["consumers/ledgerguard/tests/auth.api.spec.ts", "consumers/ledgerguard/tests/transfers.api.spec.ts"]
+      "implementationPaths": [
+        "consumers/ledgerguard/tests/auth.api.spec.ts",
+        "consumers/ledgerguard/tests/transfers.api.spec.ts"
+      ]
     },
     {
       "id": "M5-04",
       "requirement": "Asynchronous settlement, cancellation, refund and reversal coverage",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["consumers/ledgerguard/tests/payments.api.spec.ts"]
+      "implementationPaths": [
+        "consumers/ledgerguard/tests/payments.api.spec.ts"
+      ]
     },
     {
       "id": "M5-05",
       "requirement": "Two-scheduler one-effect and schedule lifecycle coverage",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["consumers/ledgerguard/tests/schedules.api.spec.ts"]
+      "implementationPaths": [
+        "consumers/ledgerguard/tests/schedules.api.spec.ts"
+      ]
     },
     {
       "id": "M5-06",
       "requirement": "Independent npm and pnpm packed-package acceptance",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["scripts/ledgerguard-acceptance.mjs"]
+      "implementationPaths": [
+        "scripts/ledgerguard-acceptance.mjs"
+      ]
     },
     {
       "id": "M5-07",
       "requirement": "Financial reconciliation and owned infrastructure cleanup gates",
       "status": "IMPLEMENTED",
-      "implementationPaths": ["consumers/ledgerguard/src/lab.ts", "scripts/ledgerguard-acceptance.mjs"]
+      "implementationPaths": [
+        "consumers/ledgerguard/src/lab.ts",
+        "scripts/ledgerguard-acceptance.mjs"
+      ]
     },
     {
       "id": "M5-08",
       "requirement": "Hosted exact-source LedgerGuard consumer acceptance",
       "status": "PASS",
-      "implementationPaths": [".github/workflows/ci.yml"],
+      "implementationPaths": [
+        ".github/workflows/ci.yml"
+      ],
       "verification": {
         "forgeqaSourceSha": "4ed8584ec0a04e14283109ad5e7f1fa7a4053077",
         "workflowRun": 36346441131,
@@ -63,9 +82,17 @@
     {
       "id": "M5-09",
       "requirement": "Real LedgerGuard browser UI acceptance",
-      "status": "BLOCKED",
-      "implementationPaths": [],
-      "verification": "Blocked until LedgerGuard provides its genuine product interface; no mock UI is substituted."
+      "status": "PASS",
+      "implementationPaths": [
+        "consumers/ledgerguard/tests/product.ui.spec.ts",
+        "scripts/ledgerguard-acceptance.mjs"
+      ],
+      "verification": "CI 36675733584 job 109760164775: four real browser journeys per engine (Chromium/Firefox/WebKit), both isolated npm/pnpm consumers, same identities, clean first attempts, genuine screenshots, zero reconciliation and infrastructure leaks. See browser-consumer-acceptance.json."
     }
-  ]
+  ],
+  "browserExtension": {
+    "applicationSha": "d8d365690d961580d22105feb15ddec3267185ae",
+    "sourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+    "receipt": "browser-consumer-acceptance.json"
+  }
 }

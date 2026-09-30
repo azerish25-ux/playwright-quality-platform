@@ -115,7 +115,7 @@ No immutable public action release tag, controlled major alias, standalone actio
 
 No GitHub Marketplace listing or account-owner terms acceptance is claimed.
 
-LedgerGuard has genuine hosted API-first acceptance but still has no browser product interface. No copied or fabricated UI is substituted.
+The newer [browser consumer receipt](browser-consumer-acceptance.json) accepts the genuine Bad Penny/LedgerGuard product interface: 48 clean first attempts across both npm/pnpm consumers, including Chromium, Firefox and WebKit, with zero reconciliation and infrastructure leaks. Earlier P07A receipts retain their API-only scope; public registry-installed acceptance is still pending.
 
 The five-repetition execution/evidence pipeline and [execution-stage profiling](timing-profiling-live-acceptance.md) are accepted. Same-runner local-worker comparison passed; distributed hardware comparability remains incomplete. The profiling receipt retains overlaps and unattributed time rather than claiming an exhaustive CPU or billed-workflow partition.
 

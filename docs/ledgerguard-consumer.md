@@ -27,7 +27,7 @@ All eight Deadpan packages are packed from the tested repository revision. An is
 
 ## Honest scope
 
-The previously accepted P07A slice remains API-first historical evidence. The current extension executes 12 API cases plus four browser journeys on each of Chromium, Firefox and WebKit, for 24 executions per isolated npm/pnpm consumer. It is implemented pending exact-source hosted acceptance. Browser coverage uses real registration, wallets, transfer confirmation and committed-response recovery, asynchronous settlement, and administrator/session boundaries. No fake frontend or successful response is substituted; the separate fault-lab Compose overlay is not part of the consumer. Each UI execution must retain an actual screenshot, and the financial reconciliation and zero-leak gates remain mandatory.
+The previously accepted P07A slice remains API-first historical evidence. The current extension executes 12 API cases plus four browser journeys on each of Chromium, Firefox and WebKit, for 24 executions per isolated npm/pnpm consumer. It passed exact-source hosted acceptance at `b65257f86785ee67969081c843f9b1444e787a30` in [CI 36675733584](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36675733584); see [the retained receipt](delivery/browser-consumer-acceptance.json). Browser coverage uses real registration, wallets, transfer confirmation and committed-response recovery, asynchronous settlement, and administrator/session boundaries. No fake frontend or successful response is substituted; the separate fault-lab Compose overlay is not part of the consumer. Each UI execution must retain an actual screenshot, and the financial reconciliation and zero-leak gates remain mandatory.
 
 ## Failure semantics
 

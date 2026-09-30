@@ -4,7 +4,7 @@ Deadpan is an open-source TypeScript quality platform built around Playwright Te
 
 > **First consumer:** the PostgreSQL-backed TeamBoard application runs eight API cases and four UI journeys across Chromium, Firefox, and WebKit, including workspace and isolated npm/pnpm package adoption.
 
-> **Second consumer:** the genuine API-first LedgerGuard integration passes hosted acceptance against pinned P07A source with isolated npm/pnpm consumers, financial reconciliation, and owned-infrastructure cleanup.
+> **Second consumer:** the genuine Bad Penny application (LedgerGuard protocol) passes 12 API cases and four real UI journeys across Chromium, Firefox and WebKit through each isolated npm/pnpm consumer, with financial reconciliation and owned-infrastructure cleanup. [Exact browser acceptance](docs/delivery/browser-consumer-acceptance.json).
 
 > **Phase 10A hardening:** exact-source CI run `36355636084` passed at revision `b679c996d9f33afb6a7d89fee294bd6fdfe3afc6`. The required hardening lane measured 98.63% line, 96.46% branch, and 98.77% function coverage, audited all eight package tarballs, verified clean npm/pnpm consumers, and passed the final `forgeqa-quality` aggregate.
 
@@ -102,4 +102,4 @@ export default defineForgeConfig({
 
 ## Current limitations
 
-Deadpan is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. LedgerGuard has real API-first acceptance but no genuine browser product interface. The benchmark execution system has five-repetition hosted acceptance; same-runner lifecycle profiling is accepted, while comparable distributed hardware remains incomplete. Deadpan does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, public-registry publication-recovery acceptance, or a completed final delivery audit.
+Deadpan is not yet a public release. The status ledgers retain `PARTIAL`, `IMPLEMENTED`, `BLOCKED`, or `NOT_RUN` where later hosted or external acceptance is required. The pinned Bad Penny/LedgerGuard consumer now has genuine API and three-engine browser acceptance; public-registry consumer acceptance is still pending. The benchmark execution system has five-repetition hosted acceptance; same-runner lifecycle profiling is accepted, while comparable distributed hardware remains incomplete. Deadpan does not yet claim published npm packages, an immutable public action release, a Marketplace listing, deployed versioned documentation, public-registry publication-recovery acceptance, or a completed final delivery audit.

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 3,
   "consumer": "ledgerguard",
-  "status": "IMPLEMENTED_AWAITING_HOSTED_ACCEPTANCE",
+  "status": "HOSTED_ACCEPTED",
   "applicationRepository": "azerish25-ux/transaction-reliability-lab",
   "applicationSha": "d8d365690d961580d22105feb15ddec3267185ae",
   "applicationVerificationRun": 36656046918,
   "mode": "api-and-browser",
-  "uiClaimed": false,
+  "uiClaimed": true,
   "testCount": 24,
   "packageManagers": [
     "npm",
@@ -43,5 +43,11 @@
     "webkit"
   ],
   "applicationVerificationJob": 109700516992,
-  "applicationVerificationScope": "Required product gate passed; separate isolated fault-lab gate failed and is not claimed here"
+  "applicationVerificationScope": "Required product gate passed; separate isolated fault-lab gate failed and is not claimed here",
+  "acceptance": {
+    "sourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+    "workflowRun": 36675733584,
+    "job": 109760164775,
+    "receipt": "docs/delivery/browser-consumer-acceptance.json"
+  }
 }

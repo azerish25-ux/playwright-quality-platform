@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "startedAt": "2026-09-30T05:57:17.980Z",
+  "completedAt": "2026-09-30T06:04:16.945Z",
+  "forgeqaSourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+  "ledgerguardSourceSha": "d8d365690d961580d22105feb15ddec3267185ae",
+  "ledgerguardVerificationRun": 36656046918,
+  "consumerManagers": [
+    {
+      "manager": "npm",
+      "status": "PASS",
+      "independentConsumer": true,
+      "isolatedComposeProject": "forgeqa-ledger-npm-8f96cf57",
+      "forgeqaSourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+      "ledgerguardSourceSha": "d8d365690d961580d22105feb15ddec3267185ae",
+      "tests": 24,
+      "attempts": 24,
+      "commandExitCode": 0,
+      "summaryExitCode": 0,
+      "gate": {
+        "outcome": "pass",
+        "violations": []
+      },
+      "runId": "f358daf5-06f3-440e-a09c-7e53d37b4c1d",
+      "reconciliationDiscrepancies": 0,
+      "projects": {
+        "ledgerguard-api": 12,
+        "ledgerguard-chromium": 4,
+        "ledgerguard-firefox": 4,
+        "ledgerguard-webkit": 4
+      },
+      "uiClaimed": true,
+      "cleanupStatus": "PASS"
+    },
+    {
+      "manager": "pnpm",
+      "status": "PASS",
+      "independentConsumer": true,
+      "isolatedComposeProject": "forgeqa-ledger-pnpm-28a02d1b",
+      "forgeqaSourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+      "ledgerguardSourceSha": "d8d365690d961580d22105feb15ddec3267185ae",
+      "tests": 24,
+      "attempts": 24,
+      "commandExitCode": 0,
+      "summaryExitCode": 0,
+      "gate": {
+        "outcome": "pass",
+        "violations": []
+      },
+      "runId": "0a18563e-e8d5-408f-aa3d-aed951e61c74",
+      "reconciliationDiscrepancies": 0,
+      "projects": {
+        "ledgerguard-api": 12,
+        "ledgerguard-chromium": 4,
+        "ledgerguard-firefox": 4,
+        "ledgerguard-webkit": 4
+      },
+      "uiClaimed": true,
+      "cleanupStatus": "PASS"
+    }
+  ],
+  "expectedTests": 24,
+  "reconciliationDiscrepancies": 0,
+  "isolatedComposeProjects": true,
+  "failedRunEvidenceRetained": true,
+  "apiFirst": false,
+  "uiClaimed": true,
+  "expectedApiTests": 12,
+  "expectedBrowserTests": 12,
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "applicationVerificationScope": "required product gate; separate internal fault-lab acceptance is not substituted",
+  "applicationVerificationJob": 109700516992,
+  "artifact": {
+    "id": 11079716988,
+    "sha256": "c96eba216b095e788c6f1147dfcc17c18507e927d50ea702b73a7e375d35eaab",
+    "workflowRun": 36675733584,
+    "job": 109760164775
+  },
+  "independentVerification": {
+    "archiveDigest": "PASS",
+    "sourceBindings": "PASS",
+    "executions": 48,
+    "apiExecutions": 24,
+    "browserExecutions": 24,
+    "identitySetsEqual": true,
+    "screenshotPngHashes": 30,
+    "reconciliationDiscrepancies": 0,
+    "remainingContainers": 0,
+    "remainingVolumes": 0,
+    "remainingNetworks": 0,
+    "visualReview": "Registration wallet, transfer safe replay, settled payment and session boundary screenshots inspected",
+    "stdioChecksumGap": "Two legacy captured stdio logs lack SHA-256 fields at this source; reporter repair and actual native regression are tracked separately. Screenshot hashes passed."
+  }
+}

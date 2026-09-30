@@ -173,16 +173,16 @@
       "id": "R-013",
       "requirement": "LedgerGuard real consumer",
       "status": "PARTIAL",
-      "actualResult": "The genuine API-first LedgerGuard consumer passes hosted exact-source acceptance with isolated npm/pnpm packages, twelve application journeys, financial reconciliation, and infrastructure cleanup. Browser UI coverage remains blocked because the pinned application has no genuine product UI.",
+      "actualResult": "Pinned genuine Bad Penny product source d8d3656 passes 12 API cases plus four browser journeys on Chromium, Firefox and WebKit in each isolated npm/pnpm consumer: 48 clean first attempts, 30 hashed screenshots, matched identities, zero reconciliation and cleanup discrepancies. Public registry-installed acceptance remains incomplete.",
       "implementationPaths": [
         "examples/ledgerguard-integration",
         "scripts/ledgerguard-acceptance.mjs",
         ".github/workflows/ci.yml",
         "docs/delivery/ledgerguard-consumer-requirements.json"
       ],
-      "verification": "CI runs 36346441131 and 36355636084; docs/delivery/ledgerguard-consumer-requirements.json",
+      "verification": "CI 36675733584; browser-consumer-acceptance.json",
       "expectedBehavior": "LedgerGuard real consumer",
-      "evidenceRecord": "phase-10-current"
+      "evidenceRecord": "browser-consumer-hosted"
     },
     {
       "id": "R-014",
@@ -468,6 +468,13 @@
       "result": "success",
       "scope": "Lifecycle timing and controlled local workers; not comparable distributed speedup or public distribution",
       "reportManifest": "docs/delivery/timing-profiling-acceptance.json"
+    },
+    "browser-consumer-hosted": {
+      "sourceSha": "b65257f86785ee67969081c843f9b1444e787a30",
+      "workflowRun": "https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36675733584",
+      "result": "success",
+      "scope": "Real API/browser consumer on three engines through isolated npm/pnpm packages; not public registry publication",
+      "reportManifest": "docs/delivery/browser-consumer-acceptance.json"
     }
   }
 }

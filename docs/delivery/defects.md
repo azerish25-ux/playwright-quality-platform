@@ -44,4 +44,14 @@ All entries distinguish an implementation repair from the later exact-SHA CI pro
 
 ## Scope still requiring verification
 
-This ledger does not certify production suitability, registry publication, immutable public action distribution, deployed documentation, comparable release benchmarks, or a genuine LedgerGuard browser interface. Missing, failed, or cancelled hosted jobs remain blocking in the aggregate check. Review the exact delivered commit rather than relying on a previous green run.
+This ledger does not certify production suitability, registry publication, immutable public action distribution, deployed documentation, comparable release benchmarks. Missing, failed, or cancelled hosted jobs remain blocking in the aggregate check. Review the exact delivered commit rather than relying on a previous green run.
+
+## Captured standard-stream integrity
+
+The real browser-consumer artifact at `b65257f` exposed two captured stdout/stderr
+logs with sizes but no SHA-256 fields. Other attachments, including all 30 genuine
+screenshots, carried verified hashes. The native reporter now hashes the exact
+redacted bytes written to its standard-stream attachment. A real native-runner
+regression verifies Unicode byte length, stdout/stderr content and the recorded
+SHA-256. The original artifact remains an honest record of the missing metadata;
+no checksum is retroactively invented for it.

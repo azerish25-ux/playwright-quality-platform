@@ -4,6 +4,7 @@ import {mkdtemp, mkdir, writeFile, readFile, rm, readdir} from 'node:fs/promises
 import {resolve,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const cli=resolve(root,'packages/cli/dist/cli.js');
 const native=resolve(root,'node_modules/@playwright/test/cli.js');
@@ -20,6 +21,16 @@ async function consumer(t,body,{retries=0,config='',extra=''}={}) {
 }
 async function run(dir,args=[]) {const result=await invoke(cli,['run','--json',...args],dir);try{return {...result,value:JSON.parse(result.out)};}catch{assert.fail(`Non-JSON output: ${result.out}\n${result.err}`);}}
 async function report(result) {return JSON.parse(await readFile(join(result.value.runDir,'report.json'),'utf8'));}
+
+test('captured native stdout and stderr retain exact byte lengths and SHA-256 evidence',async t=>{
+ const dir=await consumer(t,`test('logged',{tag:'@smoke'},async()=>{console.log('synthetic Ω stdout');console.error('synthetic stderr');});`);
+ const result=await run(dir);assert.equal(result.code,0,result.out+result.err);
+ const data=await report(result);const logs=data.attempts[0].artifacts.filter(a=>a.state==='captured'&&a.type==='log'&&a.path.endsWith('-stdio.txt'));
+ assert.equal(logs.length,1);
+ const bytes=await readFile(join(result.value.runDir,logs[0].path));
+ assert.match(bytes.toString('utf8'),/synthetic Ω stdout/);assert.match(bytes.toString('utf8'),/synthetic stderr/);
+ assert.equal(logs[0].size,bytes.length);assert.equal(logs[0].sha256,createHash('sha256').update(bytes).digest('hex'));
+});
 
 test('real native discovery, callable fixture extension, attempts and artifact checksums',async t=>{
  const dir=await consumer(t,`test('worker context',{tag:'@smoke',annotation:forgeId('native.worker')},async({forge},info)=>{expect(forge.namespace).toMatch(/^fq-/);expect(info.project.name).toBe('api');});`);

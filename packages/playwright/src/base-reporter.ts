@@ -152,8 +152,9 @@ export default class ForgeReporter implements Reporter {
       const stdio=result.stdout.concat(result.stderr).map(chunk=>chunk.toString()).join('').slice(0,16_384);
       if (stdio) {
         const path=resolve(this.metadata.runDir,'attachments',`${attemptId.replace(':','-')}-stdio.txt`);
-        atomic(path,text(stdio));
-        attempt.artifacts!.push({path:relative(this.metadata.runDir,path).replace(/\\/g,'/'),type:'log',state:'captured',size:Buffer.byteLength(text(stdio))});
+        const content=text(stdio);
+        atomic(path,content);
+        attempt.artifacts!.push({path:relative(this.metadata.runDir,path).replace(/\\/g,'/'),type:'log',state:'captured',size:Buffer.byteLength(content),sha256:sha256(content)});
       }
       this.attempts.push(attempt);
       this.enqueue(()=>this.journal!.attempt(attempt));

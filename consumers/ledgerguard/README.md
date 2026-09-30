@@ -63,5 +63,5 @@ Each browser journey retains a screenshot from synthetic, owned data. Traces, vi
 and serialized credential state remain excluded. API tests and global balance/hold
 reconciliation still run, with no retry recovery accepted as a clean pass.
 
-This extension is implemented pending exact-source hosted consumer acceptance.
+This extension passed exact-source hosted consumer acceptance at Deadpan `b65257f86785ee67969081c843f9b1444e787a30`, CI `36675733584` and job `109760164775`; the scoped receipt is `docs/delivery/browser-consumer-acceptance.json`.
 The application source and test count are never changed merely to make CI pass.
