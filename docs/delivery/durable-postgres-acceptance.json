@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-durable-postgres-acceptance",
+  "sourceSha": "ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9",
+  "status": "PASS",
+  "authority": "PostgreSQL server clock and row locks",
+  "processLoss": "SIGKILL",
+  "localJournalRequired": false,
+  "cases": [
+    "independent connections serialize idempotent tenant provisioning",
+    "hard-killed owner reclaimed without its disk journal; live owner and sealed tombstone protected",
+    "competing reapers, locked owners and foreign exact namespace remain isolated",
+    "renewed leases, normal close, lost-ack replay and zero remaining owned tenants",
+    "owned durable schema and all acceptance resources removed"
+  ]
+}

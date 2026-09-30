@@ -1,23 +1,58 @@
 {
   "schemaVersion": 1,
   "kind": "forgeqa-durable-postgres-requirements",
-  "status": "IMPLEMENTED_PENDING_HOSTED_ACCEPTANCE",
+  "status": "PASS",
   "scope": "Database-authoritative leased tenant ownership, independent of runner disks and PID liveness; no claim for arbitrary external account APIs or local files",
-  "implementationPaths": ["packages/test-data/src/durable-postgres.ts", "scripts/durable-postgres-acceptance.mjs"],
+  "implementationPaths": [
+    "packages/test-data/src/durable-postgres.ts",
+    "scripts/durable-postgres-acceptance.mjs"
+  ],
   "verification": {
     "unitCommand": "node --test tests/durable-postgres.test.mjs",
-    "localUnitTests": {"passed": 9, "failed": 0, "skipped": 0},
-    "coverage": {"lines": 100, "branches": 100, "functions": 100},
+    "localUnitTests": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "coverage": {
+      "lines": 100,
+      "branches": 100,
+      "functions": 100
+    },
     "hostedLane": "CI / teamboard / Verify durable lost-runner PostgreSQL ownership",
-    "hostedStatus": "NOT_RUN",
-    "receipt": "evidence/durable-postgres/acceptance.json"
+    "hostedStatus": "PASS",
+    "receipt": "evidence/durable-postgres/acceptance.json",
+    "hostedRun": 36654683715,
+    "hostedJob": 109696692619,
+    "retainedReceipt": "durable-postgres-acceptance.json"
   },
   "requirements": [
-    {"id": "DP-01", "requirement": "Database clock and fresh immutable lease identity; stale renew/provision refusal"},
-    {"id": "DP-02", "requirement": "Atomic row-locked provision, irreversible sealing and owned tenant deletion"},
-    {"id": "DP-03", "requirement": "Hard-killed process reclaimed using a separate connection without a local journal"},
-    {"id": "DP-04", "requirement": "Competing reapers, held locks, exact namespace isolation and lost-ack idempotency"},
-    {"id": "DP-05", "requirement": "Fail-closed target/receipt validation and zero acceptance-resource leaks"}
+    {
+      "id": "DP-01",
+      "requirement": "Database clock and fresh immutable lease identity; stale renew/provision refusal",
+      "status": "PASS"
+    },
+    {
+      "id": "DP-02",
+      "requirement": "Atomic row-locked provision, irreversible sealing and owned tenant deletion",
+      "status": "PASS"
+    },
+    {
+      "id": "DP-03",
+      "requirement": "Hard-killed process reclaimed using a separate connection without a local journal",
+      "status": "PASS"
+    },
+    {
+      "id": "DP-04",
+      "requirement": "Competing reapers, held locks, exact namespace isolation and lost-ack idempotency",
+      "status": "PASS"
+    },
+    {
+      "id": "DP-05",
+      "requirement": "Fail-closed target/receipt validation and zero acceptance-resource leaks",
+      "status": "PASS"
+    }
   ],
-  "publicationClaimed": false
+  "publicationClaimed": false,
+  "sourceSha": "ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9"
 }

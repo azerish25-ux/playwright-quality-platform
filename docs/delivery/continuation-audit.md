@@ -4,6 +4,28 @@ This checkpoint preserves the continuation on `main`. It is a source-quality and
 portfolio review, **not authorization to publish and not a completed public
 release**. Existing source-specific receipts remain bound to their original SHAs.
 
+## Final exact-source acceptance
+
+Source `ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9` passed all 14 required
+[CI jobs](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36654683715),
+[Documentation](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36654683762)
+and [Release candidates](https://github.com/azerish25-ux/playwright-quality-platform/actions/runs/36654683662).
+The hosted suite passed 304 unit and 14 integration tests; the dependency audit
+reported zero vulnerabilities. The public publishing job was skipped.
+
+Four downloaded archives independently matched GitHub's digests and exact source.
+All 16 complete source/prepared tarballs matched their SHA-256, SHA-512 and sizes.
+The eight prepared packages remain version 1.0.0 candidates. All four prepared and
+loopback-registry npm/pnpm consumers passed, with eight clean first attempts total.
+The final documentation has 50 pages and 3,937 checked local references; its
+screenshots are byte-identical to the desktop/mobile/search images reviewed below.
+The PostgreSQL receipt confirms hard-kill recovery, concurrent-reaper isolation
+and zero leftover acceptance resources. See [the retained source receipt](continuation-acceptance.json)
+and [scoped database receipt](durable-postgres-acceptance.json).
+
+This later documentation checkpoint records those immutable source bindings; it
+does not pretend the downloaded artifacts originated from a newer documentation SHA.
+
 ## Implemented and verified
 
 | Change | Source | Evidence |

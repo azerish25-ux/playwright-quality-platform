@@ -1,6 +1,12 @@
-# Delivery checkpoint — Phase 12A release engine accepted
+# Delivery checkpoint — September 30 source continuation accepted
 
 ## September 30 continuation
+
+Source `ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9` passed all 14 CI jobs,
+Documentation and Release candidates. Independent archive/tarball and visual
+verification is retained in [the acceptance receipt](continuation-acceptance.json).
+The source continuation is accepted within that receipt's scope; public
+publication and the remaining broader requirements are still incomplete.
 
 Database-authoritative lost-runner tenant recovery, concrete existing-suite
 migration acceptance and a vulnerability-free analyzer-only maintainer toolchain

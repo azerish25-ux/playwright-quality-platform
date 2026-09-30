@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "kind": "deadpan-source-continuation-acceptance",
+  "status": "PASS",
+  "sourceSha": "ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9",
+  "scope": "Source-quality, private toolchain, concrete native migration, database-authoritative leased tenants, documentation and prepared candidates; not public distribution or arbitrary external recovery",
+  "publicationAuthorized": false,
+  "workflows": {
+    "ci": {
+      "runId": 36654683715,
+      "status": "PASS",
+      "jobs": [
+        {
+          "id": 109696692427,
+          "name": "ledgerguard",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692505,
+          "name": "action",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692507,
+          "name": "consumer (ubuntu-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692509,
+          "name": "verify (ubuntu-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692531,
+          "name": "consumer (macos-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692537,
+          "name": "verify (ubuntu-latest, 24)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692543,
+          "name": "hardening",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692551,
+          "name": "verify (windows-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692581,
+          "name": "verify (macos-latest, 22)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692604,
+          "name": "consumer (windows-latest)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692609,
+          "name": "verify (windows-latest, 24)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692619,
+          "name": "teamboard",
+          "conclusion": "success"
+        },
+        {
+          "id": 109696692657,
+          "name": "verify (macos-latest, 24)",
+          "conclusion": "success"
+        },
+        {
+          "id": 109698093478,
+          "name": "forgeqa-quality",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "documentation": {
+      "runId": 36654683762,
+      "status": "PASS"
+    },
+    "releaseCandidates": {
+      "runId": 36654683662,
+      "status": "PASS",
+      "verifyJob": 109696347864,
+      "publicPublishJob": 109698621490,
+      "publicPublishConclusion": "skipped"
+    }
+  },
+  "tests": {
+    "unit": 304,
+    "integration": 14,
+    "unitFailed": 0,
+    "integrationFailed": 0
+  },
+  "dependencyAudit": {
+    "vulnerabilities": 0,
+    "threshold": "high",
+    "waivers": []
+  },
+  "artifacts": [
+    {
+      "id": 11071439529,
+      "kind": "documentation",
+      "sha256": "2e05b74cddaaed72d38c88b7728f85ca52a93a1a50df7918edf957cad1d1d3a9"
+    },
+    {
+      "id": 11072405439,
+      "kind": "release-candidates",
+      "sha256": "66fda8dfee91910f6699d159456bf7f169e4b88865e5bd5e09df434c2f3e2137"
+    },
+    {
+      "id": 11071729314,
+      "kind": "teamboard",
+      "sha256": "8aad11582e0299549ea13f1ac32bf3a3216ae6f0415278d026d2799fe643d91e"
+    },
+    {
+      "id": 11071569242,
+      "kind": "hardening",
+      "sha256": "f43cd8bc0987d36ef74e44885e514a0cd4ffabc4454f114fa8c8b0eb263ef937"
+    }
+  ],
+  "independentVerification": {
+    "archiveDigests": "PASS",
+    "sourceBindings": "PASS",
+    "completeSourceAndPreparedTarballs": 16,
+    "sha256Sha512AndSizes": "PASS",
+    "preparedVersion": "1.0.0",
+    "preparedNpmPnpm": "PASS",
+    "loopbackRegistryNpmPnpm": "PASS",
+    "cleanFirstAttemptsAcrossFourConsumers": 8,
+    "publicNpmPublication": "NOT_ATTEMPTED",
+    "documentation": {
+      "pages": 50,
+      "localReferences": 3937,
+      "browserErrors": 0,
+      "mobileOverflow": false,
+      "desktopMobileSearchVisuallyReviewed": true,
+      "finalScreenshotsEqualReviewedBytes": true
+    }
+  },
+  "remaining": [
+    "Public npm authorization/publication and stable promotion",
+    "Immutable public Action tags, major alias and external consumption",
+    "Marketplace account-owner terms/listing",
+    "Public versioned documentation deployment",
+    "Genuine LedgerGuard product UI contract and browser acceptance",
+    "Comparable distributed hardware measurements",
+    "Fenced ownership contracts for arbitrary external account APIs and cross-host credentials"
+  ]
+}
