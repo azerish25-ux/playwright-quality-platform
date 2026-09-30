@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "kind": "forgeqa-real-registry-consumer-acceptance",
+  "status": "PASS",
+  "sourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+  "version": "1.0.0",
+  "scope": "isolated-loopback-registry",
+  "publicNpmPublication": "NOT_ATTEMPTED",
+  "consumers": [
+    {
+      "application": "teamboard",
+      "schemaVersion": 1,
+      "status": "PASS",
+      "sourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+      "version": "1.0.0",
+      "manager": "npm",
+      "distribution": "loopback-registry",
+      "initializer": "existing-application",
+      "packageChecksums": {
+        "azerish25-ux-forgeqa-core-1.0.0.tgz": "50cf9425c344b9e3d0eac1a4a659adb73d3f30a34d6ae0076421c635c6b2d992",
+        "azerish25-ux-forgeqa-api-1.0.0.tgz": "992f56efe877819d79a5a48c17cdacc668d2d242a43c2c3dff0edf896357ef46",
+        "azerish25-ux-forgeqa-test-data-1.0.0.tgz": "033c8d7f7fa3d8f058cb29e6def6ec9af6f4c887bc2971cbbb7a2ec17f3d204b",
+        "azerish25-ux-forgeqa-reporter-1.0.0.tgz": "df60b8e2d7dc1da6eeb7f33b0acf46d0db32d2b770ee3a2ae2bd969c7691326c",
+        "azerish25-ux-forgeqa-flake-analysis-1.0.0.tgz": "2f4200c8083bdf97413402803932bb3aab37e393898003e3eeeb711f96b83abb",
+        "azerish25-ux-forgeqa-playwright-1.0.0.tgz": "24dd725c143ec51812a14e1190c92d4f8694d160e820d53e930a84d38033a974",
+        "azerish25-ux-forgeqa-github-1.0.0.tgz": "6da937ff7f79e4061ba8573c13d60c5798c1fcdba729b8102cded21e49e0e9a3",
+        "azerish25-ux-forgeqa-cli-1.0.0.tgz": "3251c62bbf220975534caf046531200188617b9b2146ace8939338c0400ee3da"
+      },
+      "versions": {
+        "@azerish25-ux/forgeqa-core": "1.0.0",
+        "@azerish25-ux/forgeqa-api": "1.0.0",
+        "@azerish25-ux/forgeqa-test-data": "1.0.0",
+        "@azerish25-ux/forgeqa-reporter": "1.0.0",
+        "@azerish25-ux/forgeqa-flake-analysis": "1.0.0",
+        "@azerish25-ux/forgeqa-playwright": "1.0.0",
+        "@azerish25-ux/forgeqa-github": "1.0.0",
+        "@azerish25-ux/forgeqa-cli": "1.0.0"
+      },
+      "tests": 20,
+      "attempts": 20,
+      "cleanup": "PASS",
+      "sameInventory": true
+    },
+    {
+      "application": "teamboard",
+      "schemaVersion": 1,
+      "status": "PASS",
+      "sourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+      "version": "1.0.0",
+      "manager": "pnpm",
+      "distribution": "loopback-registry",
+      "initializer": "existing-application",
+      "packageChecksums": {
+        "azerish25-ux-forgeqa-core-1.0.0.tgz": "50cf9425c344b9e3d0eac1a4a659adb73d3f30a34d6ae0076421c635c6b2d992",
+        "azerish25-ux-forgeqa-api-1.0.0.tgz": "992f56efe877819d79a5a48c17cdacc668d2d242a43c2c3dff0edf896357ef46",
+        "azerish25-ux-forgeqa-test-data-1.0.0.tgz": "033c8d7f7fa3d8f058cb29e6def6ec9af6f4c887bc2971cbbb7a2ec17f3d204b",
+        "azerish25-ux-forgeqa-reporter-1.0.0.tgz": "df60b8e2d7dc1da6eeb7f33b0acf46d0db32d2b770ee3a2ae2bd969c7691326c",
+        "azerish25-ux-forgeqa-flake-analysis-1.0.0.tgz": "2f4200c8083bdf97413402803932bb3aab37e393898003e3eeeb711f96b83abb",
+        "azerish25-ux-forgeqa-playwright-1.0.0.tgz": "24dd725c143ec51812a14e1190c92d4f8694d160e820d53e930a84d38033a974",
+        "azerish25-ux-forgeqa-github-1.0.0.tgz": "6da937ff7f79e4061ba8573c13d60c5798c1fcdba729b8102cded21e49e0e9a3",
+        "azerish25-ux-forgeqa-cli-1.0.0.tgz": "3251c62bbf220975534caf046531200188617b9b2146ace8939338c0400ee3da"
+      },
+      "versions": {
+        "@azerish25-ux/forgeqa-core": "1.0.0",
+        "@azerish25-ux/forgeqa-api": "1.0.0",
+        "@azerish25-ux/forgeqa-test-data": "1.0.0",
+        "@azerish25-ux/forgeqa-reporter": "1.0.0",
+        "@azerish25-ux/forgeqa-flake-analysis": "1.0.0",
+        "@azerish25-ux/forgeqa-playwright": "1.0.0",
+        "@azerish25-ux/forgeqa-github": "1.0.0",
+        "@azerish25-ux/forgeqa-cli": "1.0.0"
+      },
+      "tests": 20,
+      "attempts": 20,
+      "cleanup": "PASS",
+      "sameInventory": true
+    },
+    {
+      "application": "ledgerguard",
+      "manager": "npm",
+      "status": "PASS",
+      "independentConsumer": true,
+      "distribution": "loopback-registry",
+      "version": "1.0.0",
+      "packageChecksums": {
+        "azerish25-ux-forgeqa-core-1.0.0.tgz": "50cf9425c344b9e3d0eac1a4a659adb73d3f30a34d6ae0076421c635c6b2d992",
+        "azerish25-ux-forgeqa-api-1.0.0.tgz": "992f56efe877819d79a5a48c17cdacc668d2d242a43c2c3dff0edf896357ef46",
+        "azerish25-ux-forgeqa-test-data-1.0.0.tgz": "033c8d7f7fa3d8f058cb29e6def6ec9af6f4c887bc2971cbbb7a2ec17f3d204b",
+        "azerish25-ux-forgeqa-reporter-1.0.0.tgz": "df60b8e2d7dc1da6eeb7f33b0acf46d0db32d2b770ee3a2ae2bd969c7691326c",
+        "azerish25-ux-forgeqa-flake-analysis-1.0.0.tgz": "2f4200c8083bdf97413402803932bb3aab37e393898003e3eeeb711f96b83abb",
+        "azerish25-ux-forgeqa-playwright-1.0.0.tgz": "24dd725c143ec51812a14e1190c92d4f8694d160e820d53e930a84d38033a974",
+        "azerish25-ux-forgeqa-github-1.0.0.tgz": "6da937ff7f79e4061ba8573c13d60c5798c1fcdba729b8102cded21e49e0e9a3",
+        "azerish25-ux-forgeqa-cli-1.0.0.tgz": "3251c62bbf220975534caf046531200188617b9b2146ace8939338c0400ee3da"
+      },
+      "versions": {
+        "@azerish25-ux/forgeqa-core": "1.0.0",
+        "@azerish25-ux/forgeqa-api": "1.0.0",
+        "@azerish25-ux/forgeqa-test-data": "1.0.0",
+        "@azerish25-ux/forgeqa-reporter": "1.0.0",
+        "@azerish25-ux/forgeqa-flake-analysis": "1.0.0",
+        "@azerish25-ux/forgeqa-playwright": "1.0.0",
+        "@azerish25-ux/forgeqa-github": "1.0.0",
+        "@azerish25-ux/forgeqa-cli": "1.0.0"
+      },
+      "isolatedComposeProject": "forgeqa-ledger-npm-5a07651f",
+      "forgeqaSourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+      "ledgerguardSourceSha": "d8d365690d961580d22105feb15ddec3267185ae",
+      "tests": 24,
+      "attempts": 24,
+      "commandExitCode": 0,
+      "summaryExitCode": 0,
+      "gate": {
+        "outcome": "pass",
+        "violations": []
+      },
+      "runId": "1b265b8b-d50b-4301-bf88-0bb7d1c709e6",
+      "reconciliationDiscrepancies": 0,
+      "projects": {
+        "ledgerguard-api": 12,
+        "ledgerguard-chromium": 4,
+        "ledgerguard-firefox": 4,
+        "ledgerguard-webkit": 4
+      },
+      "uiClaimed": true,
+      "cleanupStatus": "PASS"
+    },
+    {
+      "application": "ledgerguard",
+      "manager": "pnpm",
+      "status": "PASS",
+      "independentConsumer": true,
+      "distribution": "loopback-registry",
+      "version": "1.0.0",
+      "packageChecksums": {
+        "azerish25-ux-forgeqa-core-1.0.0.tgz": "50cf9425c344b9e3d0eac1a4a659adb73d3f30a34d6ae0076421c635c6b2d992",
+        "azerish25-ux-forgeqa-api-1.0.0.tgz": "992f56efe877819d79a5a48c17cdacc668d2d242a43c2c3dff0edf896357ef46",
+        "azerish25-ux-forgeqa-test-data-1.0.0.tgz": "033c8d7f7fa3d8f058cb29e6def6ec9af6f4c887bc2971cbbb7a2ec17f3d204b",
+        "azerish25-ux-forgeqa-reporter-1.0.0.tgz": "df60b8e2d7dc1da6eeb7f33b0acf46d0db32d2b770ee3a2ae2bd969c7691326c",
+        "azerish25-ux-forgeqa-flake-analysis-1.0.0.tgz": "2f4200c8083bdf97413402803932bb3aab37e393898003e3eeeb711f96b83abb",
+        "azerish25-ux-forgeqa-playwright-1.0.0.tgz": "24dd725c143ec51812a14e1190c92d4f8694d160e820d53e930a84d38033a974",
+        "azerish25-ux-forgeqa-github-1.0.0.tgz": "6da937ff7f79e4061ba8573c13d60c5798c1fcdba729b8102cded21e49e0e9a3",
+        "azerish25-ux-forgeqa-cli-1.0.0.tgz": "3251c62bbf220975534caf046531200188617b9b2146ace8939338c0400ee3da"
+      },
+      "versions": {
+        "@azerish25-ux/forgeqa-core": "1.0.0",
+        "@azerish25-ux/forgeqa-api": "1.0.0",
+        "@azerish25-ux/forgeqa-test-data": "1.0.0",
+        "@azerish25-ux/forgeqa-reporter": "1.0.0",
+        "@azerish25-ux/forgeqa-flake-analysis": "1.0.0",
+        "@azerish25-ux/forgeqa-playwright": "1.0.0",
+        "@azerish25-ux/forgeqa-github": "1.0.0",
+        "@azerish25-ux/forgeqa-cli": "1.0.0"
+      },
+      "isolatedComposeProject": "forgeqa-ledger-pnpm-d6f33d7a",
+      "forgeqaSourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+      "ledgerguardSourceSha": "d8d365690d961580d22105feb15ddec3267185ae",
+      "tests": 24,
+      "attempts": 24,
+      "commandExitCode": 0,
+      "summaryExitCode": 0,
+      "gate": {
+        "outcome": "pass",
+        "violations": []
+      },
+      "runId": "d77387c4-2086-4cf0-8543-a8ae41578bec",
+      "reconciliationDiscrepancies": 0,
+      "projects": {
+        "ledgerguard-api": 12,
+        "ledgerguard-chromium": 4,
+        "ledgerguard-firefox": 4,
+        "ledgerguard-webkit": 4
+      },
+      "uiClaimed": true,
+      "cleanupStatus": "PASS"
+    }
+  ],
+  "registryCleanup": "PASS",
+  "workflowRun": 36678122001,
+  "job": 109771828426,
+  "artifact": {
+    "id": 11081128762,
+    "sha256": "9932b05abe569d35851426df355c5ff03468bef63c9154df5c80cf772583625d"
+  },
+  "preparedArtifact": {
+    "id": 11081626292,
+    "sha256": "6e659e88891ea82b0ca55ad5ccfb20864beb2e69015312a29474051f04e86900"
+  },
+  "independentVerification": {
+    "archiveDigests": "PASS",
+    "allEightCompleteTarballSha256Sha512Sizes": "PASS",
+    "realConsumerExecutions": 88,
+    "allFirstAttemptsPassed": true,
+    "allCapturedAttachmentHashes": "PASS",
+    "financialReconciliation": "PASS",
+    "ownedInfrastructureCleanup": "PASS",
+    "publicPublication": "NOT_ATTEMPTED"
+  }
+}

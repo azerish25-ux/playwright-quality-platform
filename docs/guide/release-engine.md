@@ -84,8 +84,12 @@ leaks remain mandatory. Real TeamBoard receipts have their own directory so they
 cannot overwrite the two-case onboarding receipts. Both source and prepared
 onboarding evidence are rechecked after the real applications finish.
 
-This new lane is implemented pending its own hosted acceptance. It qualifies an
-isolated registry, not npmjs.com availability or authorization. Public publication
+This lane passed [hosted acceptance](../delivery/real-registry-consumer-acceptance.json)
+at source `3200c4aac488b7a426839d128b19a0224f7a8bea`, run `36678122001`,
+with 88 clean first-attempt executions across four real application consumers.
+Downloaded archives, all eight complete prepared tarballs and all captured
+attachments were independently verified. It qualifies an isolated registry, not
+npmjs.com availability or authorization. Public publication
 depends on both verification jobs and retains the same explicit manual-only
 approval and trusted-publisher guards described below.
 

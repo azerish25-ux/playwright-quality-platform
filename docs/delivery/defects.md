@@ -55,3 +55,8 @@ redacted bytes written to its standard-stream attachment. A real native-runner
 regression verifies Unicode byte length, stdout/stderr content and the recorded
 SHA-256. The original artifact remains an honest record of the missing metadata;
 no checksum is retroactively invented for it.
+
+The repair was subsequently exercised by the real prepared-registry consumers at
+`3200c4aac488b7a426839d128b19a0224f7a8bea`: every captured attachment in all four
+consumer reports had a matching size and SHA-256, including captured standard
+streams. See `real-registry-consumer-acceptance.json`.

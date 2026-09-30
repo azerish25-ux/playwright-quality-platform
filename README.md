@@ -41,6 +41,18 @@ SaaS teams frequently have Playwright suites but lack safe test-data ownership, 
 | `@azerish25-ux/forgeqa-github` | GitHub Action runtime helpers |
 | `@azerish25-ux/forgeqa-cli` | `forgeqa` command and safe initialization templates |
 
+## Prepared packages in a real consumer
+
+![A real synthetic transfer receipt recovered safely through Bad Penny using Deadpan's prepared packages](docs/assets/bad-penny-transfer.png)
+
+The actual browser consumer commits a synthetic transfer, loses its response, and
+recovers the same transfer without a second financial effect. This screenshot
+comes from a registry-installed version 1.0.0 candidate. It depicts the pinned
+Bad Penny application, whose interface retains its LedgerGuard branding.
+[Source and image digest](docs/assets/bad-penny-transfer.source.json) ·
+[88 real-consumer executions and exact artifact acceptance](docs/delivery/real-registry-consumer-acceptance.json).
+Public npm publication is still not claimed.
+
 ## Local verification
 
 ```bash

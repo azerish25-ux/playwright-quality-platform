@@ -1,5 +1,15 @@
 # Delivery checkpoint — September 30 source continuation accepted
 
+## Prepared real-consumer extension
+
+Source `3200c4aac488b7a426839d128b19a0224f7a8bea` passed the new exact-version
+real-registry lane in Release candidates run `36678122001`. Genuine TeamBoard and
+Bad Penny each ran through both npm and pnpm installs of the prepared 1.0.0 set:
+88 clean first attempts total, matching package hashes/versions, financial
+reconciliation and zero infrastructure leaks. All captured attachment hashes,
+including standard streams, were independently verified. See [the retained receipt](real-registry-consumer-acceptance.json).
+This is owned-loopback-registry acceptance, not a public release.
+
 ## September 30 continuation
 
 Source `ba9d622fdf35f7f764fa2e18bbcc2e7d3de19cb9` passed all 14 CI jobs,

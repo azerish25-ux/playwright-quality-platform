@@ -1,0 +1,14 @@
+{
+  "kind": "live-consumer-screenshot",
+  "syntheticDataOnly": true,
+  "applicationSha": "d8d365690d961580d22105feb15ddec3267185ae",
+  "deadpanSourceSha": "3200c4aac488b7a426839d128b19a0224f7a8bea",
+  "preparedPackageVersion": "1.0.0",
+  "distribution": "loopback-registry",
+  "manager": "npm",
+  "browser": "chromium",
+  "testId": "ledgerguard-ui-transfer-recovery",
+  "screenshotSha256": "ec16976efdadbbf1f190323b25a5806b49e685dc1102e6e2bcfe6e19bada198e",
+  "artifactId": 11081128762,
+  "artifactSha256": "9932b05abe569d35851426df355c5ff03468bef63c9154df5c80cf772583625d"
+}
