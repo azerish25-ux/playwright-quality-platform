@@ -54,7 +54,13 @@ export async function protocolDigest(runner) {
   const paths = ['package-lock.json', 'examples/demo-saas/forgeqa.benchmark.config.ts', 'examples/demo-saas/playwright.benchmark.config.ts'];
   const contents = await Promise.all(paths.map(async path => [path, (await readFile(path, 'utf8')).replaceAll('\r\n', '\n')]));
   // Enforce software/policy identity and allocated cores independently of hardware comparability.
-  const environment = Object.fromEntries(['platform', 'arch', 'node', 'playwright', 'image', 'imageVersion', 'cpuCount'].map(key => [key, runner[key]]));
+  const environment = Object.fromEntries(['platform', 'arch', 'node', 'playwright', 'cpuCount'].map(key => [key, runner[key]]));
+  if (runner.containerImage !== undefined) {
+    if (!/^mcr\.microsoft\.com\/playwright:v\d+\.\d+\.\d+-noble@sha256:[a-f0-9]{64}$/.test(runner.containerImage)) throw new Error('Benchmark container must have an immutable official execution-image digest.');
+    environment.containerImage = runner.containerImage;
+  } else {
+    environment.image = runner.image; environment.imageVersion = runner.imageVersion;
+  }
   return createHash('sha256').update(JSON.stringify({ measurementVersion: MEASUREMENT_VERSION, contents, environment, cache: 'disabled', retries: 0, warmups: 1 })).digest('hex');
 }
 
@@ -66,8 +72,11 @@ export function assessHardware(records) {
   const complete = records.length > 0 && records.every(record => Array.isArray(record.runners) && record.runners.length === record.shards)
     && runners.every(runner => typeof runner.cpuModel === 'string' && runner.cpuModel.trim() && runner.cpuModel !== 'unknown'
       && Number.isSafeInteger(runner.cpuCount) && runner.cpuCount > 0
-      && Number.isSafeInteger(runner.totalMemoryBytes) && runner.totalMemoryBytes > 0);
-  const fingerprints = [...new Set(runners.map(runner => JSON.stringify({ cpuModel: runner.cpuModel, cpuCount: runner.cpuCount, totalMemoryBytes: runner.totalMemoryBytes })))].sort();
+      && Number.isSafeInteger(runner.totalMemoryBytes) && runner.totalMemoryBytes > 0
+      && (!runner.containerImage || (typeof runner.imageVersion === 'string' && runner.imageVersion !== 'local' && runner.imageVersion.trim()
+        && typeof runner.release === 'string' && runner.release.trim())));
+  const fingerprints = [...new Set(runners.map(runner => JSON.stringify({ cpuModel: runner.cpuModel, cpuCount: runner.cpuCount, totalMemoryBytes: runner.totalMemoryBytes,
+    ...(runner.containerImage ? { hostImageVersion: runner.imageVersion, hostKernel: runner.release, containerImage: runner.containerImage } : {}) })))].sort();
   const cpuModels = [...new Set(runners.map(runner => runner.cpuModel).filter(Boolean))].sort();
   return { comparable: Boolean(complete && fingerprints.length === 1), cpuModels, fingerprints };
 }

@@ -68,3 +68,34 @@ The same workflow runs `reporter-overhead.mjs` against all 20 real TeamBoard exe
 Manual execution supports five repetitions. A trusted main-branch benchmark commit explicitly containing `[benchmark:5]` requests the same five-repetition acceptance run; other relevant pushes and scheduled runs use one. The parser bounds repetitions to 1–5. Condition submission order rotates between repetitions; hosted runner scheduling is outside the harness's control.
 
 Measurement version 3 separates software/policy identity from hardware comparability. Exact memory bytes are never rounded or ignored: any difference in CPU model, core allocation or memory capacity blocks cross-condition speedup and efficiency. Complete successful execution evidence can be retained with `status: PASS`, but such a cohort explicitly has `performanceStatus: NOT_COMPARABLE` and `releaseEvidenceEligible: false`. Missing or mismatched tests, policy, software versions, timings or shards still fail the data-integrity gate. A green workflow is not a controlled-hardware performance claim.
+## Reproducible software during hosted runner rollouts
+
+All benchmark jobs pin Node 22.23.3, including the controlled and supplementary
+lanes. A rolling `node-version: 22` resolved to 22.23.2 on three distributed shards
+and 22.23.3 on another during CI run `36677186814` at source `d01315ca`.
+The same shards also used two different GitHub image versions. The run correctly
+failed protocol equality; its measurements are not comparable release evidence.
+
+Pinning Node removes that resolver ambiguity. The real runner image version, CPU
+and memory metadata are still retained and checked. Standard GitHub-hosted image
+rollouts can still prevent software-equivalent cohorts; use a consistently
+provisioned runner pool for controlled distributed release measurements. No field
+is ignored or rewritten to manufacture compatibility, and no claim of matched
+hardware follows from pinning Node alone.
+
+The newer benchmark workflow also runs each job inside the official Playwright
+1.58.2 Noble image pinned by immutable registry digest, with no runtime operating
+system package upgrade. Node is still independently patch-pinned. For this explicit
+container mode, software protocol equality uses the immutable execution-image
+digest. Host image/kernel metadata remains in the runner record and is separately
+required for distributed hardware comparability. Missing host metadata or different
+host images still withholds performance claims; container equality is not physical
+hardware equality. Legacy non-container records retain their strict host-image
+software protocol checks.
+
+The controlled artifact now also retains unmerged native run directories on
+failure. Run `36677186588` at `d01315ca` correctly failed an owner UI execution
+during the fourth two-worker measurement, but its old upload scope retained only
+the CLI summary for that failing execution. Its root cause cannot be inferred
+from the summary alone. No retry or timeout was relaxed; future failures retain
+the canonical error, journal, timing and attachments needed to diagnose them.

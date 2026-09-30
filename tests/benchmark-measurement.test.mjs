@@ -83,3 +83,23 @@ test('memory variance blocks performance eligibility without discarding successf
   assert.equal(summary.releaseEvidenceEligible, false);
   for (const condition of Object.values(summary.conditions)) assert.equal(condition.speedup, null);
 });
+
+test('every benchmark job pins the same exact Node patch rather than resolving a rolling major', async () => {
+  const versions = [];
+  for (const name of ['benchmark.yml', 'benchmark-controlled.yml', 'benchmark-secondary.yml']) {
+    const source = await readFile(`.github/workflows/${name}`, 'utf8');
+    const values = [...source.matchAll(/node-version:\s*([^,}\s]+)/g)].map(match => match[1]);
+    assert(values.length > 0);
+    for (const value of values) assert.match(value, /^\d+\.\d+\.\d+$/);
+    versions.push(...values);
+  }
+  assert.equal(new Set(versions).size, 1);
+});
+
+test('Node and runner-image drift still change the strict software protocol digest', async () => {
+  const { protocolDigest } = await import('../benchmarks/lib/measurement.mjs');
+  const runner = { platform: 'linux', arch: 'x64', node: 'v22.23.3', playwright: '1.58.2', image: 'ubuntu24', imageVersion: '20260927.320.1', cpuCount: 4 };
+  const original = await protocolDigest(runner);
+  assert.notEqual(await protocolDigest({ ...runner, node: 'v22.23.2' }), original);
+  assert.notEqual(await protocolDigest({ ...runner, imageVersion: '20260920.314.1' }), original);
+});

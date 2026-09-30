@@ -34,6 +34,7 @@ const metadata = {
   timings: { jobStartMs, setupEndMs, runStartMs, runEndMs, setupMs: setupEndMs - jobStartMs, runMs: runEndMs - runStartMs, totalMs: runEndMs - jobStartMs },
   runner: {
     platform: platform(), release: release(), arch: arch(), node: process.version,
+    ...(process.env.FORGEQA_BENCHMARK_IMAGE ? { containerImage: process.env.FORGEQA_BENCHMARK_IMAGE } : {}),
     playwright: playwrightPackage.version, packageManager: rootPackage.packageManager ?? 'unknown',
     cpuCount: cpus().length, cpuModel: cpus()[0]?.model ?? 'unknown', totalMemoryBytes: totalmem(),
     imageVersion: process.env.ImageVersion ?? 'local', image: process.env.ImageOS ?? process.env.RUNNER_OS ?? 'local'

@@ -22,7 +22,7 @@ if (!/^[a-f0-9]{40}$/.test(sourceSha ?? '')) throw new Error('A verified source 
 const runnerSession = randomUUID();
 const hardware = { cpuModel: cpus()[0]?.model, cpuCount: cpus().length, totalMemoryBytes: totalmem() };
 const playwright = JSON.parse(await readFile(resolve(root, 'node_modules/@playwright/test/package.json'), 'utf8')).version;
-const protocol = await protocolDigest({ platform: process.platform, arch: process.arch, node: process.version, playwright, image: process.env.ImageOS, imageVersion: process.env.ImageVersion, cpuCount: hardware.cpuCount });
+const protocol = await protocolDigest({ platform: process.platform, arch: process.arch, node: process.version, playwright, image: process.env.ImageOS, imageVersion: process.env.ImageVersion, containerImage: process.env.FORGEQA_BENCHMARK_IMAGE, cpuCount: hardware.cpuCount });
 const records = [];
 await mkdir(output, { recursive: true });
 

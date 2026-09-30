@@ -136,7 +136,7 @@ test('hosted workflow uses independent shard jobs and fail-closed evidence mergi
   assert.match(workflow, /matrix: \$\{\{ fromJSON\(needs\.setup\.outputs\.shards\) \}\}/);
   assert.match(workflow, /fail-fast: false/g);
   assert.match(workflow, /image: postgres:17/);
-  assert.match(workflow, /playwright install --with-deps chromium firefox webkit/);
+  assert.match(workflow, /playwright install chromium firefox webkit/);
   assert.match(workflow, /attempts\.ndjson\.final\.json/);
   assert.match(workflow, /record-run\.mjs/);
   assert.match(workflow, /summarize\.mjs/);
