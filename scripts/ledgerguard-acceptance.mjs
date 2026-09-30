@@ -8,11 +8,12 @@ import { join, resolve } from 'node:path';
 import { prepareLedgerGuardConsumers } from './ledgerguard-consumer-preparation.mjs';
 import { retainConsumerRun } from './ledgerguard-acceptance-support.mjs';
 
-const LEDGERGUARD_SHA = '9478663f97f9dc65d0c85117f244e1b8b80c37cb';
+const LEDGERGUARD_SHA = 'd8d365690d961580d22105feb15ddec3267185ae';
 const REQUIRED_SERVICES = Object.freeze([
   'postgres',
   'rabbitmq',
   'api',
+  'web',
   'outbox-publisher',
   'payment-worker-a',
   'payment-worker-b',
@@ -46,7 +47,7 @@ await mkdir(evidence, { recursive: true });
 try {
   sourceSha = process.env.FORGEQA_SOURCE_SHA ?? (await command('git', ['rev-parse', 'HEAD'], { cwd: root })).trim();
   const ledgerSha = (await command('git', ['rev-parse', 'HEAD'], { cwd: ledgerRoot })).trim();
-  assert.equal(ledgerSha, LEDGERGUARD_SHA, 'LedgerGuard checkout must match the verified P07A source SHA.');
+  assert.equal(ledgerSha, LEDGERGUARD_SHA, 'LedgerGuard checkout must match the pinned product source SHA.');
 
   const preparedConsumers = await prepareLedgerGuardConsumers({
     root,
@@ -95,17 +96,22 @@ try {
     completedAt: new Date().toISOString(),
     forgeqaSourceSha: sourceSha,
     ledgerguardSourceSha: LEDGERGUARD_SHA,
-    ledgerguardVerificationRun: 36319414655,
+    ledgerguardVerificationRun: 36656046918,
     consumerManagers: managerRuns,
-    expectedTests: 12,
+    expectedTests: 24,
     reconciliationDiscrepancies: managerRuns.reduce(
       (total, manager) => total + manager.reconciliationDiscrepancies,
       0
     ),
     isolatedComposeProjects: true,
     failedRunEvidenceRetained: true,
-    apiFirst: true,
-    uiClaimed: false
+    apiFirst: false,
+    uiClaimed: true,
+    expectedApiTests: 12,
+    expectedBrowserTests: 12,
+    browsers: ['chromium', 'firefox', 'webkit'],
+    applicationVerificationScope: 'required product gate; separate internal fault-lab acceptance is not substituted',
+    applicationVerificationJob: 109700516992
   };
 } catch (failure) {
   primaryFailure = failure;
@@ -147,6 +153,9 @@ async function runConsumerManager({ manager, consumer, resolved }) {
 
     const baseUrl = `http://127.0.0.1:${environment.httpPort}`;
     const system = await waitForReadiness(baseUrl, 180_000);
+    const uiUrl = `http://127.0.0.1:${environment.uiPort}`;
+    const uiHealth = await fetch(`${uiUrl}/healthz`, { signal: AbortSignal.timeout(5000) });
+    assert.equal(uiHealth.status, 200, 'The genuine product frontend must be ready.');
     assert.equal(system.databaseRole, 'ledger_runtime');
     await waitForApplicationServices(compose, ledgerRoot, APPLICATION_SERVICES, 180_000);
 
@@ -163,6 +172,7 @@ async function runConsumerManager({ manager, consumer, resolved }) {
       FORGEQA_SOURCE_SHA: sourceSha,
       LEDGERGUARD_SOURCE_SHA: LEDGERGUARD_SHA,
       LEDGERGUARD_BASE_URL: baseUrl,
+      LEDGERGUARD_UI_URL: uiUrl,
       LEDGERGUARD_ROOT: ledgerRoot,
       LEDGERGUARD_ENV_FILE: environment.runtimeEnv,
       LEDGER_OWNER_PASSWORD: environment.secrets.owner,
@@ -231,8 +241,15 @@ async function runConsumerManager({ manager, consumer, resolved }) {
     assert.equal(result.timedOut, false, `${manager} Deadpan execution timed out.`);
     assert.equal(result.code, summary.exitCode, `${manager} process and Deadpan summary exit codes differ.`);
     assert.equal(summary.exitCode, 0);
-    assert.equal(summary.tests, 12);
-    assert.equal(summary.attempts, 12);
+    assert.equal(summary.tests, 24);
+    assert.equal(summary.attempts, 24);
+    const projects = Object.fromEntries(['ledgerguard-api', 'ledgerguard-chromium', 'ledgerguard-firefox', 'ledgerguard-webkit'].map(project => [project, report.attempts.filter(attempt => attempt.project === project).length]));
+    assert.deepEqual(projects, { 'ledgerguard-api': 12, 'ledgerguard-chromium': 4, 'ledgerguard-firefox': 4, 'ledgerguard-webkit': 4 });
+    for (const attempt of report.attempts.filter(attempt => attempt.project !== 'ledgerguard-api')) {
+      assert(attempt.artifacts.some(artifact => artifact.type === 'screenshot' && artifact.state === 'captured'), 'Each genuine UI journey must retain a captured screenshot.');
+    }
+    record.projects = projects;
+    record.uiClaimed = true;
     assert.equal(report.gate.outcome, 'pass');
     assert.equal(report.missingExecutions.length, 0);
     assert.equal(report.unexpectedExecutions.length, 0);
@@ -292,6 +309,7 @@ async function createManagerEnvironment(manager) {
     project,
     secrets,
     httpPort: await freePort(),
+    uiPort: await freePort(),
     rabbitPort: await freePort(),
     runtimeEnv: join(temporary, `${project}.env`)
   };
@@ -305,6 +323,7 @@ async function finalizeManagerEnvironment({ manager, environment, managerEvidenc
     manager,
     composeProject: environment.project,
     httpPort: environment.httpPort,
+    uiPort: environment.uiPort,
     rabbitManagementPort: environment.rabbitPort,
     requiredServices: REQUIRED_SERVICES,
     isolated: true
@@ -401,6 +420,7 @@ function runtimeEnvironment(environment) {
     `LEDGER_AUTH_KEY=${environment.secrets.auth}`,
     `LEDGER_DEMO_PASSWORD=${environment.secrets.demo}`,
     `LEDGER_HTTP_PORT=${environment.httpPort}`,
+    `LEDGER_UI_PORT=${environment.uiPort}`,
     `LEDGER_RABBIT_MANAGEMENT_PORT=${environment.rabbitPort}`,
     ''
   ].join('\n');

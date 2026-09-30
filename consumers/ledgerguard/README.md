@@ -1,20 +1,20 @@
 # LedgerGuard external consumer
 
-This directory is Deadpan's genuine second-consumer harness for the real [`azerish25-ux/transaction-reliability-lab`](https://github.com/azerish25-ux/transaction-reliability-lab) application. It is intentionally API-first because the verified LedgerGuard revision has no React product interface. No mock service, copied TeamBoard application, intercepted success response, invented endpoint, or permanent skip is used.
+This directory is Deadpan's genuine second-consumer harness for the real [`azerish25-ux/transaction-reliability-lab`](https://github.com/azerish25-ux/transaction-reliability-lab) application. The application is now branded Bad Penny and supplies a genuine React product interface. This consumer preserves its LedgerGuard protocol names and tests both real API and browser behavior. No mock service, copied TeamBoard application, intercepted success response, invented endpoint, or permanent skip is used.
 
 ## Pinned application boundary
 
-The acceptance lane checks out LedgerGuard at exact verified P07A source:
+The acceptance lane checks out LedgerGuard at exact product-gate-verified source:
 
 ```text
-9478663f97f9dc65d0c85117f244e1b8b80c37cb
+d8d365690d961580d22105feb15ddec3267185ae
 ```
 
-That revision passed LedgerGuard workflow run `36319414655`. The Deadpan harness refuses a different checkout rather than silently following LedgerGuard's moving `main` branch.
+That revision passed the required product campaign job `109700516992` in run `36656046918`. The separate internal fault-lab job failed at that source; this is not represented as a completely green application workflow. The ordinary product topology is the consumer boundary; `compose.lab.yaml` is not used. The Deadpan harness refuses a different checkout rather than silently following LedgerGuard's moving `main` branch.
 
 ## What the suite proves
 
-Twelve tagged release tests exercise the live Compose topology through public Deadpan packages:
+Twelve API tests plus four genuine UI journeys on each of Chromium, Firefox and WebKit (24 executions per package manager) exercise the live Compose topology through public Deadpan packages:
 
 - registration, CSRF-protected login/logout, session revocation, and customer/administrator separation;
 - customer account ownership and cross-customer denial;
@@ -35,18 +35,33 @@ Run from the Deadpan repository root after checking out the pinned LedgerGuard r
 ```bash
 npm ci --ignore-scripts
 npm run build
+npx --no-install playwright install --with-deps chromium firefox webkit
 npm run test:ledgerguard
 ```
 
 The acceptance harness:
 
-1. creates private one-run credentials and starts PostgreSQL, RabbitMQ, the API, outbox publisher, two payment workers, and two schedule workers;
+1. creates private one-run credentials and starts PostgreSQL, RabbitMQ, the API, genuine frontend, outbox publisher, two payment workers, and two schedule workers;
 2. seeds only the synthetic LedgerGuard fixtures;
 3. packs all eight Deadpan packages from the tested source;
 4. installs and type-checks isolated npm and pnpm consumers without workspace links or private source imports;
-5. runs the same 12-test identity inventory through the public Deadpan CLI;
+5. runs the same 24-execution identity inventory through the public Deadpan CLI;
 6. validates canonical evidence and strict quality gates;
 7. reconciles every balance, journal, and active hold;
-8. captures logs and removes all test containers and volumes.
+8. captures genuine browser screenshots and logs, then removes all test containers, volumes and networks.
 
 Durable evidence is written beneath `evidence/ledgerguard/`. It records both source SHAs, package checksums, manager-specific reports, reconciliation status, and cleanup status without storing generated credentials.
+
+## Browser boundaries
+
+The browser journeys cover registration, zero-balance wallet creation, sign-out and
+reauthentication; transfer review dismissal and actual committed-response loss with
+same-key replay and one economic effect; asynchronous payment settlement with a
+real journal; and administrator/session boundaries. The transfer interruption calls
+the real backend before dropping the response; it never fulfills a fabricated success.
+Each browser journey retains a screenshot from synthetic, owned data. Traces, videos
+and serialized credential state remain excluded. API tests and global balance/hold
+reconciliation still run, with no retry recovery accepted as a clean pass.
+
+This extension is implemented pending exact-source hosted consumer acceptance.
+The application source and test count are never changed merely to make CI pass.

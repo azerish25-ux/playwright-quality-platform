@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "consumer": "ledgerguard",
   "status": "IMPLEMENTED_AWAITING_HOSTED_ACCEPTANCE",
   "applicationRepository": "azerish25-ux/transaction-reliability-lab",
-  "applicationSha": "9478663f97f9dc65d0c85117f244e1b8b80c37cb",
-  "applicationVerificationRun": 36319414655,
-  "mode": "api-first",
+  "applicationSha": "d8d365690d961580d22105feb15ddec3267185ae",
+  "applicationVerificationRun": 36656046918,
+  "mode": "api-and-browser",
   "uiClaimed": false,
-  "testCount": 12,
+  "testCount": 24,
   "packageManagers": [
     "npm",
     "pnpm"
@@ -27,6 +27,21 @@
     "scheduled-transfers",
     "two-scheduler-single-effect",
     "financial-reconciliation",
-    "owned-infrastructure-cleanup"
-  ]
+    "owned-infrastructure-cleanup",
+    "real-browser-registration",
+    "real-browser-wallets",
+    "real-browser-transfer-recovery",
+    "real-browser-payment-settlement",
+    "real-browser-role-session-boundaries"
+  ],
+  "uiImplemented": true,
+  "apiTestCount": 12,
+  "browserTestCount": 12,
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "applicationVerificationJob": 109700516992,
+  "applicationVerificationScope": "Required product gate passed; separate isolated fault-lab gate failed and is not claimed here"
 }

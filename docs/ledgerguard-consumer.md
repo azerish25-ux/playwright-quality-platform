@@ -1,6 +1,6 @@
 # LedgerGuard second-consumer acceptance
 
-Deadpan validates its public API against two materially different applications. TeamBoard is a TypeScript SaaS application with browser journeys. LedgerGuard is a Java/Spring, PostgreSQL, RabbitMQ reliability laboratory whose verified P07A source is pinned at `9478663f97f9dc65d0c85117f244e1b8b80c37cb`.
+Deadpan validates its public API against two materially different applications. TeamBoard is a TypeScript SaaS application with browser journeys. The LedgerGuard protocol is now implemented by Bad Penny, a Java/Spring, PostgreSQL and RabbitMQ application with a genuine React frontend. The current product-gate-verified source is pinned at `d8d365690d961580d22105feb15ddec3267185ae`. Its product campaign passed job `109700516992` in run `36656046918`; the separate internal fault-lab failure at that source is not represented as a green overall workflow.
 
 ## Trust and revision model
 
@@ -10,11 +10,11 @@ A later LedgerGuard revision is not adopted merely because it exists on `main`. 
 
 ## Topology
 
-The P07A Compose topology contains:
+The normal product Compose topology plus its P07 overlay contains:
 
 - PostgreSQL 17;
 - RabbitMQ;
-- the LedgerGuard HTTP API;
+- the LedgerGuard HTTP API and real same-origin frontend;
 - an outbox publisher;
 - two independent asynchronous payment workers;
 - two independent scheduled-transfer workers.
@@ -27,7 +27,7 @@ All eight Deadpan packages are packed from the tested repository revision. An is
 
 ## Honest scope
 
-This milestone claims real API and infrastructure acceptance. It does not claim LedgerGuard browser journeys because the pinned application has no React product UI. Adding a fabricated interface would weaken rather than strengthen the evidence. UI acceptance belongs to the LedgerGuard revision that introduces its genuine interface.
+The previously accepted P07A slice remains API-first historical evidence. The current extension executes 12 API cases plus four browser journeys on each of Chromium, Firefox and WebKit, for 24 executions per isolated npm/pnpm consumer. It is implemented pending exact-source hosted acceptance. Browser coverage uses real registration, wallets, transfer confirmation and committed-response recovery, asynchronous settlement, and administrator/session boundaries. No fake frontend or successful response is substituted; the separate fault-lab Compose overlay is not part of the consumer. Each UI execution must retain an actual screenshot, and the financial reconciliation and zero-leak gates remain mandatory.
 
 ## Failure semantics
 

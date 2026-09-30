@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
-const PINNED_LEDGERGUARD_SHA = '9478663f97f9dc65d0c85117f244e1b8b80c37cb';
+const PINNED_LEDGERGUARD_SHA = 'd8d365690d961580d22105feb15ddec3267185ae';
 
 async function text(path) {
   return readFile(path, 'utf8');
 }
 
-test('LedgerGuard is an executable API-first external consumer contract', async () => {
+test('LedgerGuard preserves its executable API contract alongside genuine browser adoption', async () => {
   const manifest = JSON.parse(await text('consumers/ledgerguard/package.json'));
   assert.equal(manifest.private, true);
   assert.equal(manifest.dependencies['@azerish25-ux/forgeqa-core'], '0.1.0');
@@ -66,6 +66,29 @@ test('LedgerGuard is an executable API-first external consumer contract', async 
   ]) {
     assert(source.includes(capability), `Missing LedgerGuard capability coverage ${capability}.`);
   }
+});
+
+test('Bad Penny browser adoption requires its real frontend, three engines and exact financial evidence', async () => {
+  const contract = JSON.parse(await text('consumers/ledgerguard/contract.json'));
+  assert.equal(contract.applicationSha, PINNED_LEDGERGUARD_SHA);
+  assert.equal(contract.mode, 'api-and-browser');
+  assert.equal(contract.apiTestCount, 12); assert.equal(contract.browserTestCount, 12); assert.equal(contract.testCount, 24);
+  assert.deepEqual(contract.browsers, ['chromium', 'firefox', 'webkit']);
+  const source = await text('consumers/ledgerguard/tests/product.ui.spec.ts');
+  assert.equal((source.match(/\btest\('/g) ?? []).length, 4);
+  assert.match(source, /route\.fetch\(\)/); assert.match(source, /route\.abort\('failed'\)/);
+  assert.doesNotMatch(source, /route\.fulfill|\.skip\(|test\.fixme|waitForTimeout|packages\/.+\/src/);
+  assert.match(source, /transferEffectCounts/); assert.match(source, /paymentEffectCounts/);
+  assert.match(source, /httpOnly/); assert.match(source, /clearCookies/); assert.match(source, /'screenshot'/);
+  const config = await text('consumers/ledgerguard/playwright.config.ts');
+  assert.match(config, /\['chromium', 'firefox', 'webkit'\]/);
+  assert.match(config, /LEDGERGUARD_UI_URL/);
+  const harness = await text('scripts/ledgerguard-acceptance.mjs');
+  assert.match(harness, /'web'/); assert.match(harness, /LEDGER_UI_PORT=/);
+  assert.match(harness, /assert\.equal\(summary\.tests, 24\)/);
+  assert.match(harness, /'ledgerguard-api': 12, 'ledgerguard-chromium': 4, 'ledgerguard-firefox': 4, 'ledgerguard-webkit': 4/);
+  assert.match(harness, /artifact\.type === 'screenshot' && artifact\.state === 'captured'/);
+  assert.doesNotMatch(harness, /compose\.lab\.yaml/);
 });
 
 test('LedgerGuard consumer compilation is shared, isolated and completed before Docker startup', async () => {

@@ -11,7 +11,7 @@ export default defineForgeConfig({
   suites: {
     release: ['@release']
   },
-  browsers: ['chromium'],
+  browsers: ['chromium', 'firefox', 'webkit'],
   workers: 1,
   shards: 1,
   retries: 0,
