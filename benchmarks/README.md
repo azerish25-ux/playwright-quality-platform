@@ -99,3 +99,11 @@ during the fourth two-worker measurement, but its old upload scope retained only
 the CLI summary for that failing execution. Its root cause cannot be inferred
 from the summary alone. No retry or timeout was relaxed; future failures retain
 the canonical error, journal, timing and attachments needed to diagnose them.
+
+Initial container run `36679498540` exposed an execution-environment mismatch:
+GitHub mounted `/github/home` under a different owner than the container process,
+so Firefox refused to launch. The workflows now use the container's own `/root`
+home, without disabling Firefox sandbox checks. Git archive commands trust only
+the exact checked-out workspace for that invocation. Read-only cleanup validation
+also recognizes the fixed `postgres` service name only in the explicitly pinned
+benchmark container and keeps the disposable database-name restriction.

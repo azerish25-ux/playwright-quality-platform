@@ -1,9 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import pg from 'pg';
-const url = process.env.DATABASE_URL;
-if (!url || process.env.TEAMBOARD_TEST_MODE !== '1') throw new Error('Disposable TeamBoard runtime database is required.');
-const parsed = new URL(url);
-if (!['127.0.0.1', 'localhost'].includes(parsed.hostname) || !/^\/forgeqa_test(?:_[-a-z0-9]+)?$/.test(parsed.pathname)) throw new Error('Cleanup verification is limited to the owned local test database.');
+import { benchmarkDatabaseTarget } from './lib/database-target.mjs';
+const url = benchmarkDatabaseTarget(process.env);
 const pool = new pg.Pool({ connectionString: url, connectionTimeoutMillis: 5000, query_timeout: 5000 });
 const output = 'evidence/benchmarks/supplementary/cleanup';
 await mkdir(output, { recursive: true });
