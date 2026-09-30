@@ -99,7 +99,7 @@ test('LedgerGuard consumer compilation is shared, isolated and completed before 
   const lab = await text('consumers/ledgerguard/src/lab.ts');
   assert(harness.includes(PINNED_LEDGERGUARD_SHA));
   assert.match(harness, /const preparedConsumers = await prepareLedgerGuardConsumers/);
-  assert.match(harness, /for \(const \{ manager, consumer, resolved \} of preparedConsumers\)/);
+  assert.match(harness, /for \(const \{ manager, consumer, resolved, distribution, version, packageChecksums \} of preparedConsumers\)/);
   const preparationIndex = harness.indexOf('const preparedConsumers = await prepareLedgerGuardConsumers');
   const dockerIndex = harness.indexOf("await command('docker', ['info']");
   assert(preparationIndex >= 0, 'Full acceptance invokes shared consumer preparation.');

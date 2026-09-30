@@ -69,6 +69,26 @@ A no-release decision emits `NO_RELEASE`, not successful publication evidence.
 
 ## Authorized candidate publication
 
+Before public candidate publication, the separate `verify-real-consumers` job also
+qualifies the actual prepared version against both real applications. It downloads
+the source-bound prepared artifact, verifies its complete manifest/consumer gates,
+publishes those exact eight tarballs only to an owned loopback registry, and runs
+TeamBoard and the pinned Bad Penny/LedgerGuard product through independent npm and
+pnpm registry installs. Workspace source packages cannot satisfy this lane.
+
+TeamBoard retains its workspace identity baseline and executes 20 cases per
+manager. Bad Penny executes 24 cases per manager, including Chromium, Firefox and
+WebKit. All installed package versions and full artifact checksums must match the
+prepared release; financial reconciliation, exact inventories and zero resource
+leaks remain mandatory. Real TeamBoard receipts have their own directory so they
+cannot overwrite the two-case onboarding receipts. Both source and prepared
+onboarding evidence are rechecked after the real applications finish.
+
+This new lane is implemented pending its own hosted acceptance. It qualifies an
+isolated registry, not npmjs.com availability or authorization. Public publication
+depends on both verification jobs and retains the same explicit manual-only
+approval and trusted-publisher guards described below.
+
 Public writes are disabled on pushes and by default on manual runs. The separate
 `publish-candidate` job is eligible only when `publish_candidate` is explicitly
 selected on a manual run and preparation/registry tests succeeded. It requires:

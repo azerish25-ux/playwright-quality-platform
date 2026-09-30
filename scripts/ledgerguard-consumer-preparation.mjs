@@ -3,7 +3,10 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
+import { verifyPrepared } from './release-engine.mjs';
+import { registryAddress, createRegistryTransport } from './release-registry.mjs';
+import { assertArtifact } from './release-state.mjs';
 
 export const LEDGERGUARD_PACKAGE_DIRECTORIES = Object.freeze([
   'core',
@@ -34,8 +37,29 @@ export async function prepareLedgerGuardConsumers({
 
   const packageSpecs = {};
   const packageChecksums = {};
-  for (const directory of LEDGERGUARD_PACKAGE_DIRECTORIES) {
+  const preparedDirectory = process.env.FORGEQA_PREPARED_DIRECTORY ? resolve(process.env.FORGEQA_PREPARED_DIRECTORY) : undefined;
+  const registry = process.env.FORGEQA_CONSUMER_REGISTRY ? registryAddress(process.env.FORGEQA_CONSUMER_REGISTRY, process.env.FORGEQA_TEST_REGISTRY === 'true').href : undefined;
+  if (registry && !preparedDirectory) throw new Error('Registry LedgerGuard consumers require a verified prepared release.');
+  let version, distribution = 'source-tarballs';
+  if (preparedDirectory) {
+    const { manifest } = await verifyPrepared(preparedDirectory, process.env.FORGEQA_SOURCE_SHA);
+    version = manifest.version;
+    distribution = registry ? (new URL(registry).hostname === 'registry.npmjs.org' ? 'public-npm' : 'loopback-registry') : 'prepared-tarballs';
+    const transport = registry ? createRegistryTransport({ directory: preparedDirectory, registry, allowLoopback: process.env.FORGEQA_TEST_REGISTRY === 'true' }) : undefined;
+    for (const entry of manifest.entries) {
+      packageSpecs[entry.name] = registry ? version : `file:${join(preparedDirectory, 'tarballs', entry.filename).replaceAll('\\', '/')}`;
+      packageChecksums[entry.filename] = entry.sha256;
+      if (transport) {
+        const published = await transport.lookup(entry.name, entry.version);
+        if (!published) throw new Error('A prepared LedgerGuard package is absent from the selected registry.');
+        assertArtifact(entry, await transport.readPublished(published));
+      }
+    }
+  }
+  if (!preparedDirectory) for (const directory of LEDGERGUARD_PACKAGE_DIRECTORIES) {
     const metadata = JSON.parse(await readFile(join(root, 'packages', directory, 'package.json'), 'utf8'));
+    version ??= metadata.version;
+    assert.equal(metadata.version, version, 'Source packages must use one version.');
     const packedOutput = await node([
       npm,
       'pack',
@@ -69,6 +93,7 @@ export async function prepareLedgerGuardConsumers({
   for (const manager of LEDGERGUARD_CONSUMER_MANAGERS) {
     const consumer = join(temporary, `ledgerguard-${manager}`);
     await copyConsumer(root, consumer);
+    if (registry) await writeFile(join(consumer, '.npmrc'), `@azerish25-ux:registry=${registry}\n`, { mode: 0o600 });
     await installPackedConsumer({ root, npm, consumer, manager, specs: packageSpecs });
 
     const require = createRequire(join(consumer, 'package.json'));
@@ -81,13 +106,14 @@ export async function prepareLedgerGuardConsumers({
       timeoutMs: 60_000
     }));
     assert.equal(Object.keys(resolved.entries).length, LEDGERGUARD_PACKAGE_DIRECTORIES.length);
+    assert(Object.values(resolved.versions).every(value => value === version), 'Every real-consumer package must match the exact selected release version.');
     assert.equal(typeof resolved.cli, 'string', 'The isolated consumer must resolve the Deadpan CLI executable.');
 
     await node([require.resolve('typescript/bin/tsc'), '--noEmit'], {
       cwd: consumer,
       timeoutMs: 2 * 60_000
     });
-    consumers.push({ manager, consumer, resolved });
+    consumers.push({ manager, consumer, resolved, distribution, version, packageChecksums });
   }
 
   return consumers;

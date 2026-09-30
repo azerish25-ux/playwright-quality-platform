@@ -63,9 +63,9 @@ try {
   const managerFailures = [];
   let expectedIdentities;
 
-  for (const { manager, consumer, resolved } of preparedConsumers) {
+  for (const { manager, consumer, resolved, distribution, version, packageChecksums } of preparedConsumers) {
     try {
-      const run = await runConsumerManager({ manager, consumer, resolved });
+      const run = await runConsumerManager({ manager, consumer, resolved, distribution, version, packageChecksums });
       managerRuns.push(run.record);
       if (expectedIdentities === undefined) {
         expectedIdentities = run.identities;
@@ -125,7 +125,7 @@ try {
 
 if (primaryFailure !== undefined) throw primaryFailure;
 
-async function runConsumerManager({ manager, consumer, resolved }) {
+async function runConsumerManager({ manager, consumer, resolved, distribution, version, packageChecksums }) {
   const environment = await createManagerEnvironment(manager);
   const managerEvidence = join(evidence, manager);
   const compose = composeArguments(environment.runtimeEnv, ledgerRoot);
@@ -227,6 +227,10 @@ async function runConsumerManager({ manager, consumer, resolved }) {
       manager,
       status: passed ? 'PASS' : 'FAIL',
       independentConsumer: true,
+      distribution,
+      version,
+      packageChecksums,
+      versions: resolved.versions,
       isolatedComposeProject: environment.project,
       forgeqaSourceSha: sourceSha,
       ledgerguardSourceSha: LEDGERGUARD_SHA,

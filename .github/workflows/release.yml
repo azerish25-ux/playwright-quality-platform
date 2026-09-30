@@ -71,8 +71,64 @@ jobs:
           path: evidence/release-prepared/
           if-no-files-found: error
           retention-days: 30
-  publish-candidate:
+  verify-real-consumers:
     needs: verify-artifacts
+    if: needs.verify-artifacts.outputs.release_planned == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      LEDGERGUARD_ROOT: ${{ github.workspace }}/.tmp/ledgerguard
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: forgeqa_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: forgeqa-disposable-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d forgeqa_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: { persist-credentials: false }
+      - name: Check out the pinned real product consumer
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: azerish25-ux/transaction-reliability-lab
+          ref: d8d365690d961580d22105feb15ddec3267185ae
+          path: .tmp/ledgerguard
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: { node-version: 24, package-manager-cache: false }
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run build --workspace examples/demo-saas
+      - run: node scripts/prepare-teamboard-db.mjs
+        env:
+          DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
+          FORGEQA_ALLOW_DB_SETUP: '1'
+      - run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: prepared-release-${{ github.sha }}-${{ github.run_attempt }}
+          path: evidence/release-prepared/
+      - name: Qualify real applications through the exact prepared registry packages
+        run: node scripts/release-real-consumers.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: real-registry-consumers-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            evidence/release-real-consumers/
+            evidence/release-prepared/registry-teamboard-consumers/
+            evidence/ledgerguard/
+            evidence/teamboard-workspace.json
+            evidence/teamboard-cleanup.json
+          if-no-files-found: error
+          retention-days: 30
+  publish-candidate:
+    needs: [verify-artifacts, verify-real-consumers]
     if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate && needs.verify-artifacts.outputs.release_planned == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
