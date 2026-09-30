@@ -91,6 +91,11 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build
       - run: npm run build --workspace examples/demo-saas
+      - name: Verify durable lost-runner PostgreSQL ownership
+        run: node scripts/durable-postgres-acceptance.mjs
+        env:
+          DATABASE_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
+          FORGEQA_ALLOW_ADAPTER_TEST: '1'
       - run: node scripts/prepare-teamboard-db.mjs
         env:
           DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test

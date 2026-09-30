@@ -50,3 +50,52 @@ An authentication adapter may provide `recovery: {adapter, key(identity, owner)}
 Reclaimers acquire append-only claim generations. A live claimant's claim is never removed or stolen because of an old timestamp. A fresh process can resume after confirmed claimant death; failed or partial cleanup retains its descriptors. If a cleanup deadline expires while its callback is still executing, its claim remains held. Arbitrary JavaScript or an already-sent remote write cannot be forcibly cancelled by a timeout; adapter idempotence and owner verification are required.
 
 The required test suite includes forced termination after state export, death between server acquisition and response, active-neighbour protection, colliding logical identities, a killed reclaimer, dry-run/idempotence, corrupted metadata and path redirection. Installed npm/pnpm consumers execute the public CLI against separately killed owner processes. The required PostgreSQL lane exercises real SQL recovery without replacing real application tables. See the [scoped recovery ledger](../delivery/crash-recovery-requirements.json) for implemented versus hosted-verified acceptance and remaining boundaries.
+# Database-authoritative recovery when a runner disappears
+
+`DurablePostgresAdapter` from `@azerish25-ux/forgeqa-test-data` adds an opt-in
+reference contract for an authorized `forgeqa_test` PostgreSQL database. An owner
+lease and its tenant are durable database rows, so reclamation needs neither a
+runner's disk journal nor its PID/hostname. This is separate from the local-file
+recovery contract below.
+
+Apply the exported `DURABLE_POSTGRES_SCHEMA` explicitly with a migration role.
+Give the runtime role only the documented table privileges and schema usage;
+the adapter never installs schema or grants permissions. Keep database
+credentials out of lease identities and evidence. Use a dedicated test database,
+not production data. Example after the authorized migration:
+
+```ts
+import { DurablePostgresAdapter } from '@azerish25-ux/forgeqa-test-data';
+
+const adapter = new DurablePostgresAdapter(sqlExecutor, 'forgeqa_test_team');
+const owner = await adapter.createOwner({
+  consumer: 'teamboard', namespace: 'nightly', runId: 'run-123'
+}, 60_000);
+const tenant = await adapter.provision(owner);
+// Await successful renewals well before expiry while doing owned work.
+await adapter.renew(owner, 60_000);
+await adapter.close(owner);
+// A separate trusted runner can inspect or reclaim expired exact-scope owners.
+await adapter.reclaimExpired({ consumer: 'teamboard', namespace: 'nightly' });
+await adapter.reclaimExpired({ consumer: 'teamboard', namespace: 'nightly', apply: true });
+```
+
+The PostgreSQL server clock decides expiry. Row locks serialize provisioning,
+renewal, close and reapers. Expired owners cannot renew or provision, and sealed
+owners are never resurrected. Reclamation seals ownership and deletes only its
+tenant in one atomic statement. Concurrent reapers skip locked owners; repeat a
+bounded scan to continue after an in-flight transaction finishes. The default
+is a nonmutating preview. Both consumer and namespace filters are exact, and
+scans are limited to 100 owners by default (maximum 1,000).
+
+On a renewal error, stop owned work and create a fresh owner after connectivity
+is restored. Do not continue using a stale handle. Database unavailability is
+an error, not proof of a clean scan. Tombstones are retained intentionally; their
+administrative retention is outside runtime reclamation.
+
+This reference fences its own leased-tenant operations. It does not fence raw
+application SQL, external account/API writes, borrowed users, or browser storage
+files. Those resources need their own atomic authority contract; merely placing
+a timestamp beside an account does not make deletion safe. Cross-connection and
+hard-killed-process acceptance is required in the TeamBoard CI lane; passing it
+does not claim that arbitrary external systems share the same authority.

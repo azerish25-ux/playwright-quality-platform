@@ -22,6 +22,7 @@ const includedModules = [
   'packages/test-data/dist/factory.js',
   'packages/test-data/dist/namespace.js',
   'packages/test-data/dist/cleanup.js',
+  'packages/test-data/dist/durable-postgres.js',
   'packages/reporter/dist/merge.js',
   'packages/flake-analysis/dist/quarantine.js',
 ];
@@ -34,6 +35,7 @@ const testFiles = [
   'tests/benchmark-profiling.test.mjs',
   'tests/core.test.mjs',
   'tests/data.test.mjs',
+  'tests/durable-postgres.test.mjs',
   'tests/reporter.test.mjs',
   'tests/flake.test.mjs',
   'tests/hardening/property-invariants.test.mjs',
