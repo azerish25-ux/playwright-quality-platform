@@ -111,6 +111,16 @@ never creates stable tags, moves an action alias or deploys the documentation si
 
 ## Evidence boundaries
 
+The private maintainer dependency uses an analyzer-only local distribution of the
+unchanged semantic-release 25.0.9 runtime under `tools/semantic-release`. Its MIT
+license, original registry integrity and per-file source hashes are retained.
+The private manifest excludes the default npm/GitHub publishing plugins, which
+this coordinator never selects. This removes npm's vulnerable bundled transitives
+without suppressing the audit gate, changing version semantics, or changing the
+public packages' Node contract. Provenance and release-version tests enforce the
+boundary; return to the upstream dependency when its default graph is safely
+installable. The independent guarded public release engine remains unchanged.
+
 The Phase 12A source implementation does not mark live npm authorization,
 public publication, complete generic fixture/auth lifecycle, distributed benchmark
 comparability, the released action, website deployment or the final audit as PASS.

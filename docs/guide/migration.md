@@ -23,3 +23,21 @@ Deadpan may add owned fixtures, tests, dependencies and workflow integration. It
 ## Rollback and diagnosis
 
 Keep the original command available while reviewing the migration. A rollback restores only the Deadpan adoption changes, not application history or data. Preserve failed reports and exact package checksums so a maintainer can reproduce the discrepancy. See [troubleshooting](troubleshooting.md).
+
+## Executed adoption contract
+
+The required integration suite runs an original native Playwright suite before
+adoption, then both adopted native and Deadpan CLI entrypoints. It compares the
+complete path/title/project/tag inventory and canonical identities, not just
+counts. The fixture includes a non-default test directory, custom worker and test
+fixtures, dependency setup projects, inherited metadata, before/after hooks, and
+multiple projects. App source, assertions and native settings remain byte-for-byte
+unchanged. Initialization into the occupied suite must report conflicts without
+writing any file; scaffolding into a separate review directory must succeed.
+
+Run `node --test tests/integration/existing-suite.test.mjs` after building. This
+bounded migration fixture does not establish compatibility with every arbitrary
+application. Preserve and explicitly check your suite's own identity inventory.
+In particular, the CLI selects configured suite tags; an untagged existing test
+will not automatically belong to `smoke`, `regression` or `release`. Assign and
+review membership before comparing the CLI run with an unfiltered native run.

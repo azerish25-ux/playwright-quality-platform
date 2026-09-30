@@ -1,0 +1,42 @@
+{
+  "name": "semantic-release",
+  "version": "25.0.9",
+  "registry": "https://registry.npmjs.org/semantic-release",
+  "sourceTarball": "https://registry.npmjs.org/semantic-release/-/semantic-release-25.0.9.tgz",
+  "runtimeModification": "none",
+  "manifestChanges": [
+    "private distribution",
+    "omit unused default npm and GitHub publishing plugins",
+    "omit upstream development and CLI packaging metadata"
+  ],
+  "files": {
+    "LICENSE": "89e92935b6f0364684460cf5a650c573595863502a849e5ffb5d7fa2ac34fde4",
+    "index.d.ts": "f27cc12ab0195b5fa9da15a6e67da4b7b6fbc4a3f07893b8a19bf0aab9f6b27f",
+    "index.js": "634d556115bcfd2806349364f8440419540b2266b1b60d4041b8c5405278f857",
+    "lib/branches/expand.js": "084676e2df02b4a73024438f95294bbd57bafc36e4dc3a8ad3f9820cb6393d51",
+    "lib/branches/get-tags.js": "57365ea7e437dcca97358d086db1f1d09585461d58c12e16e5d11ead24d4d8d5",
+    "lib/branches/index.js": "b410576557968f9c7e346c36876cd0d2bd4ed2b08589af19ec15f6937e8ef270",
+    "lib/branches/normalize.js": "95c273b7959cd583862863b5666b10161f229cc6f093ccde73dc89cbc02bc37f",
+    "lib/definitions/branches.js": "3218c6378fd2235386e73974f25d4c64353f1c2c68bffc977fe9c9a45df3afa3",
+    "lib/definitions/constants.js": "56e5f2f0beeb4742007699c1517d604cf6bed88a07d27461ed1648de06edfcc1",
+    "lib/definitions/errors.js": "f552e04dade1585ac58bd89d5ecfdc7e6588024015db3ba20b7eff2ee0cd8e46",
+    "lib/definitions/plugins.js": "3707487716f06e9a2196c27431fe1f2468479c289b0be20d6598f1862b3b32be",
+    "lib/get-commits.js": "2353ebf3c41456b1925f74adf8c957662153885f06fbe303343e67ace3e27fa4",
+    "lib/get-config.js": "3db35ae65ce1cd191e77026f3c8f6efc3d1e67816db0f797ee5a68b240020f53",
+    "lib/get-error.js": "8d05ef45b8be82ffeba0ecb032f3c77373ef8c65239105902b8bfeef21c724fb",
+    "lib/get-git-auth-url.js": "a248de582f24a5f1bce1d936b098bf0731feb95937b8bb590253b813395f66c7",
+    "lib/get-last-release.js": "8112e4ada86518032834898fa3e6cae2524a444b7b354b31f2e12fe5f78c99e1",
+    "lib/get-logger.js": "6e43271f218789a1aee8a8d5eac4665d9545df49b9700bccf8b075ea5d6b0830",
+    "lib/get-next-version.js": "023e1aaa80ef7639b572d41949693b47e64f245fcdcda9393640ca5b8d4845ad",
+    "lib/get-release-to-add.js": "f6ef8fee31f1c0a0203480447ca5949d2f6b4da0e3a3aa5e545d2b1ba5555f12",
+    "lib/git.js": "2c2eb888bfa6765a5adb15b6ea0b63d05ebe1fe1a4b3cad27fc8f614e25f4c0c",
+    "lib/hide-sensitive.js": "5d8ba4e7e3c5a5d75d97ffa9e7fb665c738c336eee2b95921c01c8bef610326b",
+    "lib/plugins/index.js": "67012bfe8d1c7fc6ad5cf7f8a41e13822bd259c0e17302e9344a20baf1082231",
+    "lib/plugins/normalize.js": "81bee56a7b8b83bc55c6966cc086b59dde96d1051afc1a1d2d499f58c1aded86",
+    "lib/plugins/pipeline.js": "58aff203c52d18685ae0825b3619e5f1a6cc9e2bf6fe4aa5388da1d8b934739e",
+    "lib/plugins/utils.js": "cb6b04f68ba0a6a10ec4df1e09c27f72465f27bb341e5f78fdd7e776e84016fc",
+    "lib/utils.js": "3fe961e927aea9dc3a7534807ab27b5ab8f704007621286db56c37b396de12ad",
+    "lib/verify.js": "2a9c5723a9652b50a5cc1fb3c79f819e68d8c3ec94a67e42ee2a8aca153ef5eb"
+  },
+  "sourceIntegrity": "sha512-bxve7csK0/Txr++CkfrmV+X1r4jqiSOw2WsSad9E2S68R+ZfLBwDn8IceM8WfiOmKQIHgsQc1cNA8Dzg7U75pg=="
+}

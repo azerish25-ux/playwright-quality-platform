@@ -2,7 +2,7 @@ name: Release candidates
 on:
   push:
     branches: [main]
-    paths: ['packages/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'release.config.mjs', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', 'tests/compatibility/**', 'tests/hardening/**', 'tests/consumers/**', 'tests/fixtures/release-registry-server.mjs', '.github/workflows/release.yml']
+    paths: ['packages/**', 'tools/semantic-release/**', 'package.json', 'package-lock.json', 'pnpm-lock.yaml', 'release.config.mjs', 'scripts/release-*.mjs', 'scripts/package-hardening.mjs', 'tests/release-*.test.mjs', 'tests/compatibility/**', 'tests/hardening/**', 'tests/consumers/**', 'tests/fixtures/release-registry-server.mjs', '.github/workflows/release.yml']
   workflow_dispatch:
     inputs:
       publish_candidate:

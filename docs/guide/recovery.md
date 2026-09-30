@@ -50,13 +50,13 @@ An authentication adapter may provide `recovery: {adapter, key(identity, owner)}
 Reclaimers acquire append-only claim generations. A live claimant's claim is never removed or stolen because of an old timestamp. A fresh process can resume after confirmed claimant death; failed or partial cleanup retains its descriptors. If a cleanup deadline expires while its callback is still executing, its claim remains held. Arbitrary JavaScript or an already-sent remote write cannot be forcibly cancelled by a timeout; adapter idempotence and owner verification are required.
 
 The required test suite includes forced termination after state export, death between server acquisition and response, active-neighbour protection, colliding logical identities, a killed reclaimer, dry-run/idempotence, corrupted metadata and path redirection. Installed npm/pnpm consumers execute the public CLI against separately killed owner processes. The required PostgreSQL lane exercises real SQL recovery without replacing real application tables. See the [scoped recovery ledger](../delivery/crash-recovery-requirements.json) for implemented versus hosted-verified acceptance and remaining boundaries.
-# Database-authoritative recovery when a runner disappears
+## Database-authoritative recovery when a runner disappears
 
 `DurablePostgresAdapter` from `@azerish25-ux/forgeqa-test-data` adds an opt-in
 reference contract for an authorized `forgeqa_test` PostgreSQL database. An owner
 lease and its tenant are durable database rows, so reclamation needs neither a
 runner's disk journal nor its PID/hostname. This is separate from the local-file
-recovery contract below.
+recovery contract above.
 
 Apply the exported `DURABLE_POSTGRES_SCHEMA` explicitly with a migration role.
 Give the runtime role only the documented table privileges and schema usage;
