@@ -101,6 +101,8 @@ jobs:
           DATABASE_ADMIN_URL: postgresql://postgres:forgeqa-disposable-ci-only@127.0.0.1:5432/forgeqa_test
           FORGEQA_ALLOW_DB_SETUP: '1'
       - run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - name: Verify report UX on all three browser engines
+        run: npm run test:report-browser
       - run: npm run test:teamboard
       - run: npm run test:consumers -- teamboard
       - name: Verify pinned pnpm workspace lock

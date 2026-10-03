@@ -2,7 +2,7 @@
   "name": "deadpan",
   "version": "0.1.0",
   "private": true,
-  "description": "Deadpan — reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
+  "description": "Deadpan \u2014 reusable, evidence-grounded Playwright quality infrastructure for SaaS teams.",
   "type": "module",
   "engines": {
     "node": "^22.14.0 || >=24.10.0"
@@ -40,7 +40,9 @@
     "test:release": "npm run build && node --test --test-concurrency=1 tests/release-*.test.mjs",
     "release:plan": "node scripts/release-engine.mjs plan",
     "release:prepare": "node scripts/release-engine.mjs prepare",
-    "release:test-registry": "node scripts/release-engine.mjs registry-test"
+    "release:test-registry": "node scripts/release-engine.mjs registry-test",
+    "demo:report": "npm run build && node scripts/report/demo.mjs",
+    "test:report-browser": "node scripts/report/browser-check.mjs"
   },
   "license": "MIT",
   "devDependencies": {
